@@ -19,7 +19,8 @@ let asset = {
 
 let config = {
     setCourseUrl: 'https://ecourse.ccu.edu.tw/php/login_s.php?courseid=',
-    newsUrl: 'https://ecourse.ccu.edu.tw/php/news/news.php?PHPSESSID='
+    newsListUrl: 'https://ecourse.ccu.edu.tw/php/news/news.php?PHPSESSID=',
+    newsContentUrl: 'https://ecourse.ccu.edu.tw/php/news/content.php?a_id='
 }
 
 let User = {
@@ -61,12 +62,91 @@ let Main = {
         margin-bottom: 0;
         font-size: 18px;
     }
+    .footer {
+        color: #b7b5b5;
+        background-color: #424242;
+        position: relative;
+        bottom: 0;
+        width: 100%;
+    }
+    .footer ul {
+        padding: 8px 20px;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-flow: row nowrap;
+        -ms-flex-flow: row nowrap;
+        flex-flow: row nowrap;
+        list-style: none;
+    }
+    .footer ul a {
+        color: inherit;
+        text-decoration: none;
+        white-space: nowrap;
+    }
     .color-title {
         margin: 0;
         font-size: 23px;
     }
+    .mdl-card-holder.mdl-card-holder-first {
+        margin-top: -84px;
+    }
+    .mdl-card {
+        width: auto;
+        border-radius: 3px;
+        overflow: visible;
+        z-index: auto;
+    }
+    .mdl-shadow--1dp {
+        box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    }
+    .mdl-card__title {
+        padding: 16px 20px;
+    }
+    .mdl-data-table {
+        border: 0;
+        display: block;
+        overflow: auto;
+    }
+    .mdl-data-table thead {
+        background: #FAFAFA;
+    }
+    .mdl-data-table th {
+        padding-bottom: 12px;
+    }
+    .mdl-data-table td {
+        border-top: 1px solid rgba(0,0,0,.04);
+        border-bottom: 1px solid rgba(0,0,0,.04);
+        height: 60px;
+    }
+    .mdl-table-striped > tbody > tr:nth-of-type(even) {
+        background-color: #f9f9f9;
+    }
+    .mdl-table-striped > tbody > tr:nth-of-type(even):hover {
+        background-color: #eee;
+    }
+    .mdl-data-table tr.news {
+        background-color: #ffc107;
+    }
+    div.non-announces {
+        font-size: 30px;
+        width: 100%;
+        height: 120px;
+    }
+    div.non-announces span {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%);
+        margin-top: 49px;
+    }
+    .auto-cell-size {
+        white-space: nowrap;
+        width: 1%;
+        padding-right: 20px;
+    }
     .mdl-layout__drawer .mdl-navigation {
         padding-top: 0;
+        min-height: calc(100% - 210px);
     }
     .mdl-navigation__link {
         cursor: pointer;
@@ -165,7 +245,7 @@ let Main = {
                         <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="setting">
                             <li class="mdl-menu__item">設定</li>
                             <li class="mdl-menu__item">Another Action</li>
-                            <a href="./logout.php"><li class="mdl-menu__item mdl-color--pink-A200">登出</li></a>
+                            <a href="./logout.php" style="text-decoration: none;"><li class="mdl-menu__item mdl-color-text--pink-A200">登出</li></a>
                         </ul>
                     </div>
                 </div>
@@ -173,7 +253,6 @@ let Main = {
             <div class="mdl-layout__drawer">
                 <header class="mdl-color--blue-grey-900">
                     <div class="brand-logo"></div>
-            
                     <div class="clear">
                         <div class="f-left" style="margin-left: 40px;">
                             <img class="img-responsive avatar" src="https://i.imgur.com/KDLeUaq.jpg">
@@ -187,12 +266,42 @@ let Main = {
                 </header>
                 <span class="mdl-layout-title">課程列表</span>
                     <nav class="mdl-navigation"></nav>
+                    <footer class="footer">
+                        <ul>
+                            <li style="margin-right: 64px;"><a href="#">問題回報</a></li>
+                            <li><a href="https://github.com/pionxzh">@Pionxzh</a></li>
+                        </ul>
+                </footer>
                 </div>
                 <main class="mdl-layout__content mdl-color--grey-100">
                     <div class="page-content">
                         <div class="mdl-color--indigo mdl-header clear">
                             <div class="p20">
                                 <h3 class="mdl-color-text--white color-title">公告列表</h3>
+                            </div>
+                        </div>
+                        <div class="mdl-grid mdl-grid--no-spacing">
+                            <div class="mdl-cell mdl-cell--3-col"></div>
+                            <div class="mdl-cell mdl-cell--6-col">
+                                <div class="p20 mdl-card-holder mdl-card-holder-first">
+                                    <div class="mdl-card mdl-shadow--1dp style="margin-bottom: 30px;">
+                                        <div class="mdl-card__title">
+                                            <h2 class="mdl-card__title-text announces-title">OOO課</h2>
+                                        </div>
+                                        <table class="mdl-data-table mdl-js-data-table mdl-table-striped mdl-shadow--2dp announces-table">
+                                            <colgroup>
+                                                <col class="auto-cell-size">
+                                             </colgroup>
+                                            <thead>
+                                                <tr>
+                                                    <th class="mdl-data-table__cell--non-numeric">標題</th>
+                                                    <th>等級</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="announces-list"></tbody>
+                                      </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -204,7 +313,10 @@ let Main = {
 
 let Course = {
     list: null,
-    courseNews: [],
+    current: -1,
+    getCurrentTitle() {
+        return this.list[this.current][3]
+    },
     parse(dom) {
         let temp = $(dom).find('body > table:nth-child(1) > tbody > tr:nth-child(1) > th > div').text()
         /* Regex and use Spread operator to convert array to object */
@@ -225,39 +337,23 @@ let Course = {
         })
         console.log('CourseList:', this.list)
     },
-    setCourse(url) {
-        axios.get(config.setCourseUrl + url)
+    switch(id, index) {
+        this.current = index
+        if(typeof id === undefined) return
+        axios.get(config.setCourseUrl + id)
         .then((response) => {
-            console.log(`Successfully set CourseID to ${url}`)
-        })
-    },
-    getNews(url) {
-        if(this.courseNews[url]) return
-        axios.get(config.newsUrl + config.cookie)
-        .then((response) => {
-            this.courseNews[url] = []
-            let temp = $($.parseHTML(response.data)).find('td > div > font > a').get()
-            if(!temp.length) return
-            temp.forEach((item, index) => {
-                let newsId = $(item).attr('onclick').split('=')[1].split('&')[0]
-                this.courseNews[url].push({
-                    title: $(item).text(),
-                    id: newsId,
-                    new: !!$(item).find('img').length
-                })
-            })
-            console.log(`courseNews[${url}]`, this.courseNews[url])
+            console.log(`Successfully set CourseID to ${id}`)
         })
     },
     append() {
         let subList = $('.mdl-navigation')
-        this.list.forEach((item) => {
+        this.list.forEach((item, index) => {
             let warning = item[9] !== '--'
             let announce = item[5] !== '0'
             let homework = item[6] !== '0'
             subList.append(`
                 <div class="mdl-navigation__link mdl-badge mdl-badge-rect ${warning ? 'warning' : ''}" 
-                data-link="${item[0]}" ${homework ? 'data-badge="' + item[6] + '"' : ''}>
+                data-link="${item[0]}" data-index="${index}" ${homework ? 'data-badge="' + item[6] + '"' : ''}>
                     <span class="mdl-badge" ${announce ? 'data-badge="' + item[5] + '"' : ''}>${item[3]}</span>
                     <br>
                     <span class="professor">${item[4]}</span>
@@ -265,9 +361,60 @@ let Course = {
             `)
         })
         $('.mdl-navigation__link').on('click', (event) => {
+            let index = $(event.currentTarget).data('index')
             let courseId = $(event.currentTarget).data('link')
-            this.setCourse(courseId)
-            this.getNews(courseId)
+            this.switch(courseId, index)
+            Announces.getList(courseId)
+        })
+    }
+}
+
+let Announces = {
+    list: [],
+    getList(id) {
+        if(this.list[id]) return this.appendList(id)
+        axios.get(config.newsListUrl + config.cookie)
+        .then((response) => {
+            this.list[id] = []
+            let temp = $($.parseHTML(response.data)).find('td > div > font > a').get()
+            if(!temp.length) return this.appendList()
+            temp.forEach((item, index) => {
+                let newsId = $(item).attr('onclick').split('=')[1].split('&')[0]
+                this.list[id].push({
+                    title: $(item).text(),
+                    id: newsId,
+                    new: !!$(item).find('img').length
+                })
+            })
+            this.appendList(id)
+        })
+    },
+    getItem(id) {
+        axios.get(config.newsContentUrl + id)
+        .then((response) => {
+            let temp = $($.parseHTML(response.data)).find('table > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr > td:nth-child(2) font').get()
+            console.log(temp)
+        })
+    },
+    appendList(id) {
+        $('.announces-title').text(Course.getCurrentTitle())
+        let announcesList = $('.announces-list')
+        announcesList.find('tr').remove()
+        if (id === undefined) {
+            return $('.announces-table').after(`<div class="non-announces"><span>目前沒有公告</span></div>`)
+        }
+        $('div.non-announces').remove()
+        this.list[id].forEach((item) => {
+            announcesList.append(`
+                <tr class="show-announces ${item.new ? 'new' : ''}" data-link="${item.id}">
+                    <td class="mdl-data-table__cell--non-numeric">${item.title}</td>
+                    <td>一般等級</td>
+                </tr>
+            `)
+        })
+        $('.show-announces').on('click', (event) => {
+            let announcesId = $(event.currentTarget).data('link')
+            this.getItem(announcesId)
         })
     }
 }
