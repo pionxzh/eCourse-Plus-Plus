@@ -15,7 +15,7 @@ let asset = {
     materialIcon: "https://fonts.googleapis.com/icon?family=Material+Icons",
     materialCss: "https://code.getmdl.io/1.3.0/material.indigo-pink.min.css",
     materialJs: "https://code.getmdl.io/1.3.0/material.min.js"
-};
+}
 
 let config = {
     setCourseUrl: 'https://ecourse.ccu.edu.tw/php/login_s.php?courseid=',
@@ -118,6 +118,7 @@ let Main = {
         border-top: 1px solid rgba(0,0,0,.04);
         border-bottom: 1px solid rgba(0,0,0,.04);
         height: 60px;
+        font-size: 15px;
     }
     .mdl-table-striped > tbody > tr:nth-of-type(even) {
         background-color: #f9f9f9;
@@ -160,7 +161,7 @@ let Main = {
         background: #ffc107;
     }
     .mdl-navigation__link.active {
-        background: #ffc107;
+        background: #ffc107!important;
     }
     .mdl-navigation__link .professor {
         font-size: 14px;
@@ -198,6 +199,51 @@ let Main = {
     }
     :focus {
         outline: none!important;
+    }
+    
+    /* library */
+    .dialog-container,
+    .loading-container {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        overflow: scroll;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 9999;
+        opacity: 0;
+        -webkit-transition: opacity 400ms ease-in;
+        -moz-transition: opacity 400ms ease-in;
+        transition: opacity 400ms ease-in;
+    }
+    
+    .dialog-container > div {
+        position: relative;
+        width: 90%;
+        max-width: 500px;
+        min-height: 25px;
+        margin: 10% auto;
+        z-index: 99999;
+        padding: 16px 16px 0;
+    }
+    
+    .dialog-button-bar {
+        text-align: right;
+        margin-top: 8px;
+    }
+    
+    .loading-container > div {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        margin: 10% auto;
+        z-index: 99999;
+    }
+    
+    .loading-container > div > div {
+        width: 100%;
+        height: 100%;
     }
     `,
     injectJs(name, src) {
@@ -286,7 +332,7 @@ let Main = {
                                 <div class="p20 mdl-card-holder mdl-card-holder-first">
                                     <div class="mdl-card mdl-shadow--1dp style="margin-bottom: 30px;">
                                         <div class="mdl-card__title">
-                                            <h2 class="mdl-card__title-text announces-title">OOO課</h2>
+                                            <h2 class="mdl-card__title-text announces-title"></h2>
                                         </div>
                                         <table class="mdl-data-table mdl-js-data-table mdl-table-striped mdl-shadow--2dp announces-table">
                                             <colgroup>
@@ -306,8 +352,8 @@ let Main = {
                         </div>
                     </div>
                 </main>
-        </div>`);
-        $(this.head).after(this.body);
+        </div>`)
+        $(this.head).after(this.body)
     }
 }
 
@@ -337,13 +383,12 @@ let Course = {
         })
         console.log('CourseList:', this.list)
     },
-    switch(id, index) {
+    async switch(id, index) {
         this.current = index
         if(typeof id === undefined) return
-        axios.get(config.setCourseUrl + id)
-        .then((response) => {
-            console.log(`Successfully set CourseID to ${id}`)
-        })
+        await axios.get(config.setCourseUrl + id)
+        console.log(`Successfully set CourseID to ${id}`)
+        Announces.getList(id)
     },
     append() {
         let subList = $('.mdl-navigation')
@@ -360,40 +405,44 @@ let Course = {
                 </div>
             `)
         })
+        this.switch(this.list[0][0], 0)
         $('.mdl-navigation__link').on('click', (event) => {
-            let index = $(event.currentTarget).data('index')
-            let courseId = $(event.currentTarget).data('link')
+            $('.mdl-navigation__link.active').removeClass('active')
+            let currentTarget = $(event.currentTarget)
+            currentTarget.addClass('active')
+            let index = currentTarget.data('index')
+            let courseId = currentTarget.data('link')
             this.switch(courseId, index)
-            Announces.getList(courseId)
         })
     }
 }
 
 let Announces = {
     list: [],
-    getList(id) {
+    async getList(id) {
         if(this.list[id]) return this.appendList(id)
-        axios.get(config.newsListUrl + config.cookie)
-        .then((response) => {
-            this.list[id] = []
-            let temp = $($.parseHTML(response.data)).find('td > div > font > a').get()
-            if(!temp.length) return this.appendList()
-            temp.forEach((item, index) => {
-                let newsId = $(item).attr('onclick').split('=')[1].split('&')[0]
-                this.list[id].push({
-                    title: $(item).text(),
-                    id: newsId,
-                    new: !!$(item).find('img').length
-                })
+        this.list[id] = []
+        let response = await axios.get(config.newsListUrl + config.cookie)
+        let temp = $($.parseHTML(response.data)).find('td > div > font > a').get()
+        if(!temp.length) return this.appendList()
+        temp.forEach((item, index) => {
+            let newsId = $(item).attr('onclick').split('=')[1].split('&')[0]
+            this.list[id].push({
+                title: $(item).text(),
+                id: newsId,
+                new: !!$(item).find('img').length
             })
-            this.appendList(id)
         })
+        console.log(this.list[id])
+        this.appendList(id)
     },
-    getItem(id) {
-        axios.get(config.newsContentUrl + id)
-        .then((response) => {
-            let temp = $($.parseHTML(response.data)).find('table > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr > td:nth-child(2) font').get()
-            console.log(temp)
+    async show(id) {
+        let response = await axios.get(config.newsContentUrl + id)
+        let temp = $($.parseHTML(response.data)).find('table > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr > td:nth-child(2) font').get()
+        console.log(temp)
+        showDialog({
+            title: $(temp).eq(0).text(),
+            text: $(temp).eq(2).html()
         })
     },
     appendList(id) {
@@ -414,7 +463,7 @@ let Announces = {
         })
         $('.show-announces').on('click', (event) => {
             let announcesId = $(event.currentTarget).data('link')
-            this.getItem(announcesId)
+            this.show(announcesId)
         })
     }
 }
@@ -425,5 +474,97 @@ $(function() {
         Course.parse(this.contentDocument)
         Main.append()
         Course.append()
-    });
-});
+    })
+})
+
+
+/* modal library */
+function showDialog(options) {
+    options = $.extend({
+        id: 'modalDiag',
+        title: null,
+        text: null,
+        negative: false,
+        positive: false,
+        cancelable: true,
+        contentStyle: null,
+        onLoaded: false
+    }, options)
+
+    // remove existing dialogs
+    $('.dialog-container').remove()
+    $(document).unbind("keyup.dialog")
+
+    $('<div id="' + options.id + '" class="dialog-container"><div class="mdl-card mdl-shadow--16dp"></div></div>').appendTo("body")
+    var dialog = $('#modalDiag')
+    var content = dialog.find('.mdl-card')
+    if (options.contentStyle != null) content.css(options.contentStyle)
+    if (options.title != null) {
+        $('<h5>' + options.title + '</h5>').appendTo(content)
+    }
+    if (options.text != null) {
+        $('<p>' + options.text + '</p>').appendTo(content)
+    }
+    if (options.negative || options.positive) {
+        var buttonBar = $('<div class="mdl-card__actions dialog-button-bar"></div>')
+        if (options.negative) {
+            options.negative = $.extend({
+                id: 'negative',
+                title: 'Cancel',
+                onClick: function () {
+                    return false
+                }
+            }, options.negative)
+            var negButton = $('<button class="mdl-button mdl-js-button mdl-js-ripple-effect" id="' + options.negative.id + '">' + options.negative.title + '</button>')
+            negButton.click(function (e) {
+                e.preventDefault()
+                if (!options.negative.onClick(e))
+                    hideDialog(dialog)
+            })
+            negButton.appendTo(buttonBar)
+        }
+        if (options.positive) {
+            options.positive = $.extend({
+                id: 'positive',
+                title: 'OK',
+                onClick: function () {
+                    return false
+                }
+            }, options.positive)
+            var posButton = $('<button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="' + options.positive.id + '">' + options.positive.title + '</button>')
+            posButton.click(function (e) {
+                e.preventDefault()
+                if (!options.positive.onClick(e))
+                    hideDialog(dialog)
+            })
+            posButton.appendTo(buttonBar)
+        }
+        buttonBar.appendTo(content)
+    }
+    componentHandler.upgradeDom()
+    if (options.cancelable) {
+        dialog.click(function () {
+            hideDialog(dialog)
+        })
+        $(document).bind("keyup.dialog", function (e) {
+            if (e.which == 27)
+                hideDialog(dialog)
+        })
+        content.click(function (e) {
+            e.stopPropagation()
+        })
+    }
+    setTimeout(function () {
+        dialog.css({opacity: 1})
+        if (options.onLoaded)
+            options.onLoaded()
+    }, 1)
+}
+
+function hideDialog(dialog) {
+    $(document).unbind("keyup.dialog")
+    dialog.css({opacity: 0})
+    setTimeout(function () {
+        dialog.remove()
+    }, 400)
+}
