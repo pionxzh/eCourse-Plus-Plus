@@ -11,6 +11,7 @@
 // ==/UserScript==
 
 let asset = {
+    animateCss: "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css",
     PoiretOne: "https://fonts.googleapis.com/css?family=Poiret+One",
     materialIcon: "https://fonts.googleapis.com/icon?family=Material+Icons",
     materialCss: "https://code.getmdl.io/1.3.0/material.indigo-pink.min.css",
@@ -123,11 +124,15 @@ let Main = {
     .mdl-table-striped > tbody > tr:nth-of-type(even) {
         background-color: #f9f9f9;
     }
-    .mdl-table-striped > tbody > tr:nth-of-type(even):hover {
-        background-color: #eee;
-    }
     .mdl-data-table tr.news {
         background-color: #ffc107;
+    }
+    .mdl-data-table tr.show-announces.new {
+        background-color: lemonchiffon;
+    }
+    .mdl-table-striped > tbody > tr:nth-of-type(even):hover,
+    .mdl-data-table tr.show-announces.new:hover {
+        background-color: #eee;
     }
     div.non-announces {
         font-size: 30px;
@@ -202,8 +207,7 @@ let Main = {
     }
     
     /* library */
-    .dialog-container,
-    .loading-container {
+    .dialog-container, .loading-container {
         position: absolute;
         top: 0;
         right: 0;
@@ -213,9 +217,9 @@ let Main = {
         background: rgba(0, 0, 0, 0.4);
         z-index: 9999;
         opacity: 0;
-        -webkit-transition: opacity 400ms ease-in;
-        -moz-transition: opacity 400ms ease-in;
-        transition: opacity 400ms ease-in;
+        -webkit-transition: opacity 300ms ease-in;
+        -moz-transition: opacity 300ms ease-in;
+        transition: opacity 300ms ease-in;
     }
     
     .dialog-container > div {
@@ -224,26 +228,17 @@ let Main = {
         max-width: 500px;
         min-height: 25px;
         margin: 10% auto;
-        z-index: 99999;
-        padding: 16px 16px 0;
+        z-index: 9999;
+        padding: 20px 40px 30px;
+    }
+
+    .dialog-container > div > p {
+        font-size: 15px;
     }
     
     .dialog-button-bar {
         text-align: right;
         margin-top: 8px;
-    }
-    
-    .loading-container > div {
-        position: relative;
-        width: 50px;
-        height: 50px;
-        margin: 10% auto;
-        z-index: 99999;
-    }
-    
-    .loading-container > div > div {
-        width: 100%;
-        height: 100%;
     }
     `,
     injectJs(name, src) {
@@ -273,6 +268,7 @@ let Main = {
         this.injectCss('material-css', asset.materialCss)
         this.injectCss('material-icon', asset.materialIcon)
         this.injectCss('material-icon', asset.PoiretOne)
+        this.injectCss('material-icon', asset.animateCss)
         this.injectStyle()
         this.injectJs('material-js', asset.materialJs)
     },
@@ -285,10 +281,10 @@ let Main = {
                     <span class="mdl-layout-title site-logo">eCourse+</span>
                     <div class="mdl-layout-spacer"></div>
                     <div>
-                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--circle" id="setting">
+                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--circle" id="seetting">
                             <i class="material-icons">settings</i>
                         </button>
-                        <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="setting">
+                        <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="seetting">
                             <li class="mdl-menu__item">設定</li>
                             <li class="mdl-menu__item">Another Action</li>
                             <a href="./logout.php" style="text-decoration: none;"><li class="mdl-menu__item mdl-color-text--pink-A200">登出</li></a>
@@ -329,7 +325,7 @@ let Main = {
                         <div class="mdl-grid mdl-grid--no-spacing">
                             <div class="mdl-cell mdl-cell--3-col"></div>
                             <div class="mdl-cell mdl-cell--6-col">
-                                <div class="p20 mdl-card-holder mdl-card-holder-first">
+                                <div class="fadeInUp animated p20 mdl-card-holder mdl-card-holder-first">
                                     <div class="mdl-card mdl-shadow--1dp style="margin-bottom: 30px;">
                                         <div class="mdl-card__title">
                                             <h2 class="mdl-card__title-text announces-title"></h2>
@@ -341,7 +337,7 @@ let Main = {
                                             <thead>
                                                 <tr>
                                                     <th class="mdl-data-table__cell--non-numeric">標題</th>
-                                                    <th>等級</th>
+                                                    <th>日期</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="announces-list"></tbody>
@@ -397,7 +393,7 @@ let Course = {
             let announce = item[5] !== '0'
             let homework = item[6] !== '0'
             subList.append(`
-                <div class="mdl-navigation__link mdl-badge mdl-badge-rect ${warning ? 'warning' : ''}" 
+                <div class="fadeInLeft animated mdl-navigation__link mdl-badge mdl-badge-rect ${warning ? 'warning' : ''}" 
                 data-link="${item[0]}" data-index="${index}" ${homework ? 'data-badge="' + item[6] + '"' : ''}>
                     <span class="mdl-badge" ${announce ? 'data-badge="' + item[5] + '"' : ''}>${item[3]}</span>
                     <br>
@@ -423,17 +419,20 @@ let Announces = {
         if(this.list[id]) return this.appendList(id)
         this.list[id] = []
         let response = await axios.get(config.newsListUrl + config.cookie)
-        let temp = $($.parseHTML(response.data)).find('td > div > font > a').get()
+        let html = $($.parseHTML(response.data))
+        let temp = html.find('td > div > font > a').get()
+        let dates = html.find('tbody > tr > td:nth-child(1) > div > font').get()
         if(!temp.length) return this.appendList()
         temp.forEach((item, index) => {
             let newsId = $(item).attr('onclick').split('=')[1].split('&')[0]
             this.list[id].push({
                 title: $(item).text(),
                 id: newsId,
+                date: $(dates[index]).text(),
                 new: !!$(item).find('img').length
             })
         })
-        console.log(this.list[id])
+        console.log(`AnnouncesList[${id}]`, this.list[id])
         this.appendList(id)
     },
     async show(id) {
@@ -448,7 +447,7 @@ let Announces = {
     appendList(id) {
         $('.announces-title').text(Course.getCurrentTitle())
         let announcesList = $('.announces-list')
-        announcesList.find('tr').remove()
+        announcesList.empty()
         if (id === undefined) {
             return $('.announces-table').after(`<div class="non-announces"><span>目前沒有公告</span></div>`)
         }
@@ -457,7 +456,7 @@ let Announces = {
             announcesList.append(`
                 <tr class="show-announces ${item.new ? 'new' : ''}" data-link="${item.id}">
                     <td class="mdl-data-table__cell--non-numeric">${item.title}</td>
-                    <td>一般等級</td>
+                    <td>${item.date}</td>
                 </tr>
             `)
         })
@@ -566,5 +565,5 @@ function hideDialog(dialog) {
     dialog.css({opacity: 0})
     setTimeout(function () {
         dialog.remove()
-    }, 400)
+    }, 300)
 }
