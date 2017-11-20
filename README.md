@@ -1,2 +1,2 @@
 # eCourse-
-Make eCourse grate again
+Make eCourse great again
