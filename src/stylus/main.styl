@@ -1,0 +1,161 @@
+@import '../../node_modules/vuetify/src/stylus/main'
+
+html, body, .mdl-layout-title 
+    font-family "微软雅黑", "Microsoft Yahei", Helvetica, 'Helvetica Neue', Tahoma,Arial,sans-serif
+    -webkit-font-smoothing antialiased
+
+main > .content
+    padding-top 128px!important
+
+
+
+.list--group__header--active .list__tile
+    background: none
+
+.list--group .list__tile
+    padding-left: 36px
+
+.list__tile--link
+    transition .3s!important
+
+.list__tile--active
+    border-left 6px solid #dd4b39
+    color rgba(0,0,0,0.87)!important
+
+.list__tile--active::before
+    background-color red!important
+    width 20px
+    height 76px
+
+.application--light .tabs .tabs__item
+    color: #FFF
+
+.tabs__item
+    opacity: 0.7
+
+.application--light .tabs .tabs__item.tabs__item--active
+    color: #FFF
+    opacity: 1
+
+.tile-hover .list__tile:hover
+    background: rgba(0, 0, 0, .12)
+
+.dialog-box
+    padding 20px 15px
+
+.card--flex-toolbar
+    margin-top -64px
+
+.color-nav > .toolbar__content
+    height 128px!important
+    background-image url(https://i.imgur.com/6WD8vm8.png)
+    background-position bottom
+    background-size cover
+
+.ecourse-logo
+    font-family "Poiret One", Helvetica, 'Helvetica Neue', Tahoma,Arial,sans-serif
+    font-size 50px
+    text-shadow 1px 2px #5f5f5f
+    -webkit-user-select: none
+    -moz-user-select: none
+    -ms-user-select: none
+    user-select: none
+
+aside.gray-bg
+    background #fafafa!important
+
+ul.striped li:nth-child(odd)
+    background #F1F1F1
+
+.personal-info {
+    background-color #263238!important
+
+    button {
+        color #FFF!important
+        font-size 19px
+        margin-left 50px
+    }
+    .list__tile__title {
+        color #FFF!important
+        font-size 18px
+    }
+    .list__tile--avatar {
+        font-family "Roboto","Helvetica","Arial",sans-serif
+    }
+    .list__tile--avatar .avatar img,
+    .list__tile--avatar .avatar .icon {
+        width 45px
+        height 45px
+    }
+    .icon {
+        vertical-align sub
+    }
+}
+
+.course-head
+    color #111111
+    font-size 20px
+
+.course-list li:last-child
+    margin-bottom: -50px
+
+.course-list-name
+    color #757575
+    font-size 18px
+
+/*  announce  */
+
+.announce-dialog-box
+    font-size: 18px;
+
+.date-padding
+    padding: 0 3px
+
+/*  animation  */
+
+.page-move
+  transition transform 1s
+
+.page-enter-active, .page-leave-active
+  transition all .4s;
+
+.page-enter
+  opacity 0
+  transform translateX(-10%)
+
+.page-leave-to
+  opacity 0
+  transform translateX(10%)
+
+.page-enter-active, .page-leave-active
+  transition all .4s
+
+.page-enter
+  opacity 0
+  transform translateX(-10%)
+
+
+.slide-enter,.slide-enter-active {
+    -webkit-transition all .5s ease
+    -o-transition all .5s ease
+    transition all .5s ease!important
+}
+
+.slide-enter,.slide-leave-to
+    opacity 0
+
+.slide-enter
+    -webkit-transform translateX(-3rem)
+    -ms-transform translateX(-3rem)
+    transform translateX(-3rem)
+
+.slide-leave, .slide-leave-active
+    -webkit-transition all .4s ease!important
+    -o-transition all .4s ease!important
+    transition all .4s ease!important
+
+.slide-leave-to
+    -webkit-transform translateX(3rem)
+    -ms-transform translateX(3rem)
+    transform translateX(3rem)
+

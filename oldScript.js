@@ -362,6 +362,7 @@ let Course = {
     parse(dom) {
         let temp = $(dom).find('body > table:nth-child(1) > tbody > tr:nth-child(1) > th > div').text()
         /* Regex and use Spread operator to convert array to object */
+        
         let result = {...(/.{2}：([\u4e00-\u9fa5/a-zA-Z0-9]+)\s+.{2}：([0-9]+)\s+.{2}：([/a-zA-Z0-9]+)\s+.{2}：([a-zA-Z0-9]+)/g.exec(temp))}
         /* Skip 1st element ann combine into User*/
         /* Any other better solutions...? */
@@ -369,6 +370,7 @@ let Course = {
             obj[item] = result[index]
             return obj
         }, {})
+        User.class = result[2]
         User.cookie = window.location.href.split('=').pop()
         console.log('User: ', User)
 
