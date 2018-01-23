@@ -1,4 +1,5 @@
 # eCourse-
+<<<<<<< HEAD
 Make eCourse grate again
 
 ## Build Setup
@@ -25,3 +26,6 @@ npm run e2e
 # run all tests
 npm test
 ```
+=======
+Make eCourse great again
+>>>>>>> origin/master
