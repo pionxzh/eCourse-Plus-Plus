@@ -1,6 +1,6 @@
 # eCourse-
-<<<<<<< HEAD
-Make eCourse grate again
+
+Make eCourse great again
 
 ## Build Setup
 
@@ -28,4 +28,3 @@ npm test
 ```
 =======
 Make eCourse great again
->>>>>>> origin/master
