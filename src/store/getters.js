@@ -20,6 +20,10 @@ export const getTextbook = state => {
     return state.textbookData
 }
 
+export const getHomeworkFile = state => {
+    return state.homeworkFile
+}
+
 export const getSetting = state => {
     return state.settingData
 }

@@ -58,15 +58,21 @@
                                     v-checkbox(v-model='setting.detectUrl' @change='changeSetting({detectUrl: setting.detectUrl})')
                                 v-list-tile-content
                                     v-list-tile-title 偵測網址
-                                    v-list-tile-sub-title 將網址變為可點之連結
+                                    v-list-tile-sub-title 公告網址變為可點之連結
                             v-list-tile(avatar)
                                 v-list-tile-action
                                     v-checkbox(v-model='setting.detectDate' @change='changeSetting({detectDate: setting.detectDate})')
                                 v-list-tile-content
                                     v-list-tile-title 偵測日期
-                                    v-list-tile-sub-title 日期將會添加底線
+                                    v-list-tile-sub-title 公告日期添加底線
                             v-divider
                             v-subheader 作業
+                            v-list-tile(avatar)
+                                v-list-tile-action
+                                    v-checkbox(v-model='setting.isDownloadQuestion' @change='changeSetting({isDownloadQuestion: setting.isDownloadQuestion})')
+                                v-list-tile-content
+                                    v-list-tile-title 強制下載題目
+                                    v-list-tile-sub-title 點擊下載按鈕後會強制下載而非打開新視窗(Safari無效)
                             v-divider
                             v-subheader 教材
                             v-list-tile(avatar)
@@ -75,6 +81,12 @@
                                 v-list-tile-content
                                     v-list-tile-title 自動展開首項
                                     v-list-tile-sub-title 教材第一個資料夾會自動打開
+                            v-list-tile(avatar)
+                                v-list-tile-action
+                                    v-checkbox(v-model='setting.isDownloadTextbook' @change='changeSetting({isDownloadTextbook: setting.isDownloadTextbook})')
+                                v-list-tile-content
+                                    v-list-tile-title 強制下載教材
+                                    v-list-tile-sub-title 點擊下載按鈕後會強制下載而非打開新視窗(Safari無效)
                             v-divider
                             v-subheader 成績
 
@@ -140,7 +152,9 @@ export default {
         setting: {
             detectUrl: true,
             detectDate: true,
-            expandFirstFolder: true
+            expandFirstFolder: true,
+            isDownloadQuestion: false,
+            isDownloadTextbook: false
         },
         toast: {
             show: false,
@@ -156,6 +170,7 @@ export default {
     computed: {
         ...mapGetters({
             User: 'getUser',
+            HomeworkData: 'getHomework',
             CourseList: 'getCourseList'
         }),
         loginData () {
@@ -176,6 +191,9 @@ export default {
         }
     },
     watch: {
+        '$route' (target) {
+            User.changeCourse(target.params.id)
+        }
     },
     created () {
         this.autoLogin()
@@ -189,7 +207,8 @@ export default {
             'updateAnnounce',
             'updateHomework',
             'updateTextbook',
-            'updateSetting'
+            'updateSetting',
+            'updateHwFile'
         ]),
         showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'error', timeout = 3000} = {}) {
             this.toast.show = true
@@ -247,13 +266,16 @@ export default {
             let announce = await Announce.getData()
             this.updateAnnounce(announce.data)
 
-            let homewrok = await Homework.getData()
-            this.updateHomework(homewrok.data)
+            let homework = await Homework.getData()
+            this.updateHomework(homework.data)
+
+            let homeworkFile = await Homework.getAllQuestion(this.HomeworkData)
+            this.updateHwFile(homeworkFile.data)
 
             let textbook = await Textbook.getData()
             this.updateTextbook(textbook.data)
 
-            let isError = !announce.stat || !homewrok.stat || !textbook.stat
+            let isError = !announce.stat || !homework.stat || !homeworkFile.stat || !textbook.stat
             if (isError) this.showToast({message: '取得資料錯誤', color: 'error'})
             else this.showToast({message: '取得資料成功', color: 'info'})
         }

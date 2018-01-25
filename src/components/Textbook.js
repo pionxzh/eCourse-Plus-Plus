@@ -1,9 +1,10 @@
 import axios from 'axios'
+import Util from './Util'
 const config = require('./../config.json')
 
 export default class Textbook {
     static async getData (data) {
-        let textbook = await axios.get(config.ecourse.TEXTBOOK).catch(e => this.errHandler(e))
+        let textbook = await axios.get(config.ecourse.TEXTBOOK).catch(e => Util.errHandler(e, 'Get Textbook Error!'))
         let result = $($.parseHTML(textbook.data, true)).filter('script:not([src])')[0].innerHTML
         try {
             let textbookData = JSON.parse(result.substring(result.indexOf('Textbook') + 11, result.indexOf('CourseName') - 8))

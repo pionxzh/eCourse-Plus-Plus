@@ -30,7 +30,7 @@ export const mutations = {
             return result
         }, {})
     },
-    [types.HOMEWORK] (state, homework) {
+    async [types.HOMEWORK] (state, homework) {
         state.homeworkData = homework.reduce((result, item) => {
             result[item[0]] = {}
             result[item[0]].name = item[1]
@@ -59,9 +59,12 @@ export const mutations = {
         state.textbookData = temp
     },
     [types.SETTING] (state, setting) {
-        console.log(setting)
+        console.log('Setting\n', setting)
         Object.keys(setting).forEach(key => {
             state.settingData[key] = setting[key]
         })
+    },
+    [types.HWFILE] (state, hwFile) {
+        state.homeworkFile = hwFile
     }
 }

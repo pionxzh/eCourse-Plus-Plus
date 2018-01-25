@@ -23,3 +23,7 @@ export const updateTextbook = ({ commit }, textbook) => {
 export const updateSetting = ({ commit }, setting) => {
     commit(types.SETTING, setting)
 }
+
+export const updateHwFile = ({ commit }, hwFile) => {
+    commit(types.HWFILE, hwFile)
+}

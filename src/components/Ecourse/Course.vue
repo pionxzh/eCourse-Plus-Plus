@@ -9,7 +9,7 @@
                     v-btn(icon @click='getScore')
                         v-icon search
                 v-list(two-line subheader)
-                    v-list-tile(avatar v-for='(item, index) in AnnounceList.list' :key='item.title' @click='showAnnounce(index)')
+                    v-list-tile.cursor-p(avatar v-for='(item, index) in AnnounceList.list' :key='item.id' @click.native='showAnnounce(index)')
                         v-list-tile-avatar
                             v-icon(medium :class='[item.stat]') widgets
                         v-list-tile-content 
@@ -24,22 +24,28 @@
                     v-toolbar-side-icon
                     v-toolbar-title 作業
                 v-list(two-line subheader)
-                    v-list-tile(avatar v-for='(item, index) in HomeworkList.list' :key='item.title' @click='showHomework(index)')
+                    v-list-tile.cursor-p(avatar v-for='(item, index) in HomeworkList.list' :key='item.id' @click.native='showHomework(index)')
                         v-list-tile-avatar
-                            v-icon(v-if='item.timeStamp') assignment
+                            v-icon(medium v-if='item.timeStamp') assignment
                         v-list-tile-content 
                             v-list-tile-title {{ item.title }}
                             v-list-tile-sub-title(v-if='item.timeStamp') {{ item.timeStamp }} / {{ item.percentage }}
-                        v-list-tile-action(v-if='item.timeStamp && homeworkFile[index]')
-                            v-btn(icon ripple @click.stop='downloadQuestion(item.id, homeworkFile[index].type)')
-                                v-icon(large color='grey lighten-1') {{ fileType[homeworkFile[index].type] || 'mdi-file' }}
+                        v-list-tile-action(v-if='item.timeStamp')
+                            v-btn(icon ripple @click.stop='showUpload(item.id)')
+                                v-icon(medium color='grey') mdi-upload
+                        v-list-tile-action(v-if='item.timeStamp && HomeworkFileList[item.id]')
+                            v-tooltip(top)
+                                v-btn(icon ripple v-if='!!HomeworkFileList[item.id].type' 
+                                    @click.stop='downloadQues(item.id, HomeworkFileList[item.id].type)' slot='activator')
+                                    v-icon(large color='grey lighten-1') {{ fileType[HomeworkFileList[item.id].type] || 'mdi-file' }}
+                                span 作業題目
         v-flex.pl-2(xs12 sm4)
             v-card.elevation-1(color='grey lighten-5' flat)
                 v-toolbar(dark color='orange' flat)
                     v-toolbar-side-icon
                     v-toolbar-title 教材
                     v-spacer
-                    v-btn(icon)
+                    v-btn(icon @click='$forceUpdate')
                         v-icon search
                 v-list(two-line subheader)
                     v-list-group(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder')
@@ -54,9 +60,9 @@
                                     v-icon(color='grey lighten-1') keyboard_arrow_down
                         template(v-for='(nitem, nindex) in TextbookList.content[index][0]')
                             //v-subheader {{ item[index][nindex] }}
-                            v-list-tile(:key='nitem[0]' @click='downloadTextbook(nitem[1])')
+                            v-list-tile.cursor-p(:key='nitem[0]' @click.native='downloadTextbook(nitem[1])')
                                 v-list-tile-avatar
-                                    v-icon(medium) {{ fileType[nitem[4]] || 'mdi-file' }}
+                                    v-icon(large) {{ fileType[nitem[4]] || 'mdi-file' }}
                                 v-list-tile-content 
                                     v-list-tile-title {{ nitem[0] }}
                                     v-list-tile-sub-title {{ nitem[3] }}
@@ -78,26 +84,50 @@
                     v-spacer
                     v-btn(color='green darken-1' flat='flat' @click.native='announce.flag = false') 關閉
                     v-spacer
-        v-dialog(:persistent='lockDialog' v-model='homework.flag' max-width=490)
+        v-dialog(v-model='homework.flag' max-width=490)
             v-card.announce-dialog-box
                 v-card-title.headline: div.text-xs-center {{ homework.title }}
                 v-card-text(v-html='homework.content')
-                v-btn(color='blue' dark @click.stop='selectFile') 選擇檔案
-                input(type='file' ref='uploadInput' multiple='false' @change='updateFile')
                 v-card-actions
                     v-spacer
                     v-btn(color='green darken-1' flat='flat' @click.native='homework.flag = false') 關閉
+                    v-spacer
+        v-dialog(v-model='uploadHw.flag' max-width=600 persistent)
+            v-card.announce-dialog-box
+                v-card-title.headline: div.text-xs-center 上傳
+                v-layout(row wrap)
+                    v-flex(xs12)
+                        div(v-for='(file, index) in homeworkAns[uploadHw.id]')
+                            v-text-field(append-icon='close' readonly v-model='file.name' :label='file.size' :append-icon-cb='removeAns(index)')
+                    v-flex(xs12 md6)
+                        v-container(fluid)
+                            v-layout(wrap)
+                                v-flex(xs12)
+                                    v-text-field(label="直接上傳文字" textarea)
+                                    v-btn(color='blue' dark style='margin-left: 90px') 送出
+                    v-flex(xs12 md6)
+                        v-container(fluid)
+                            v-card.upload-type(color='blue' style='margin-top: 18px;' @click.native='$refs.uploadInput.click()' dark)
+                                p.text-xs-center 
+                                    v-icon(dark) mdi-upload
+                                    | 單一檔案
+                                input(type='file' ref='uploadInput' :multiple='false' @change='uploadFile')
+                            v-card.upload-type(color='green darken-1' style='margin-top: 6px;' @click.native='$refs.uploadMulInput.click()' dark)
+                                p.text-xs-center
+                                    v-icon(dark) mdi-upload-multiple
+                                    | 多個檔案
+                                input(type='file' ref='uploadMulInput' :multiple='true' @change='uploadFile')
+                v-card-actions
+                    v-spacer
+                    v-btn(color='green darken-1' flat='flat' @click.native='uploadHw.flag = false') 關閉
                     v-spacer
 
 </template>
 
 <script>
-import axios from 'axios'
+import Score from '../Score'
 import Homework from '../Homework'
 import { mapGetters } from 'vuex'
-
-let Decoder = new TextDecoder('big5')
-const config = require('../../config.json')
 
 export default {
     data: () => ({
@@ -114,8 +144,13 @@ export default {
         textbook: {
             flag: false
         },
-        homeworkFile: {},
-        lockDialog: false,
+        uploadHw: {
+            workID: null,
+            stat: false,
+            flag: false,
+            uploaded: false
+        },
+        homeworkAns: [],
         fileType: {
             pdf: 'mdi-file-pdf-box',
             ppt: 'mdi-file-powerpoint-box',
@@ -140,9 +175,7 @@ export default {
         },
         loading: false
     }),
-    activated () {
-        console.log('yo')
-        this.getFileList()
+    created () {
     },
     computed: {
         ...mapGetters({
@@ -151,7 +184,8 @@ export default {
             Announce: 'getAnnounce',
             Homework: 'getHomework',
             Textbook: 'getTextbook',
-            Setting: 'getSetting'
+            Setting: 'getSetting',
+            HomeworkFile: 'getHomeworkFile'
         }),
         courseID () {
             return this.$route.params.id
@@ -164,6 +198,9 @@ export default {
         },
         TextbookList () {
             return this.Textbook[this.$route.params.id] || {name: 'QAO找不到', list: {}}
+        },
+        HomeworkFileList () {
+            return this.HomeworkFile[this.$route.params.id] || localStorage.homeworkFile ? JSON.parse(localStorage.homeworkFile)[this.$route.params.id] : {}
         }
     },
     methods: {
@@ -188,11 +225,11 @@ export default {
             this.announce.title = this.AnnounceList.list[key].title
             this.announce.content = content
         },
-        async showHomework (key) {
+        async showHomework (index) {
             this.homework.flag = true
-            this.homework.title = this.HomeworkList.list[key].title
-            this.homework.content = this.HomeworkList.list[key].content
-            this.homeworkFile[key] = await Homework.getQuestion(this.courseID, this.HomeworkList.list[key].id)
+            this.homework.title = this.HomeworkList.list[index].title
+            this.homework.content = this.HomeworkList.list[index].content
+            console.log(await Homework.getMyAnswer(this.courseID, this.HomeworkList.list[index].id))
         },
         dayDiff (time) {
             let old = new Date(time)
@@ -203,44 +240,30 @@ export default {
         downloadTextbook (link) {
             window.open(`/ec${link.slice(8)}`)
         },
-        async getScore () {
-            await axios.get(config.ecourse.COURSE_SELECT + '106_1_' + this.courseID)
-            .then(response => {
-                // console.log(response.data)
-            })
-            .catch(e => this.errHandler)
-
-            let score = await axios.get(config.ecourse.COURSE_SCORE, {responseType: 'arraybuffer'}).catch(e => this.errHandler(e))
-            let scoreData = $.parseHTML(Decoder.decode(score.data))
-            let scoreNode = $(scoreData).find('tr[bgcolor="#4d6eb2"], tr[bgcolor="#E6FFFC"], tr[bgcolor="#F0FFEE"], tr[bgcolor="B0BFC3"]').get()
-            console.log('length: ', scoreNode.length)
-            scoreNode.forEach(element => {
-                let row = $(element).find('td')
-                let scoreItem = {
-                    name: $(row[0]).text(),
-                    percent: $(row[1]).text(),
-                    score: $(row[2]).text(),
-                    rank: $(row[3]).text()
-                }
-                console.log(scoreItem)
-            })
+        downloadQues (id, type) {
+            let link = document.createElement('a')
+            if (this.Setting.isDownloadQuestion) link.download = true
+            link.target = '_blank'
+            link.href = `https://ecourse.ccu.edu.tw/${this.courseID}/homework/${id}/teacher/Question.${type}`
+            link.click()
+            link.remove()
         },
-        getFileList () {
-            this.Homework[this.courseID].list.forEach(async (element, index) => {
-                this.homeworkFile[index] = await Homework.getQuestion(this.courseID, element.id)
-            })
+        getScore () {
+            Score.getScore()
         },
-        downloadQuestion (id, type) {
-            window.open(`https://ecourse.ccu.edu.tw/${this.courseID}/homework/${id}/teacher/Question.${type}`)
+        showUpload (id) {
+            this.uploadHw.workID = id
+            this.uploadHw.flag = true
         },
-        selectFile () {
-            this.lockDialog = true
-            this.$refs.uploadInput.click()
-            this.lockDialog = false
-            // return false
+        uploadFile (e) {
+            let result = Homework.uploadFile(e, this.courseID, this.uploadHw.workID)
+            this.uploadHw.uploaded = true
+            this.uploadHw.stat = result.stat
+            this.homeworkAns = result.list
         },
-        updateFile (e) {
-            console.log(e)
+        removeAns (fileName) {
+            let result = Homework.removeAns(this.courseID, this.uploadFile.id, fileName)
+            console.log(result)
         }
     }
 }
