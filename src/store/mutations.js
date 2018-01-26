@@ -39,7 +39,7 @@ export const mutations = {
                     id: nItem[1],
                     title: nItem[0],
                     content: nItem[4] || '沒有內容',
-                    percentage: `${nItem[2]}%`,
+                    percentage: nItem[2],
                     timeStamp: nItem[3]
                 })
                 return orderBy(temp, ['timeStamp', 'title'], ['desc', 'asc'])

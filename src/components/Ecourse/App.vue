@@ -55,16 +55,16 @@
                             v-subheader 公告
                             v-list-tile(avatar)
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.detectUrl' @change='changeSetting({detectUrl: setting.detectUrl})')
-                                v-list-tile-content
-                                    v-list-tile-title 偵測網址
-                                    v-list-tile-sub-title 公告網址變為可點之連結
-                            v-list-tile(avatar)
-                                v-list-tile-action
                                     v-checkbox(v-model='setting.detectDate' @change='changeSetting({detectDate: setting.detectDate})')
                                 v-list-tile-content
                                     v-list-tile-title 偵測日期
                                     v-list-tile-sub-title 公告日期添加底線
+                            v-list-tile(avatar)
+                                v-list-tile-action
+                                    v-checkbox(v-model='setting.detectUrl' @change='changeSetting({detectUrl: setting.detectUrl})')
+                                v-list-tile-content
+                                    v-list-tile-title 偵測網址
+                                    v-list-tile-sub-title 公告網址變為可點之連結
                             v-divider
                             v-subheader 作業
                             v-list-tile(avatar)

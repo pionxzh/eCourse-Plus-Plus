@@ -74,6 +74,14 @@ export default class Homework {
                     progress: 100
                 })
             }
+        } else {
+            result[0] = {
+                name: 'homework.html',
+                size: '? bytes',
+                content: question.data.work,
+                timeStamp: question.data.mtime,
+                progress: 100
+            }
         }
         console.log(result)
         return result
