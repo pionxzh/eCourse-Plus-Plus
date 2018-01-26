@@ -71,11 +71,13 @@
 
         v-dialog(v-model='announce.flag' max-width=490)
             v-card.announce-dialog-box
+                v-snackbar(:timeout='3000' :top='true' :bottom='false' color='success' v-model='announce.toastShow' :absolute='true') {{announce.message}}
                 v-card-title.headline
                     div.text-xs-center {{ announce.title }}
                     v-spacer
                     v-tooltip(top)
-                        v-btn.right(icon slot='activator'): v-icon mdi-content-copy
+                        v-btn.right(icon slot='activator' @click='copyAnnounce')
+                            v-icon mdi-content-copy
                         span 複製
                     v-tooltip(top)
                         v-btn.right(icon slot='activator'): v-icon mdi-camera
@@ -159,13 +161,16 @@ export default {
         textbook: {
             flag: false
         },
-        uploadHw: {
+        uploadHW: {
             workID: 0,
             content: '',
             stat: false,
             flag: false,
             uploaded: false,
-            list: {}
+            list: {},
+            toastShow: false,
+            toastColor: 'success',
+            toastMessage: ''
         },
         homeworkAns: {},
         toast: {
@@ -252,7 +257,7 @@ export default {
         },
         showAnnounce (key) {
             let content = this.AnnounceList.list[key].content.replace(/\r\n/g, '<br>')
-
+            this.announce.text = content
             if (this.Setting.detectUrl) {
                 let urlDetect = /(((?:http(s)?:\/\/)[\w.-]+(?:\.[\w.-]+)+)[\w\-._~:/?#[\]@!$&'*+,;=.]+)/g
                 content = content.replace(urlDetect, ' <a href="$1" target="_blank">$2...</a> ')
@@ -272,6 +277,10 @@ export default {
             this.homework.title = this.HomeworkList.list[index].title
             this.homework.content = this.HomeworkList.list[index].content
         },
+        copyAnnounce () {
+            if (!Util.copyToClipboard(this.announce.text)) return
+            this.announce.toastShow = true
+            this.announce.message = '已將內容複製到剪貼簿。'
         },
         downloadTextbook (url) {
             let link = `https://ecourse.ccu.edu.tw${url.slice(8)}`
