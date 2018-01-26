@@ -120,7 +120,7 @@ ul.striped li:nth-child(odd)
     font-size 18px
 
 
-/*  Course  */
+/*  Upload file  */
 .upload-type
     cursor: pointer
     height: 109px!important
@@ -128,18 +128,28 @@ ul.striped li:nth-child(odd)
 .upload-type p
     padding-top: 41px
 
-.upload-wrapper
-    background-color: yellow
-    margin-left: 16px
-    margin-bottom: 5px
-    padding: 5px
-    max-width: 300px
+.upload-wrapper:nth-child(odd) .upload-item
+    margin-right: 5px
 
-.upload-wrapper label
+.upload-wrapper:nth-child(even) .upload-item
+    margin-left: 5px
+
+.upload-item
+    margin-bottom: 5px
+    padding: 5px 5px 0 16px
+    max-width: 300px
+    background-color: #ececec
+
+.upload-item label
     color: rgba(0,0,0,0.54)!important
 
 
-/*  announce  */
+/*  Textbook  */
+.fix-hover:hover
+    background: rgba(0,0,0,0.12)
+
+
+/*  Announce  */
 
 .announce-dialog-box
     font-size: 18px;

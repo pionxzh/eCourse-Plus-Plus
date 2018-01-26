@@ -47,11 +47,16 @@
                     v-toolbar-side-icon
                     v-toolbar-title 教材
                     v-spacer
-                    v-btn(icon @click='$forceUpdate')
+                    v-btn(icon)
                         v-icon search
                 v-list(two-line subheader)
+                    v-list-tile.cursor-p.fix-hover(v-if='Setting.showIntro' @click.native='downloadIntro')
+                        v-list-tile-avatar
+                            v-icon(large) mdi-file-account
+                        v-list-tile-content 
+                            v-list-tile-title 授課大綱
                     v-list-group(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder')
-                        v-list-tile(slot='item')
+                        v-list-tile(v-if='TextbookList.content[index][0]' slot='item')
                             v-list-tile-avatar
                                 v-icon folder
                             v-list-tile-content 
@@ -99,12 +104,13 @@
             v-card.announce-dialog-box
                 div.headline.text-xs-center.pa-3 檔案上傳
                 v-layout(row wrap)
-                    v-flex(xs12)
-                        div.upload-wrapper
-                            v-text-field(v-if='!!uploadHW.list' v-for='file in uploadHW.list' :key='file.timeStamp' :append-icon='file.success ? "mdi-check-circle" : "close"' :color='file.success ? "green" : "gray"' :class='{"input-group--focused" : file.success}' loading readonly v-model='file.name' :label='file.size' :append-icon-cb='() => removeAnswer(file.name)')
-                                v-progress-linear(slot='progress' :indeterminate='file.progress !== 100' :value='file.progress' height='4')
-                    v-flex(xs12)
-                        v-container(fluid)
+                    v-container(fluid)
+                        v-layout(row wrap)
+                            v-flex.upload-wrapper(xs6 v-for='file in uploadHW.list' :key='file.id')
+                                div.upload-item.elevation-1
+                                    v-text-field(:append-icon='file.success ? "mdi-check-circle" : "close"' :color='file.success ? "green" : "gray"' :class='{"input-group--focused" : file.success}' loading readonly v-model='file.name' :label='file.size' :append-icon-cb='() => removeAnswer(file.name)')
+                                        v-progress-linear(slot='progress' :indeterminate='file.progress !== 100' :value='file.progress' height='4')
+                        v-flex(xs12)
                             v-layout(row wrap)
                                 v-flex(xs10)
                                     v-text-field(v-model='uploadHW.content' label="直接上傳答案文字" textarea auto-grow)
@@ -113,8 +119,7 @@
                                         v-btn(color='red darken-1' dark block style='margin-top: 18px;height: 158px;font-size: 18px;' @click='uploadText($event)' slot='activator') 
                                             v-icon send
                                         span 送出
-                    v-flex(xs12)
-                        v-container(fluid)
+                        v-flex(xs12)
                             v-layout(row wrap)
                                 v-flex(xs6)
                                     v-card.upload-type(color='blue darken-1' style='margin-right: 5px;' @click.native='$refs.uploadInput.click()' dark)
@@ -286,6 +291,10 @@ export default {
             let link = `https://ecourse.ccu.edu.tw${url.slice(8)}`
             Util.openLink(link, this.Setting.isDownloadTextbook)
         },
+        downloadIntro () {
+            let link = `/ec/php/Courses_Admin/intro.php`
+            Util.openLink(link, false)
+        },
         downloadQues (id, type) {
             let link = `https://ecourse.ccu.edu.tw/${this.courseID}/homework/${id}/teacher/Question.${type}`
             Util.openLink(link, this.Setting.isDownloadQuestion)
@@ -308,6 +317,7 @@ export default {
             const files = e.target.files || e.dataTransfer.files
             if (!files.length) return
             this.uploadHW.list.push({
+                id: Math.random() * 1000,
                 name: files[0].name,
                 size: Util.getSize(files[0].size),
                 progress: 1

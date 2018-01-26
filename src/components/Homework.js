@@ -68,6 +68,7 @@ export default class Homework {
             question.data.pop()
             for (let item of question.data) {
                 result.push({
+                    id: Math.random() * 1000,
                     name: item[0],
                     size: Util.getSize(item[1]),
                     timeStamp: item[2],

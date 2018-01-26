@@ -77,6 +77,12 @@
                             v-subheader 教材
                             v-list-tile(avatar)
                                 v-list-tile-action
+                                    v-checkbox(v-model='setting.showIntro' @change='changeSetting({showIntro: setting.showIntro})')
+                                v-list-tile-content
+                                    v-list-tile-title 授課大綱
+                                    v-list-tile-sub-title 是否顯示授課大綱
+                            v-list-tile(avatar)
+                                v-list-tile-action
                                     v-checkbox(v-model='setting.expandFirstFolder' @change='changeSetting({expandFirstFolder: setting.expandFirstFolder})')
                                 v-list-tile-content
                                     v-list-tile-title 自動展開首項
@@ -150,6 +156,7 @@ export default {
             authcode: false
         },
         setting: {
+            showIntro: true,
             detectUrl: true,
             detectDate: true,
             expandFirstFolder: true,
