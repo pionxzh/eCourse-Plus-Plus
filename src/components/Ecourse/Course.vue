@@ -30,15 +30,16 @@
                         v-list-tile-content 
                             v-list-tile-title {{ item.title }}
                             v-list-tile-sub-title(v-if='item.timeStamp') {{ item.timeStamp }} / {{ item.percentage }}
-                        v-list-tile-action(v-if='item.timeStamp')
-                            v-btn(icon ripple @click.stop='showUpload(item.id)')
-                                v-icon(medium color='grey') mdi-upload
                         v-list-tile-action(v-if='item.timeStamp && HomeworkFileList[item.id]')
                             v-tooltip(top)
                                 v-btn(icon ripple v-if='!!HomeworkFileList[item.id].type' 
                                     @click.stop='downloadQues(item.id, HomeworkFileList[item.id].type)' slot='activator')
                                     v-icon(large color='grey lighten-1') {{ fileType[HomeworkFileList[item.id].type] || 'mdi-file' }}
                                 span 作業題目
+                        v-list-tile-action(v-if='item.timeStamp')
+                            v-btn(icon ripple @click.stop='showUpload(item.id)')
+                                v-icon(large color='grey') mdi-upload
+                        
         v-flex.pl-2(xs12 sm4)
             v-card.elevation-1(color='grey lighten-5' flat)
                 v-toolbar(dark color='orange' flat)
@@ -97,35 +98,38 @@
                 v-card-title.headline: div.text-xs-center 上傳
                 v-layout(row wrap)
                     v-flex(xs12)
-                        div(v-for='(file, index) in homeworkAns[uploadHw.id]')
-                            v-text-field(append-icon='close' readonly v-model='file.name' :label='file.size' :append-icon-cb='removeAns(index)')
+                        v-text-field.upload-wrapper(v-if='!!uploadHw.list' v-for='file in uploadHw.list' :key='file.timeStamp' :append-icon='file.success ? "mdi-check-circle" : "close"' :color='file.success ? "green" : "gray"' :class='{"input-group--focused" : file.success}' loading readonly v-model='file.name' :label='file.size' :append-icon-cb='() => removeAnswer(file.name)')
+                            v-progress-linear(slot='progress' :value='file.progress' height='4')
                     v-flex(xs12 md6)
                         v-container(fluid)
                             v-layout(wrap)
                                 v-flex(xs12)
                                     v-text-field(label="直接上傳文字" textarea)
-                                    v-btn(color='blue' dark style='margin-left: 90px') 送出
+                                    v-btn(color='blue' dark style='margin-left: 90px' @click='uploadText($event)') 送出
                     v-flex(xs12 md6)
                         v-container(fluid)
                             v-card.upload-type(color='blue' style='margin-top: 18px;' @click.native='$refs.uploadInput.click()' dark)
                                 p.text-xs-center 
                                     v-icon(dark) mdi-upload
-                                    | 單一檔案
+                                    | 上傳檔案
                                 input(type='file' ref='uploadInput' :multiple='false' @change='uploadFile')
                             v-card.upload-type(color='green darken-1' style='margin-top: 6px;' @click.native='$refs.uploadMulInput.click()' dark)
                                 p.text-xs-center
                                     v-icon(dark) mdi-upload-multiple
-                                    | 多個檔案
+                                    | 相關檔案
                                 input(type='file' ref='uploadMulInput' :multiple='true' @change='uploadFile')
                 v-card-actions
                     v-spacer
-                    v-btn(color='green darken-1' flat='flat' @click.native='uploadHw.flag = false') 關閉
+                    v-btn(color='green darken-1' flat='flat' @click='uploadHw.flag = false') 關閉
                     v-spacer
+            
+            v-snackbar(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
 
 </template>
 
 <script>
 import Score from '../Score'
+import Util from '../Util'
 import Homework from '../Homework'
 import { mapGetters } from 'vuex'
 
@@ -145,12 +149,24 @@ export default {
             flag: false
         },
         uploadHw: {
-            workID: null,
+            workID: 0,
+            content: '',
             stat: false,
             flag: false,
-            uploaded: false
+            uploaded: false,
+            list: {}
         },
-        homeworkAns: [],
+        homeworkAns: {},
+        toast: {
+            show: false,
+            timeout: 3000,
+            top: true,
+            right: false,
+            bottom: false,
+            left: false,
+            color: 'error',
+            message: ''
+        },
         fileType: {
             pdf: 'mdi-file-pdf-box',
             ppt: 'mdi-file-powerpoint-box',
@@ -201,12 +217,25 @@ export default {
         },
         HomeworkFileList () {
             return this.HomeworkFile[this.$route.params.id] || localStorage.homeworkFile ? JSON.parse(localStorage.homeworkFile)[this.$route.params.id] : {}
+        },
+        HomeworkAnsList () {
+            return this.homeworkAns[this.$route.params.id] || {}
         }
     },
     methods: {
         errHandler (e) {
             console.log(e.message)
             this.loading = false
+        },
+        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'error', timeout = 3000} = {}) {
+            this.toast.show = true
+            this.toast.top = top
+            this.toast.right = right
+            this.toast.bottom = bottom
+            this.toast.left = left
+            this.toast.color = color
+            this.toast.timeout = timeout
+            this.toast.message = message
         },
         showAnnounce (key) {
             let content = this.AnnounceList.list[key].content.replace(/\r\n/g, '<br>')
@@ -225,11 +254,10 @@ export default {
             this.announce.title = this.AnnounceList.list[key].title
             this.announce.content = content
         },
-        async showHomework (index) {
+        showHomework (index) {
             this.homework.flag = true
             this.homework.title = this.HomeworkList.list[index].title
             this.homework.content = this.HomeworkList.list[index].content
-            console.log(await Homework.getMyAnswer(this.courseID, this.HomeworkList.list[index].id))
         },
         dayDiff (time) {
             let old = new Date(time)
@@ -251,19 +279,37 @@ export default {
         getScore () {
             Score.getScore()
         },
-        showUpload (id) {
-            this.uploadHw.workID = id
+        async showUpload (workID) {
+            this.uploadHw.workID = workID
             this.uploadHw.flag = true
+            if (!this.homeworkAns[this.courseID]) this.homeworkAns[this.courseID] = {}
+            this.uploadHw.list = await Homework.getMyAnswer(this.courseID, workID)
+            // this.homeworkAns[this.courseID][workID] = result
         },
-        uploadFile (e) {
-            let result = Homework.uploadFile(e, this.courseID, this.uploadHw.workID)
-            this.uploadHw.uploaded = true
-            this.uploadHw.stat = result.stat
-            this.homeworkAns = result.list
+        async uploadText () {
+            console.log(await Homework.uploadText(this.uploadHw.content, this.uploadHw.workID))
         },
-        removeAns (fileName) {
-            let result = Homework.removeAns(this.courseID, this.uploadFile.id, fileName)
+        async uploadFile (e) {
+            const files = e.target.files || e.dataTransfer.files
+            if (!files.length) return
+            this.uploadHw.list.push({
+                name: files[0].name,
+                size: Util.getSize(files[0].size),
+                progress: 1
+            })
+            let result = await Homework.uploadFile(files, this.courseID, this.uploadHw.workID)
             console.log(result)
+            this.uploadHw.uploaded = true
+            this.uploadHw.stat = result
+            if (!result) return
+            this.showToast({message: '上傳成功', color: 'success'})
+            this.uploadHw.list = await Homework.getMyAnswer(this.courseID, this.uploadHw.workID)
+            this.uploadHw.list[this.uploadHw.list.length - 1].success = true
+        },
+        async removeAnswer (fileName) {
+            if (!confirm('確定要刪除這個檔案?')) return
+            await Homework.removeAnswer(this.courseID, this.uploadHw.workID, fileName)
+            this.uploadHw.list = await Homework.getMyAnswer(this.courseID, this.uploadHw.workID)
         }
     }
 }

@@ -1,5 +1,8 @@
+import Qs from 'qs'
 import axios from 'axios'
 import Util from './Util'
+
+let Decoder = new TextDecoder('big5')
 const config = require('./../config.json')
 
 export default class Homework {
@@ -59,53 +62,59 @@ export default class Homework {
             action: 'seemywork',
             courseid: courseID,
             workid: workID
-        }}).catch(e => Util.errHandler(e, 'Get Question Error!'))
-        let result = {
-            type: null,
-            timeStamp: Date.now()
+        }}).catch(e => Util.errHandler(e, 'Get Answer Error!'))
+        let result = []
+        if (Array.isArray(question.data)) {
+            question.data.pop()
+            for (let item of question.data) {
+                result.push({
+                    name: item[0],
+                    size: Util.getSize(item[1]),
+                    timeStamp: item[2],
+                    progress: 100
+                })
+            }
         }
-        if (question.data.size && !question.data.status) {
-            result.type = question.data.type.slice(1)
-                // result.size = question.data.size
-            // result.word = question.data.word || '暫無內容'
-        }
-        // console.log(result)
+        console.log(result)
         return result
     }
 
-    static removeAnswer (courseID, workID, fileName) {
-        axios.post(config.ecourse.ASSIGNMENT, {params: {
-            action: 'delete',
-            courseid: courseID,
-            workid: workID,
+    static async removeAnswer (courseID, workID, fileName) {
+        let result = await axios.get(config.ecourse.ASSIGNMENT, {params: {
+            action: 'del',
+            work_id: workID,
             filename: fileName
         }})
+        return result.data
     }
 
-    static uploadFile (e, courseID, workID) {
-        const files = e.target.files || e.dataTransfer.files
+    static async uploadText (content, workID) {
+        let data = Qs.stringify({
+            ans: content,
+            work_id: workID,
+            action: 'handinwork'
+        })
+        let result = await axios.post(config.ecourse.ASSIGNMENT, data, {responseType: 'arraybuffer'})
+        if (Decoder.decode(result.data).indexOf('成功') === -1) return false
+        return true
+    }
+
+    static async uploadFile (files, courseID, workID) {
         console.log(files)
-        let data = new FormData()
-        data.append('work_id', workID)
-        if (!files.length) return
+        let formData = new FormData()
+        formData.append('work_id', workID)
         if (files.length === 1) {
-            data.append('action', 'uploadstuwork')
-            data.append('uploadfile1', files[0], files[0].name)
+            formData.append('action', 'uploadstuwork')
+            formData.append('uploadfile1', files[0], files[0].name)
         } else {
-            data.append('action', 'uploadotherwork')
+            formData.append('action', 'uploadotherwork')
             for (let index = 0; index < files.length; index++) {
                 const file = files[index]
-                data.append(`uploadfile${index}`, file)
+                formData.append(`uploadfile${index}`, file)
             }
         }
-        // axios.get(config.ecourse.ASSIGNMENT, {params: {action: 'seemywork', work_id: workID}})
-        axios.post(config.ecourse.ASSIGNMENT, data).then(response => {
-            let result = this.getMyAnswer(courseID, workID)
-            console.log(result)
-            return {stat: true}
-        })
-        return {stat: false}
+        let result = await axios.post(config.ecourse.ASSIGNMENT, formData, {responseType: 'arraybuffer'})
+        if (Decoder.decode(result.data).indexOf('成功') === -1) return false
+        return true
     }
-
-    static async uploadMultipleFile (e, courseID, workID) {}
 }

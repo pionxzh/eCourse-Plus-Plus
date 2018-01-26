@@ -195,8 +195,9 @@ export default {
             User.changeCourse(target.params.id)
         }
     },
-    created () {
-        this.autoLogin()
+    async created () {
+        await this.autoLogin()
+        if (this.$route.params.id) await User.changeCourse(this.$route.params.id)
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
     },
