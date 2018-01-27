@@ -11,10 +11,9 @@ export default class Util {
     }
 
     static dayDiff (time) {
+        let now = new Date()
         let old = new Date(time)
-        let now = Date().now
-        let timeDiff = Math.abs(now - old)
-        return timeDiff < 1000 * 3600 * 24 * 200
+        return Math.abs(now - old) / 8.64e7
     }
 
     static copyToClipboard (content) {

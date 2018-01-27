@@ -1,6 +1,6 @@
-// import axios from 'axios'
-// const config = require('../../config.json')
-// let Decoder = new TextDecoder('big5')
+import axios from 'axios'
+import Util from './Util'
+const config = require('./../config.json')
 
 export default class User {
     static getList (data) {
@@ -19,8 +19,16 @@ export default class User {
             console.log('CourseList:\n', courseList)
             return {stat: true, data: courseList}
         } catch (e) {
-            console.log('Parse Course Fail!\n', e)
+            Util.errHandler(e, 'Parse Course Fail!')
             return {stat: false, data: []}
         }
+    }
+
+    static async changeCourse (courseID) {
+        await axios.get(config.ecourse.COURSE_SELECT, {params: {courseid: `106_1_${courseID}`}})
+            .then(response => {
+                // console.log(response.data)
+            })
+            .catch(e => Util.errHandler)
     }
 }

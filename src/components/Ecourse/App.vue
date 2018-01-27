@@ -259,7 +259,8 @@ export default {
             this.updateCourse(courrseList.data)
 
             let announce = await Announce.getData()
-            this.updateAnnounce(announce.data)
+            let annNotify = localStorage.annNotify ? JSON.parse(localStorage.annNotify) : {}
+            this.updateAnnounce([announce.data, annNotify])
 
             let homework = await Homework.getData()
             this.updateHomework(homework.data)

@@ -15,7 +15,7 @@ export default class Homework {
             console.log('Homework:\n', homeworkData)
             return {stat: true, data: homeworkData}
         } catch (e) {
-            console.log('Get Homework Fail!\n', e)
+            Util.errHandler(e, 'Parse Homework Fail!')
             return {stat: false, data: []}
         }
     }

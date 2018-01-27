@@ -11,7 +11,7 @@ export default class Announce {
             console.log('Announce:\n', announceData)
             return {stat: true, data: announceData}
         } catch (e) {
-            console.log('Get Announce Fail!\n', e)
+            Util.errHandler(e, 'Parse Announce Fail!')
             return {stat: false, data: []}
         }
     }

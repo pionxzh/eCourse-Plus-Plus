@@ -14,7 +14,7 @@ export default class Textbook {
             console.log('ChapterTitle:\n', chapterTitle)
             return {stat: true, data: {textbook: textbookData, chapter: chapterTitle}}
         } catch (e) {
-            console.log('Get Textbook Fail!\n', e)
+            Util.errHandler(e, 'Parse Textbook Fail!')
             return {stat: false, data: []}
         }
     }

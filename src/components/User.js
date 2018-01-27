@@ -33,14 +33,6 @@ export default class User {
         }
     }
 
-    static async changeCourse (courseID) {
-        await axios.get(config.ecourse.COURSE_SELECT, {params: {courseid: `106_1_${courseID}`}})
-            .then(response => {
-                // console.log(response.data)
-            })
-            .catch(e => Util.errHandler)
-    }
-
     static async login (data) {
         let result = {}
         let wrongFlag = false
