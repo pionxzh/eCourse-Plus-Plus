@@ -1,7 +1,7 @@
 <template lang='pug'>
     v-layout(row wrap :key='$route.params.id')
-        v-snackbar(:top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
-        v-flex.pl-2(xs12 sm4)
+        v-snackbar(:timeout='3000' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
+        v-flex.pl-2(xs12 md4)
             v-card.elevation-1(color='grey lighten-5' flat)
                 v-toolbar(dark color='primary' flat style='overflow: hidden')
                     v-toolbar-side-icon
@@ -20,14 +20,14 @@
                     v-if='item.title.indexOf(searchText) !== -1'
                     @click.native='showAnnounce(index)')
                         v-list-tile-avatar
-                            v-icon(medium :class='[item.stat]') widgets
+                            v-badge.notify(overlap color='red' v-model='AnnNotify[item.id]')
+                                span(slot='badge')
+                                v-icon(medium :class='[item.stat]') widgets
                         v-list-tile-content
                             v-list-tile-title {{ item.title }}
                             v-list-tile-sub-title {{ item.timeStamp }}
-                        v-list-tile-action
-                            v-btn(icon ripple)
-                                v-icon(color='grey lighten-1') info
-        v-flex.pl-2(xs12 sm4)
+                        
+        v-flex.pl-2(xs12 md4)
             v-card.elevation-1(color='grey lighten-5' flat)
                 v-toolbar(dark color='green' flat)
                     v-toolbar-side-icon
@@ -44,17 +44,16 @@
                         v-list-tile-content 
                             v-list-tile-title {{ item.title }}
                             v-list-tile-sub-title(v-if='item.id') {{ item.timeStamp }} / {{ item.percentage }}%
-                        v-list-tile-action(v-if='item.id && HomeworkFileList[item.id]')
+                        v-list-tile-action(v-if='item.id && HwFile[item.id] && !!HwFile[item.id].type')
                             v-tooltip(top)
-                                v-btn(icon ripple v-if='!!HomeworkFileList[item.id].type' 
-                                    @click.stop='downloadQues(item.id, HomeworkFileList[item.id].type)' slot='activator')
-                                    v-icon(large color='grey lighten-1') {{ fileType[HomeworkFileList[item.id].type] || 'mdi-file' }}
+                                v-btn(icon ripple @click.stop='downloadQues(item.id, HwFile[item.id].type)' slot='activator')
+                                    v-icon(large color='grey lighten-1') {{ fileType[HwFile[item.id].type] || 'mdi-file' }}
                                 span 作業題目
                         v-list-tile-action(v-if='item.id')
                             v-btn(icon ripple @click.stop='showUpload(item.id)')
                                 v-icon(large color='grey') mdi-upload
                         
-        v-flex.pl-2(xs12 sm4)
+        v-flex.pl-2(xs12 md4)
             v-card.elevation-1(color='grey lighten-5' flat)
                 v-toolbar(dark color='orange' flat)
                     v-toolbar-side-icon
@@ -115,7 +114,8 @@
                     v-spacer
         v-dialog(v-model='uploadHW.flag' max-width=600 persistent)
             v-card.announce-dialog-box(style='background-color: #f2f2f2;')
-                div.headline.text-xs-center.pa-3 檔案上傳
+                v-snackbar(:timeout='3000' :top='true' :bottom='false' :color='uploadHW.toastColor' v-model='uploadHW.toastShow' :absolute='true') {{uploadHW.message}}
+                div.headline.text-xs-center.pa-3 作業上傳
                     v-btn.right.ma-0(icon ripple @click='uploadHW.flag = false') 
                         v-icon(medium) close
                 v-layout(row wrap)
@@ -174,7 +174,7 @@
 import Score from '../Score'
 import Util from '../Util'
 import Homework from '../Homework'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 const config = require('../../config.json')
 
@@ -203,13 +203,11 @@ export default {
         uploadHW: {
             workID: 0,
             content: '',
-            stat: false,
             flag: false,
-            uploaded: false,
             list: {},
             toastShow: false,
             toastColor: 'success',
-            toastMessage: ''
+            message: ''
         },
         homeworkAns: {},
         toast: {
@@ -258,7 +256,9 @@ export default {
             Homework: 'getHomework',
             Textbook: 'getTextbook',
             Setting: 'getSetting',
-            HomeworkFile: 'getHomeworkFile'
+            HomeworkFile: 'getHomeworkFile',
+            AnnouceNotify: 'getAnnNotify',
+            HomeworkNotify: 'getHwNotify'
         }),
         courseID () {
             return this.$route.params.id
@@ -272,14 +272,24 @@ export default {
         TextbookList () {
             return this.Textbook[this.$route.params.id] || {name: 'QAO找不到', list: {}}
         },
-        HomeworkFileList () {
+        HwFile () {
             return this.HomeworkFile[this.$route.params.id] || localStorage.homeworkFile ? JSON.parse(localStorage.homeworkFile)[this.$route.params.id] : {}
         },
-        HomeworkAnsList () {
+        HwAns () {
             return this.homeworkAns[this.$route.params.id] || {}
+        },
+        AnnNotify () {
+            return this.AnnouceNotify[this.$route.params.id] || {}
+        },
+        HwNotify () {
+            return this.HomeworkNotify[this.$route.params.id] || {}
         }
     },
     methods: {
+        ...mapActions([
+            'updateAnnNotify',
+            'updateHwNotify'
+        ]),
         onScroll () {
             this.isScroll = window.scrollY > 200
         },
@@ -313,7 +323,7 @@ export default {
                 let dateDetect = /(([\d]{1,4}\/)?[\d]{1,4}\/[\d]{1,4})(\([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u65e5\u661f\u671f]{1,3}\))?/g
                 content = content.replace(dateDetect, '<u class="date-padding">$1</u>$3')
             }
-
+            this.updateAnnNotify([this.courseID, this.AnnounceList.list[key].id])
             this.announce.flag = true
             this.announce.title = this.AnnounceList.list[key].title
             this.announce.content = content
@@ -359,6 +369,9 @@ export default {
         async uploadText () {
             await Homework.uploadText(this.uploadHW.content, this.uploadHW.workID)
             this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
+            this.uploadHW.toastShow = true
+            this.uploadHW.toastColor = 'success'
+            this.uploadHW.message = '上傳成功'
         },
         async uploadFile (e) {
             const files = e.target.files || e.dataTransfer.files
@@ -370,18 +383,20 @@ export default {
                 new: true
             })
             let result = await Homework.uploadFile(files, this.courseID, this.uploadHW.workID)
-            this.uploadHW.uploaded = true
-            this.uploadHW.stat = result
             if (!result) return
-            this.showToast({message: '上傳成功', color: 'success'})
             this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
             this.uploadHW.list[this.uploadHW.list.length - 1].success = true
+            this.uploadHW.toastShow = true
+            this.uploadHW.toastColor = 'success'
+            this.uploadHW.message = '上傳成功'
         },
         async removeAnswer (fileName) {
             if (!confirm('確定要刪除這個檔案?')) return
             await Homework.removeAnswer(this.courseID, this.uploadHW.workID, fileName)
-            this.showToast({message: '刪除成功', color: 'success'})
             this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
+            this.uploadHW.toastShow = true
+            this.uploadHW.toastColor = 'success'
+            this.uploadHW.message = '刪除成功'
         }
     }
 }

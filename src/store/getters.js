@@ -27,3 +27,11 @@ export const getHomeworkFile = state => {
 export const getSetting = state => {
     return state.settingData
 }
+
+export const getAnnNotify = state => {
+    return state.announceNotify
+}
+
+export const getHwNotify = state => {
+    return state.homeworkNotify
+}

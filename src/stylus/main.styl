@@ -75,6 +75,10 @@ input[type=file]
     -ms-user-select: none
     user-select: none
 
+@media screen and (max-width:600px)
+    .color-nav > .toolbar__content {
+        height 64px!important
+    }
 
 /*  Left panel  */
 aside.gray-bg
@@ -113,7 +117,7 @@ ul.striped li:nth-child(odd)
     font-size 20px
 
 .course-list li:last-child
-    margin-bottom: -50px
+    margin-bottom: -100px
 
 .course-list-name
     color #757575
@@ -169,6 +173,12 @@ ul.striped li:nth-child(odd)
     min-width: calc(100%/1.5)
     margin-right: calc(-100%/1.45)!important
 }
+
+.notify.badge--overlap .badge__badge
+    width: 10px
+    height: 10px
+    top: 0
+    right: 0
 
 .exp-search.open {
 	margin-right: 16px!important

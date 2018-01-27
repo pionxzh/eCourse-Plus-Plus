@@ -22,7 +22,10 @@ export default new Vuex.Store({
         homeworkData: {},
         textbookData: {},
         settingData: {},
-        homeworkFile: {}
+        homeworkFile: {},
+
+        announceNotify: {},
+        homeworkNotify: {}
     },
     mutations,
     getters,

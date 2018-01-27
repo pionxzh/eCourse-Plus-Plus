@@ -190,12 +190,12 @@ export default {
     },
     watch: {
         '$route' (target) {
-            User.changeCourse(target.params.id)
+            Course.changeCourse(target.params.id)
         }
     },
     async created () {
         await this.autoLogin()
-        if (this.$route.params.id) await User.changeCourse(this.$route.params.id)
+        if (this.$route.params.id) await Course.changeCourse(this.$route.params.id)
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
     },
