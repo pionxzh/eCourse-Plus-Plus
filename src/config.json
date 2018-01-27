@@ -7,16 +7,18 @@
         "authcode": "/sso/misc/imgcode.php"
     },
     "ecourse": {
+        "HOST": "https://ecourse.ccu.edu.tw",
         "LOGIN": "/ec/php/index_login.php",
         "LOGOUT": "/ec/php/logout.php",
         "INDEX": "/ec/php/Courses_Admin/take_course.php?frame=1",
+        "INTRO": "/ec/php/Courses_Admin/intro.php",
         "MOBILE": "/ec/ecourse/php/index_login.php",
         "ANNOUNCE": "/ec/ecourse/php/courses_news/news.php",
         "HOMEWORK": "/ec/ecourse/php/courses_homework/homework.php",
         "TEXTBOOK": "/ec/ecourse/php/courses_textbook/material.php",
         "COURSE_SELECT": "/ec/php/login_s.php",
         "COURSE_SCORE": "/ec/php/Trackin/SGQueryFrame1.php",
-        "GET_FILE": "/ec/ecourse/php/courses_homework/UnderDirFile.php",
-        "ASSIGNMENT": "/ec/php/Testing_Assessment/show_allwork.php"
+        "UNDER_DIR_FILE": "/ec/ecourse/php/courses_homework/UnderDirFile.php",
+        "SHOW_WORK": "/ec/php/Testing_Assessment/show_allwork.php"
     }
 }

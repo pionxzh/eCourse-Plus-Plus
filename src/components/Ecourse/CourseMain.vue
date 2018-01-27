@@ -1,4 +1,4 @@
 <template lang="pug">
     div
-        div 課程列表
+        div 走開走開٩(ŏ﹏ŏ、)۶不要跑來這裡(｡ŏ_ŏ)
 </template>

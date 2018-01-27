@@ -39,7 +39,7 @@ export default class Homework {
     }
 
     static async getQuestion (courseID, workID) {
-        let question = await axios.get(config.ecourse.GET_FILE, {params: {
+        let question = await axios.get(config.ecourse.UNDER_DIR_FILE, {params: {
             action: 'Question',
             courseid: courseID,
             workid: workID
@@ -51,14 +51,13 @@ export default class Homework {
         if (question.data.size && !question.data.status) {
             result.type = question.data.type.slice(1)
             // result.size = question.data.size
-            // result.word = question.data.word || '暫無內容'
         }
         // console.log(result)
         return result
     }
 
-    static async getMyAnswer (courseID, workID) {
-        let question = await axios.get(config.ecourse.GET_FILE, {params: {
+    static async getAnswer (courseID, workID) {
+        let question = await axios.get(config.ecourse.UNDER_DIR_FILE, {params: {
             action: 'seemywork',
             courseid: courseID,
             workid: workID
@@ -71,8 +70,7 @@ export default class Homework {
                     id: Math.random() * 1000,
                     name: item[0],
                     size: Util.getSize(item[1]),
-                    timeStamp: item[2],
-                    progress: 100
+                    timeStamp: item[2]
                 })
             }
         } else {
@@ -89,7 +87,7 @@ export default class Homework {
     }
 
     static async removeAnswer (courseID, workID, fileName) {
-        let result = await axios.get(config.ecourse.ASSIGNMENT, {params: {
+        let result = await axios.get(config.ecourse.SHOW_WORK, {params: {
             action: 'del',
             work_id: workID,
             filename: fileName
@@ -103,7 +101,7 @@ export default class Homework {
             work_id: workID,
             action: 'handinwork'
         })
-        let result = await axios.post(config.ecourse.ASSIGNMENT, data, {responseType: 'arraybuffer'})
+        let result = await axios.post(config.ecourse.SHOW_WORK, data, {responseType: 'arraybuffer'})
         if (Decoder.decode(result.data).indexOf('成功') === -1) return false
         return true
     }
@@ -122,7 +120,7 @@ export default class Homework {
                 formData.append(`uploadfile${index}`, file)
             }
         }
-        let result = await axios.post(config.ecourse.ASSIGNMENT, formData, {responseType: 'arraybuffer'})
+        let result = await axios.post(config.ecourse.SHOW_WORK, formData, {responseType: 'arraybuffer'})
         if (Decoder.decode(result.data).indexOf('成功') === -1) return false
         return true
     }

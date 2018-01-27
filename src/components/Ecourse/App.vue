@@ -21,8 +21,7 @@
                     v-list-tile-action
                     v-list-tile-content
                         v-list-tile-title.course-head
-                            span
-                                router-link(:to="{ path: '/course' }") 課程列表
+                            span 課程列表
                 v-list-tile(v-for='(item, index) in CourseList' :key='item.id' :to="{ path: '/course/' + item.id }" ripple)
                     v-list-tile-action
                     v-list-tile-content
@@ -39,11 +38,11 @@
                     v-icon settings
                 v-list
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click.stop='flag.setting = true') &nbsp;&nbsp;設定&nbsp;&nbsp;
+                        v-list-tile-title(@click='flag.setting = true') &nbsp;&nbsp;設定&nbsp;&nbsp;
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click.stop='falg.about = true') &nbsp;&nbsp;關於本站&nbsp;&nbsp;
+                        v-list-tile-title(@click='flag.about = true') &nbsp;&nbsp;關於本站&nbsp;&nbsp;
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click.stop='fetchData') &nbsp;&nbsp;強制刷新&nbsp;&nbsp;
+                        v-list-tile-title(@click='fetchData') &nbsp;&nbsp;強制刷新&nbsp;&nbsp;
                     v-divider
                     v-list-tile.list__tile--link
                         v-list-tile-title(@click='logout') &nbsp;&nbsp;登出&nbsp;&nbsp;
@@ -144,6 +143,7 @@ export default {
     name: 'Ecourse',
     data: () => ({
         loading: false,
+        isScroll: false,
         username: '',
         password: '',
         authcode: '',
@@ -186,15 +186,6 @@ export default {
                 pass: this.password,
                 ver: 'C'
             }
-        },
-        detectDate: {
-            get () {
-                return this.Setting.detectDate
-            },
-            set (value) {
-                console.log(value)
-                this.updateSetting({detectDate: value})
-            }
         }
     },
     watch: {
@@ -227,10 +218,6 @@ export default {
             this.toast.color = color
             this.toast.timeout = timeout
             this.toast.message = message
-        },
-        getCookie (name) {
-            let match = document.cookie.split(';').find(x => x.startsWith(`${name}=`))
-            if (match) return match.split('=')[1]
         },
         changeSetting (data) {
             localStorage.setting = JSON.stringify(this.setting)

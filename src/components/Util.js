@@ -3,11 +3,11 @@ export default class Util {
         console.error(`${msg || ''}\n${e}`)
     }
 
-    static getSize (bytes) {
-        if (bytes === 0) return '0 Byte'
-        let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-        let i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)))
-        return `${Math.round(bytes / Math.pow(1024, i), 2)} ${sizes[i]}`
+    static getSize (bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes'
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+        let i = Math.floor(Math.log(bytes) / Math.log(1024))
+        return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(decimals))} ${sizes[i]}`
     }
 
     static dayDiff (time) {
@@ -37,5 +37,10 @@ export default class Util {
         link.href = url
         link.click()
         link.remove()
+    }
+
+    static getCookie (name) {
+        let match = document.cookie.split(';').find(x => x.startsWith(`${name}=`))
+        if (match) return match.split('=')[1]
     }
 }

@@ -1,19 +1,27 @@
 <template lang='pug'>
     v-layout(row wrap :key='$route.params.id')
-        v-snackbar(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
+        v-snackbar(:top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
         v-flex.pl-2(xs12 sm4)
             v-card.elevation-1(color='grey lighten-5' flat)
-                v-toolbar(dark color='primary' flat)
+                v-toolbar(dark color='primary' flat style='overflow: hidden')
                     v-toolbar-side-icon
-                    v-toolbar-title 公告
+                    v-toolbar-title(v-show='!search') 公告
                     v-spacer
-                    v-btn(icon @click='getScore')
+                    v-btn.mr-3(icon v-show='!search' @click='expandSearch')
                         v-icon search
-                v-list(two-line subheader)
-                    v-list-tile.cursor-p(avatar v-for='(item, index) in AnnounceList.list' :key='item.id' @click.native='showAnnounce(index)')
+                    v-text-field.exp-search(type='text' label='搜尋標題' ref='search' solo
+                        prepend-icon='search'
+                        @blur='search = false'
+                        :class='{"open": search}'
+                        v-model='searchText')
+                v-list.tile-hover(two-line subheader)
+                    v-list-tile.cursor-p(avatar v-for='(item, index) in AnnounceList.list'
+                    :key='item.id'
+                    v-if='item.title.indexOf(searchText) !== -1'
+                    @click.native='showAnnounce(index)')
                         v-list-tile-avatar
                             v-icon(medium :class='[item.stat]') widgets
-                        v-list-tile-content 
+                        v-list-tile-content
                             v-list-tile-title {{ item.title }}
                             v-list-tile-sub-title {{ item.timeStamp }}
                         v-list-tile-action
@@ -24,20 +32,25 @@
                 v-toolbar(dark color='green' flat)
                     v-toolbar-side-icon
                     v-toolbar-title 作業
-                v-list(two-line subheader)
+                    v-spacer
+                    v-tooltip.mr-0(left)
+                        v-btn(icon slot='activator' @click='showScore')
+                            v-icon mdi-chart-line
+                        span 成績
+                v-list.tile-hover(two-line subheader)
                     v-list-tile.cursor-p(avatar v-for='(item, index) in HomeworkList.list' :key='item.id' @click.native='showHomework(index)')
                         v-list-tile-avatar
-                            v-icon(medium v-if='item.timeStamp') assignment
+                            v-icon(medium v-if='item.id') assignment
                         v-list-tile-content 
                             v-list-tile-title {{ item.title }}
-                            v-list-tile-sub-title(v-if='item.timeStamp') {{ item.timeStamp }} / {{ item.percentage }}%
-                        v-list-tile-action(v-if='item.timeStamp && HomeworkFileList[item.id]')
+                            v-list-tile-sub-title(v-if='item.id') {{ item.timeStamp }} / {{ item.percentage }}%
+                        v-list-tile-action(v-if='item.id && HomeworkFileList[item.id]')
                             v-tooltip(top)
                                 v-btn(icon ripple v-if='!!HomeworkFileList[item.id].type' 
                                     @click.stop='downloadQues(item.id, HomeworkFileList[item.id].type)' slot='activator')
                                     v-icon(large color='grey lighten-1') {{ fileType[HomeworkFileList[item.id].type] || 'mdi-file' }}
                                 span 作業題目
-                        v-list-tile-action(v-if='item.timeStamp')
+                        v-list-tile-action(v-if='item.id')
                             v-btn(icon ripple @click.stop='showUpload(item.id)')
                                 v-icon(large color='grey') mdi-upload
                         
@@ -101,22 +114,26 @@
                     v-btn(color='green darken-1' flat='flat' @click.native='homework.flag = false') 關閉
                     v-spacer
         v-dialog(v-model='uploadHW.flag' max-width=600 persistent)
-            v-card.announce-dialog-box
+            v-card.announce-dialog-box(style='background-color: #f2f2f2;')
                 div.headline.text-xs-center.pa-3 檔案上傳
+                    v-btn.right.ma-0(icon ripple @click='uploadHW.flag = false') 
+                        v-icon(medium) close
                 v-layout(row wrap)
                     v-container(fluid)
+                        v-subheader(style='color: rgba(0,0,0,0.54)') 已交作業
                         v-layout(row wrap)
                             v-flex.upload-wrapper(xs6 v-for='file in uploadHW.list' :key='file.id')
-                                div.upload-item.elevation-1
-                                    v-text-field(:append-icon='file.success ? "mdi-check-circle" : "close"' :color='file.success ? "green" : "gray"' :class='{"input-group--focused" : file.success}' loading readonly v-model='file.name' :label='file.size' :append-icon-cb='() => removeAnswer(file.name)')
-                                        v-progress-linear(slot='progress' :indeterminate='file.progress !== 100' :value='file.progress' height='4')
+                                div.white.upload-item.elevation-2.cursor-p
+                                    v-text-field(:append-icon='file.success ? "mdi-check-circle" : file.new ? "none" : "delete"' :color='file.success ? "green" : "gray"' :class='{"input-group--focused" : file.success}' loading readonly v-model='file.name' :label='file.size' :append-icon-cb='() => removeAnswer(file.name)' @click.native='downloadAns(file.name)')
+                                        v-progress-linear(v-if='file.new' slot='progress' :indeterminate='true' :value='1' height='4')
+                        v-subheader(style='color: rgba(0,0,0,0.54)') 上傳檔案
                         v-flex(xs12)
                             v-layout(row wrap)
                                 v-flex(xs10)
-                                    v-text-field(v-model='uploadHW.content' label="直接上傳答案文字" textarea auto-grow)
-                                v-flex(xs2 style='padding-left: 10px;')
+                                    v-text-field.white-text-field.pt-0(v-model='uploadHW.content' label="直接上傳答案文字" textarea auto-grow)
+                                v-flex.pl-2(xs2)
                                     v-tooltip(bottom)
-                                        v-btn(color='red darken-1' dark block style='margin-top: 18px;height: 158px;font-size: 18px;' @click='uploadText($event)' slot='activator') 
+                                        v-btn.mt-0.send-text-btn(color='red darken-1' dark block @click='uploadText($event)' slot='activator') 
                                             v-icon send
                                         span 送出
                         v-flex(xs12)
@@ -133,10 +150,22 @@
                                             v-icon(dark) mdi-upload-multiple
                                             | 相關檔案
                                         input(type='file' ref='uploadMulInput' :multiple='true' @change='uploadFile')
-                v-card-actions
-                    v-spacer
-                    v-btn(color='green darken-1' flat='flat' @click='uploadHW.flag = false') 關閉
-                    v-spacer
+        v-fab-transition
+            v-btn(fixed bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
+                v-icon mdi-chevron-up
+        v-fab-transition
+            v-speed-dial(fixed bottom right hover transition='slide-x-transition' v-show='!isScroll')
+                v-btn(slot='activator' color='red' dark fab hover)
+                    v-icon add
+                    v-icon mdi-rocket
+                v-tooltip(left)
+                    v-btn(fab dark color='green' @click='flag.setting = true' slot='activator')
+                        v-icon mdi-settings
+                    span 設定
+                v-tooltip(left)
+                    v-btn(fab dark color='pink' slot='activator')
+                        v-icon mdi-chart-line
+                    span 成績
 
 
 </template>
@@ -147,8 +176,13 @@ import Util from '../Util'
 import Homework from '../Homework'
 import { mapGetters } from 'vuex'
 
+const config = require('../../config.json')
+
 export default {
     data: () => ({
+        isScroll: false,
+        search: false,
+        searchText: '',
         announce: {
             flag: false,
             text: '',
@@ -246,23 +280,30 @@ export default {
         }
     },
     methods: {
-        errHandler (e) {
-            console.log(e.message)
-            this.loading = false
+        onScroll () {
+            this.isScroll = window.scrollY > 200
         },
-        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'error', timeout = 3000} = {}) {
+        toTop () {
+            window.scroll({ top: 0, behavior: 'smooth' })
+        },
+        expandSearch () {
+            this.search = true
+            setTimeout(() => {
+                this.$refs.search.focus()
+            }, 300)
+        },
+        showToast ({message = '', top = true, right = false, bottom = false, color = 'success'} = {}) {
             this.toast.show = true
             this.toast.top = top
             this.toast.right = right
             this.toast.bottom = bottom
-            this.toast.left = left
             this.toast.color = color
-            this.toast.timeout = timeout
             this.toast.message = message
         },
         showAnnounce (key) {
             let content = this.AnnounceList.list[key].content.replace(/\r\n/g, '<br>')
             this.announce.text = content
+
             if (this.Setting.detectUrl) {
                 let urlDetect = /(((?:http(s)?:\/\/)[\w.-]+(?:\.[\w.-]+)+)[\w\-._~:/?#[\]@!$&'*+,;=.]+)/g
                 content = content.replace(urlDetect, ' <a href="$1" target="_blank">$2...</a> ')
@@ -288,30 +329,36 @@ export default {
             this.announce.message = '已將內容複製到剪貼簿。'
         },
         downloadTextbook (url) {
-            let link = `https://ecourse.ccu.edu.tw${url.slice(8)}`
+            let link = `${config.ecourse.HOST}${url.slice(8)}`
             Util.openLink(link, this.Setting.isDownloadTextbook)
         },
         downloadIntro () {
-            let link = `/ec/php/Courses_Admin/intro.php`
-            Util.openLink(link, false)
+            Util.openLink(config.ecourse.INTRO, false)
         },
         downloadQues (id, type) {
-            let link = `https://ecourse.ccu.edu.tw/${this.courseID}/homework/${id}/teacher/Question.${type}`
+            let link = `${config.ecourse.HOST}/${this.courseID}/homework/${id}/teacher/Question.${type}`
             Util.openLink(link, this.Setting.isDownloadQuestion)
         },
-        async getScore () {
+        downloadAns (fileName) {
+            let link = `${config.ecourse.HOST}/php/Testing_Assessment/show_allwork.php?action=downloadFile&work_id=${this.uploadHW.workID}&filename=${fileName}`
+            Util.openLink(link, false)
+        },
+        async showScore () {
             await Score.getScore()
         },
         async showUpload (workID) {
             this.uploadHW.workID = workID
             this.uploadHW.flag = true
             if (!this.homeworkAns[this.courseID]) this.homeworkAns[this.courseID] = {}
-            this.uploadHW.list = await Homework.getMyAnswer(this.courseID, workID)
-            // this.homeworkAns[this.courseID][workID] = result
+            let result = await Homework.getAnswer(this.courseID, workID)
+            this.uploadHW.list = result.map(item => {
+                item.new = false
+                return item
+            })
         },
         async uploadText () {
             await Homework.uploadText(this.uploadHW.content, this.uploadHW.workID)
-            this.uploadHW.list = await Homework.getMyAnswer(this.courseID, this.uploadHW.workID)
+            this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
         },
         async uploadFile (e) {
             const files = e.target.files || e.dataTransfer.files
@@ -320,22 +367,21 @@ export default {
                 id: Math.random() * 1000,
                 name: files[0].name,
                 size: Util.getSize(files[0].size),
-                progress: 1
+                new: true
             })
             let result = await Homework.uploadFile(files, this.courseID, this.uploadHW.workID)
-            console.log(result)
             this.uploadHW.uploaded = true
             this.uploadHW.stat = result
             if (!result) return
             this.showToast({message: '上傳成功', color: 'success'})
-            this.uploadHW.list = await Homework.getMyAnswer(this.courseID, this.uploadHW.workID)
+            this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
             this.uploadHW.list[this.uploadHW.list.length - 1].success = true
         },
         async removeAnswer (fileName) {
             if (!confirm('確定要刪除這個檔案?')) return
             await Homework.removeAnswer(this.courseID, this.uploadHW.workID, fileName)
             this.showToast({message: '刪除成功', color: 'success'})
-            this.uploadHW.list = await Homework.getMyAnswer(this.courseID, this.uploadHW.workID)
+            this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
         }
     }
 }
