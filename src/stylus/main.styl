@@ -4,8 +4,12 @@ html, body, .mdl-layout-title
     font-family "微软雅黑", "Microsoft Yahei", Helvetica, 'Helvetica Neue', Tahoma,Arial,sans-serif
     -webkit-font-smoothing antialiased
 
-main > .content
-    padding-top 128px!important
+.main-card
+    margin-top: 64px
+
+@media screen and (max-width:600px)
+    .main-card
+        margin-top: 10px
 
 /*  Common class  */
 input[type=file]
@@ -87,6 +91,17 @@ aside.gray-bg
 ul.striped li:nth-child(odd)
     background #F1F1F1
 
+.course-head
+    color #111111
+    font-size 20px
+
+.course-list li:last-child
+    margin-bottom: -100px
+
+.course-list-name
+    color #757575
+    font-size 18px
+
 .personal-info {
     background-color #263238!important
 
@@ -112,16 +127,36 @@ ul.striped li:nth-child(odd)
     }
 }
 
-.course-head
-    color #111111
-    font-size 20px
 
-.course-list li:last-child
-    margin-bottom: -100px
+/*  Announce  */
+.announce-dialog-box
+    font-size: 18px;
 
-.course-list-name
-    color #757575
-    font-size 18px
+.date-padding
+    padding: 0 3px
+
+.exp-search {
+    transition: .3s
+    visibility: hidden
+    min-width: calc(100%/1.5)
+    margin-right: calc(-100%/1.45)!important
+}
+
+.exp-search.open {
+    visibility: visible
+	margin-right: 16px!important
+}
+
+.notify.badge--overlap .badge__badge
+    width: 10px
+    height: 10px
+    top: 0
+    right: 0
+
+
+/*  Textbook  */
+.fix-hover:hover
+    background: rgba(0,0,0,0.12)
 
 
 /*  Upload file  */
@@ -155,34 +190,11 @@ ul.striped li:nth-child(odd)
     height: 158px
     font-size: 18px
 
-/*  Textbook  */
-.fix-hover:hover
-    background: rgba(0,0,0,0.12)
+@media screen and (max-width: 392px)
+    .send-text-btn
+        height: 98px
+        margin-top: -20px!important
 
-
-/*  Announce  */
-
-.announce-dialog-box
-    font-size: 18px;
-
-.date-padding
-    padding: 0 3px
-
-.exp-search {
-    transition: .3s
-    min-width: calc(100%/1.5)
-    margin-right: calc(-100%/1.45)!important
-}
-
-.notify.badge--overlap .badge__badge
-    width: 10px
-    height: 10px
-    top: 0
-    right: 0
-
-.exp-search.open {
-	margin-right: 16px!important
-}
 
 /*  animation  */
 

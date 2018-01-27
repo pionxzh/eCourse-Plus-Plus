@@ -2,7 +2,7 @@
     v-layout(row wrap :key='$route.params.id')
         v-snackbar(:timeout='3000' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
         v-flex.pl-2(xs12 md4)
-            v-card.elevation-1(color='grey lighten-5' flat)
+            v-card.main-card.elevation-1(color='grey lighten-5' flat)
                 v-toolbar(dark color='primary' flat style='overflow: hidden')
                     v-toolbar-side-icon
                     v-toolbar-title(v-show='!search') 公告
@@ -15,9 +15,10 @@
                         :class='{"open": search}'
                         v-model='searchText')
                 v-list.tile-hover(two-line subheader)
+                    v-subheader(v-show='searchText') 搜尋結果
                     v-list-tile.cursor-p(avatar v-for='(item, index) in AnnounceList.list'
                     :key='item.id'
-                    v-if='item.title.indexOf(searchText) !== -1'
+                    v-show='item.title.indexOf(searchText) !== -1'
                     @click.native='showAnnounce(index)')
                         v-list-tile-avatar
                             v-badge.notify(overlap color='red' v-model='AnnNotify[item.id]')
@@ -28,7 +29,7 @@
                             v-list-tile-sub-title {{ item.timeStamp }}
                         
         v-flex.pl-2(xs12 md4)
-            v-card.elevation-1(color='grey lighten-5' flat)
+            v-card.main-card.elevation-1(color='grey lighten-5' flat)
                 v-toolbar(dark color='green' flat)
                     v-toolbar-side-icon
                     v-toolbar-title 作業
@@ -54,7 +55,7 @@
                                 v-icon(large color='grey') mdi-upload
                         
         v-flex.pl-2(xs12 md4)
-            v-card.elevation-1(color='grey lighten-5' flat)
+            v-card.main-card.elevation-1(color='grey lighten-5' flat)
                 v-toolbar(dark color='orange' flat)
                     v-toolbar-side-icon
                     v-toolbar-title 教材
@@ -129,9 +130,9 @@
                         v-subheader(style='color: rgba(0,0,0,0.54)') 上傳檔案
                         v-flex(xs12)
                             v-layout(row wrap)
-                                v-flex(xs10)
+                                v-flex(sm9 md10)
                                     v-text-field.white-text-field.pt-0(v-model='uploadHW.content' label="直接上傳答案文字" textarea auto-grow)
-                                v-flex.pl-2(xs2)
+                                v-flex.pl-2(sm3 md2)
                                     v-tooltip(bottom)
                                         v-btn.mt-0.send-text-btn(color='red darken-1' dark block @click='uploadText($event)' slot='activator') 
                                             v-icon send
@@ -159,11 +160,11 @@
                     v-icon add
                     v-icon mdi-rocket
                 v-tooltip(left)
-                    v-btn(fab dark color='green' @click='flag.setting = true' slot='activator')
+                    v-btn(fab dark color='green' slot='activator')
                         v-icon mdi-settings
                     span 設定
                 v-tooltip(left)
-                    v-btn(fab dark color='pink' slot='activator')
+                    v-btn(fab dark color='pink' slot='activator' @click='showScore')
                         v-icon mdi-chart-line
                     span 成績
 

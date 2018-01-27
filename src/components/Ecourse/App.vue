@@ -38,14 +38,17 @@
                     v-icon settings
                 v-list
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click='flag.setting = true') &nbsp;&nbsp;設定&nbsp;&nbsp;
+                        v-list-tile-title(@click='flag.setting = true') &nbsp;&nbsp;設定
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click='flag.about = true') &nbsp;&nbsp;關於本站&nbsp;&nbsp;
+                        v-list-tile-title(@click='flag.about = true') &nbsp;&nbsp;關於本站
                     v-list-tile.list__tile--link
                         v-list-tile-title(@click='fetchData') &nbsp;&nbsp;強制刷新&nbsp;&nbsp;
                     v-divider
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click='logout') &nbsp;&nbsp;登出&nbsp;&nbsp;
+                        v-list-tile-title(@click='logout')
+                            | &nbsp;
+                            v-icon mdi-logout-variant
+                            | &nbsp;登出
                 v-dialog(v-model='flag.setting' max-width=450)
                     v-tabs(fixed centered)
                         v-toolbar.cyan(extended dark)
@@ -117,7 +120,7 @@
 
         main
             v-content
-                v-container(fluid fill-height)
+                v-container(fluid)
                     transition(name='slide' mode='out-in')
                         keep-alive
                             router-view
