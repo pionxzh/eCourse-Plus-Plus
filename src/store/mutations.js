@@ -1,4 +1,5 @@
 // 存放 state 與 mutation 函式
+import Vue from 'vue'
 import orderBy from 'lodash/orderBy'
 import * as types from './mutations_type.js'
 
@@ -74,7 +75,7 @@ export const mutations = {
     [types.SETTING] (state, setting) {
         console.log('Setting\n', setting)
         Object.keys(setting).forEach(key => {
-            state.settingData[key] = setting[key]
+            Vue.set(state.settingData, key, setting[key])
         })
         localStorage.setting = JSON.stringify(state.settingData)
     },

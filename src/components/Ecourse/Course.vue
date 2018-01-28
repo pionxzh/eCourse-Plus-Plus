@@ -6,26 +6,27 @@
                 v-card.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(dark color='primary' flat style='overflow: hidden')
                         v-toolbar-side-icon
-                        v-toolbar-title(v-show='!search') 公告
+                        transition(name='fade-transition')
+                            v-toolbar-title(v-show='search.title') 公告
                         v-spacer
-                        v-btn.mr-3(icon v-show='!search' @click='expandSearch')
+                        v-btn.mr-3(icon v-show='!search.flag' @click='expandSearch')
                             v-icon search
                         v-text-field.exp-search(type='text' label='搜尋標題' ref='search' solo
-                            prepend-icon='search' @blur='search = false'
-                            v-model='searchText' :class='{"open": search}')
-                    v-list.tile-hover(two-line subheader)
-                        v-subheader(v-show='searchText') 搜尋結果
-                        v-list-tile.cursor-p(avatar v-for='(item, index) in AnnounceList.list'
-                            :key='item.id'
-                            v-show='item.title.indexOf(searchText) !== -1'
-                            @click.native='showAnnounce(index)')
-                            v-list-tile-avatar
-                                v-badge.notify(overlap color='red' v-model='AnnNotify[item.id]')
-                                    span(slot='badge')
-                                    v-icon(medium :class='[item.stat]') widgets
-                            v-list-tile-content
-                                v-list-tile-title {{ item.title }}
-                                v-list-tile-sub-title {{ item.timeStamp }}
+                            prepend-icon='search' @blur='expandSearch' light
+                            v-model='search.keyword' :class='{"open": search.flag}')
+                    v-list.tile-hover.pa-0(two-line subheader)
+                        v-subheader(v-show='search.keyword') 搜尋結果
+                        template(v-for='(item, index) in AnnounceList.list')
+                            v-list-tile(avatar :key='item.id' v-show='item.title.indexOf(search.keyword) !== -1'
+                                @click.native='showAnnounce(index)')
+                                v-list-tile-avatar
+                                    v-badge.notify(overlap color='red' v-model='AnnNotify[item.id]')
+                                        span(slot='badge')
+                                        v-icon(medium :class='[item.stat]') widgets
+                                v-list-tile-content
+                                    v-list-tile-title {{ item.title }}
+                                    v-list-tile-sub-title {{ item.timeStamp }}
+                            v-divider(v-if='Setting.annDivider')
         
         transition(name='slide-y-transition')
             v-flex.pl-2(xs12 md4 v-if='score.flag === 0')
@@ -38,8 +39,8 @@
                             v-btn(icon slot='activator' @click='showScore')
                                 v-icon mdi-chart-line
                             span 成績
-                    v-list.tile-hover(two-line subheader)
-                        v-list-tile.cursor-p(avatar v-for='(item, index) in HomeworkList.list' :key='index' @click.native='showHomework(index)')
+                    v-list.tile-hover.pa-0(two-line subheader)
+                        v-list-tile(ripple avatar v-for='(item, index) in HomeworkList.list' :key='index' @click.native='showHomework(index)')
                             template(v-if='item.id')
                                 v-list-tile-avatar
                                     v-icon(medium) assignment
@@ -48,11 +49,11 @@
                                     v-list-tile-sub-title {{ item.timeStamp }} / {{ item.percentage }}%
                                 v-list-tile-action(v-if='HwFile[item.id] && !!HwFile[item.id].type')
                                     v-tooltip(top)
-                                        v-btn(icon ripple @click.stop='downloadQues(item.id, HwFile[item.id].type)' slot='activator')
+                                        v-btn(icon @click.stop='downloadQues(item.id, HwFile[item.id].type)' slot='activator')
                                             v-icon(large color='grey lighten-1') {{ fileType[HwFile[item.id].type] || 'mdi-file' }}
                                         span 作業題目
                                 v-list-tile-action
-                                    v-btn(icon ripple @click.stop='showUpload(item.id)')
+                                    v-btn(icon @click.stop='showUpload(item.id)')
                                         v-icon(large color='grey') mdi-upload
                             template(v-else)
                                 v-list-tile-avatar
@@ -68,30 +69,22 @@
                         v-spacer
                         v-btn(icon)
                             v-icon search
-                    v-list.tile-hover(two-line subheader)
+                    v-list.pa-0(two-line subheader)
                         v-list-tile(v-if='Setting.showIntro' @click.native='downloadIntro')
                             v-list-tile-avatar
                                 v-icon(large) mdi-file-account
                             v-list-tile-content 
                                 v-list-tile-title 授課大綱
-                        v-list-group(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder')
-                            v-list-tile(v-if='TextbookList.content[index][0]' slot='item')
-                                v-list-tile-avatar
-                                    v-icon folder
+                        v-list-group(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='folder' v-if='TextbookList.content[index][0]')
+                            v-list-tile(slot='activator' ripple)
                                 v-list-tile-content 
                                     v-list-tile-title {{ item[0] }}
-                                    v-list-tile-sub-title
+                            v-list-tile(v-for='nitem in TextbookList.content[index][0]' :key='nitem[0]' @click.native='downloadTextbook(nitem[1])')
                                 v-list-tile-action
-                                    v-btn(icon ripple)
-                                        v-icon(color='grey lighten-1') keyboard_arrow_down
-                            template(v-for='(nitem, nindex) in TextbookList.content[index][0]')
-                                //v-subheader {{ item[index][nindex] }}
-                                v-list-tile(:key='nitem[0]' @click.native='downloadTextbook(nitem[1])')
-                                    v-list-tile-avatar
-                                        v-icon(large) {{ fileType[nitem[4]] || 'mdi-file' }}
-                                    v-list-tile-content 
-                                        v-list-tile-title {{ nitem[0] }}
-                                        v-list-tile-sub-title {{ nitem[3].split(' ')[0] }}
+                                     v-icon(large) {{ fileType[nitem[4]] || 'mdi-file' }}
+                                v-list-tile-content 
+                                    v-list-tile-title {{ nitem[0] }}
+                                    v-list-tile-sub-title {{ nitem[3].split(' ')[0] }}
         transition(name='slide-y-reverse-transition' mode='out-in')
             v-flex.pl-2(xs12 md6 offset-md3 v-if='score.flag === 2')
                 v-card.main-card.elevation-1.score-card(flat color='grey lighten-5')
@@ -103,20 +96,21 @@
                                 v-btn(icon slot='activator' @click='score.flag = 0')
                                     v-icon assignment
                                 span 作業
-                        v-list.tile-hover(subheader)
+                        v-list.tile-hover.stripe.pa-0(subheader)
                             template(v-for='(item, key) in score.data' v-if='item.length')
-                                v-subheader(:key='key') {{ key }}
-                                v-list-tile.cursor-p(avatar v-for='slime in item' :key='slime.name')
-                                    v-list-tile-content 
+                                v-subheader {{ key }}
+                                v-list-tile(ripple avatar v-for='slime in item' :key='slime.name + slime.percentage' :class='{"yellow lighten-1": key === "總成績"}' @click='')
+                                    v-list-tile-content
                                         v-list-tile-title {{ slime.name }}
                                         v-list-tile-sub-title {{ slime.percentage }}
                                     v-list-tile-action
                                         v-btn(flat outline) {{ slime.rank }}
                                     v-list-tile-action
                                         v-btn(flat outline) {{ slime.score }}
-
+                                    //v-progress-linear(:indeterminate='true')
+                                
         v-dialog(v-model='announce.flag' max-width=490)
-            v-card.announce-dialog-box
+            v-card#announce.announce-dialog-box
                 v-snackbar(:timeout='3000' top=true bottom=false absolute=true color='success' v-model='announce.toastShow') {{announce.message}}
                 v-card-title.headline
                     div.text-xs-center {{ announce.title }}
@@ -141,6 +135,9 @@
                     v-spacer
                     v-btn(flat color='green darken-1' @click.native='homework.flag = false') 關閉
                     v-spacer
+        v-dialog(v-model='screenshot.flag' max-width=560)
+            v-card.announce-dialog-box.elevation-5.grey
+                img.pa-3(:src='screenshot.url' width=560)
         v-dialog(v-model='uploadHW.flag' max-width=600 persistent)
             v-card.announce-dialog-box(style='background-color: #f2f2f2;')
                 v-snackbar(:timeout='3000' :top='true' :bottom='false' :color='uploadHW.toastColor'
@@ -153,7 +150,7 @@
                         v-subheader(style='color: rgba(0,0,0,0.54)') 已交作業
                         v-layout(row wrap)
                             v-flex.upload-wrapper(xs6 v-for='file in uploadHW.list' :key='file.id')
-                                div.white.upload-item.elevation-2.cursor-p
+                                div.white.upload-item.elevation-2
                                     v-text-field(
                                         :append-icon='file.success ? "mdi-check-circle" : file.new ? "none" : "delete"'
                                         :append-icon-cb='() => removeAnswer(file.name)'
@@ -166,9 +163,9 @@
                         v-flex(xs12)
                             v-layout(row wrap)
                                 v-flex(sm9 md10)
-                                    v-text-field.white-text-field.pt-0(v-model='uploadHW.content' label='直接上傳答案文字' textarea auto-grow)
+                                    v-text-field.white-text-field(v-model='uploadHW.content' label='直接上傳答案文字' textarea auto-grow style='margin-top: -18px;')
                                 v-flex.pl-2(sm3 md2)
-                                    v-tooltip(bottom)
+                                    v-tooltip(left)
                                         v-btn.mt-0.send-text-btn(color='red darken-1' @click='uploadText($event)' slot='activator' block dark) 
                                             v-icon send
                                         span 送出
@@ -186,22 +183,6 @@
                                             v-icon(dark) mdi-upload-multiple
                                             | 相關檔案
                                         input(type='file' ref='uploadMulInput' :multiple='true' @change='uploadFile')
-        v-fab-transition
-            v-btn(fixed bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
-                v-icon mdi-chevron-up
-        v-fab-transition
-            v-speed-dial(fixed bottom right hover transition='slide-x-transition' v-show='!isScroll')
-                v-btn(slot='activator' color='red' dark fab hover)
-                    v-icon mdi-rocket
-                    v-icon close
-                v-tooltip(left)
-                    v-btn(fab dark color='green' slot='activator')
-                        v-icon mdi-settings
-                    span 設定
-                v-tooltip(left)
-                    v-btn(fab dark color='pink' slot='activator' @click='showScore')
-                        v-icon mdi-chart-line
-                    span 成績
 
 
 </template>
@@ -211,7 +192,7 @@ import Util from '../Util'
 import Score from '../Score'
 import Course from './../Course'
 import Homework from '../Homework'
-import debounce from 'lodash/debounce'
+import html2Canvas from 'html2canvas'
 import { mapGetters, mapActions } from 'vuex'
 
 const config = require('../../config.json')
@@ -219,8 +200,11 @@ const config = require('../../config.json')
 export default {
     data: () => ({
         isScroll: false,
-        search: false,
-        searchText: '',
+        search: {
+            flag: false,
+            title: true,
+            keyword: ''
+        },
         announce: {
             flag: false,
             text: '',
@@ -241,6 +225,10 @@ export default {
         score: {
             flag: 0,
             data: {}
+        },
+        screenshot: {
+            flag: false,
+            url: ''
         },
         uploadHW: {
             workID: 0,
@@ -336,17 +324,19 @@ export default {
             'updateAnnNotify',
             'updateHwNotify'
         ]),
-        onScroll: debounce(function () {
-            this.isScroll = window.scrollY > 200
-        }, 100),
-        toTop () {
-            window.scroll({ top: 0, behavior: 'smooth' })
-        },
         expandSearch () {
-            this.search = true
-            setTimeout(() => {
-                this.$refs.search.focus()
-            }, 300)
+            if (this.search.flag) {
+                this.search.flag = false
+                setTimeout(() => {
+                    this.search.title = true
+                }, 200)
+            } else {
+                this.search.flag = true
+                this.search.title = false
+                setTimeout(() => {
+                    this.$refs.search.focus()
+                }, 300)
+            }
         },
         showToast ({message = '', top = true, right = false, bottom = false, color = 'success'} = {}) {
             this.toast.show = true

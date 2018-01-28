@@ -19,6 +19,7 @@
         "COURSE_SELECT": "/ec/php/login_s.php",
         "COURSE_SCORE": "/ec/php/Trackin/SGQueryFrame1.php",
         "UNDER_DIR_FILE": "/ec/ecourse/php/courses_homework/UnderDirFile.php",
-        "SHOW_WORK": "/ec/php/Testing_Assessment/show_allwork.php"
+        "SHOW_WORK": "/ec/php/Testing_Assessment/show_allwork.php",
+        "TEACHER_INFO": "/ec/php/Learner_Profile/show_teacher_info.php"
     }
 }

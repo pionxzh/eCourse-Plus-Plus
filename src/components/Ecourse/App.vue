@@ -7,7 +7,7 @@
                         v-list-tile-content
                             v-btn(color='primary' @click='flag.login = true' dark) 登入
                     v-list-tile.px-4(avatar ripple v-else)
-                        v-list-tile-avatar
+                        v-list-tile-avatar(size=48)
                             img(src='https://i.imgur.com/KDLeUaq.jpg')
                         v-list-tile-content
                             v-list-tile-title {{User.name}}
@@ -49,50 +49,56 @@
                             | &nbsp;
                             v-icon mdi-logout-variant
                             | &nbsp;登出
-                v-dialog(v-model='flag.setting' max-width=450)
-                    v-tabs(fixed centered)
-                        v-toolbar.cyan(extended dark)
-                            v-toolbar-title.display-2.mb-5(slot='extension') 設定
+                v-dialog(v-model='flag.setting' max-width=450 scroll)
+                        v-toolbar.cyan(dark)
+                            v-toolbar-side-icon
+                            v-toolbar-title 設定
                         v-list.tile-hover(two-line subheader)
                             v-subheader 公告
-                            v-list-tile(avatar)
+                            v-list-tile(ripple avatar @click='')
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.detectDate')
-                                v-list-tile-content
+                                    v-checkbox(color='blue' v-model='setting.detectDate')
+                                v-list-tile-content(@click='setting.detectDate = !setting.detectDate')
                                     v-list-tile-title 偵測日期
                                     v-list-tile-sub-title 公告日期添加底線
-                            v-list-tile(avatar)
+                            v-list-tile(ripple avatar @click='')
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.detectUrl')
-                                v-list-tile-content
+                                    v-checkbox(color='blue' v-model='setting.detectUrl')
+                                v-list-tile-content(@click='setting.detectUrl = !setting.detectUrl')
                                     v-list-tile-title 偵測網址
                                     v-list-tile-sub-title 公告網址變為可點之連結
+                            v-list-tile(ripple avatar @click='')
+                                v-list-tile-action
+                                    v-checkbox(color='blue' v-model='setting.annDivider')
+                                v-list-tile-content(@click='setting.annDivider = !setting.annDivider')
+                                    v-list-tile-title 顯示格線
+                                    v-list-tile-sub-title 每個項目之間添加分隔線
                             v-divider
                             v-subheader 作業
-                            v-list-tile(avatar)
+                            v-list-tile(ripple avatar @click='')
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.isDownloadQuestion')
-                                v-list-tile-content
+                                    v-checkbox(color='blue' v-model='setting.isDownloadQuestion')
+                                v-list-tile-content(@click='setting.isDownloadQuestion = !setting.isDownloadQuestion')
                                     v-list-tile-title 強制下載題目
                                     v-list-tile-sub-title 點擊後會強制下載而非打開新視窗(Safari無效)
                             v-divider
                             v-subheader 教材
-                            v-list-tile(avatar)
+                            v-list-tile(ripple avatar @click='')
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.showIntro')
-                                v-list-tile-content
+                                    v-checkbox(color='blue' v-model='setting.showIntro')
+                                v-list-tile-content(@click='setting.showIntro = !setting.showIntro')
                                     v-list-tile-title 授課大綱
                                     v-list-tile-sub-title 是否顯示授課大綱
-                            v-list-tile(avatar)
+                            v-list-tile(ripple avatar @click='')
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.expandFirstFolder')
-                                v-list-tile-content
+                                    v-checkbox(color='blue' v-model='setting.expandFirstFolder')
+                                v-list-tile-content(@click='setting.expandFirstFolder = !setting.expandFirstFolder')
                                     v-list-tile-title 自動展開首項
                                     v-list-tile-sub-title 教材第一個資料夾會自動打開
-                            v-list-tile(avatar)
+                            v-list-tile(ripple avatar @click='')
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.isDownloadTextbook')
-                                v-list-tile-content
+                                    v-checkbox(color='blue' v-model='setting.isDownloadTextbook')
+                                v-list-tile-content(@click='setting.isDownloadTextbook = !setting.isDownloadTextbook')
                                     v-list-tile-title 強制下載教材
                                     v-list-tile-sub-title 點擊後會強制下載而非打開新視窗(Safari無效)
                             v-divider
@@ -118,17 +124,32 @@
                             v-btn(color='green darken-1' flat='flat' @click.native='login(false)') 登入
                             v-spacer
 
-        main
-            v-content
-                v-container(fluid)
-                    transition(name='slide' mode='out-in')
-                        keep-alive
-                            router-view
-                    v-snackbar(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
-        v-footer(app)
+        v-content.mb-5
+            v-container(fluid)
+                transition(name='slide' mode='out-in')
+                    keep-alive
+                        router-view
+                v-snackbar(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
+        v-footer(absolute)
             v-spacer
             span © 2018 @Copyright by Pionxzh
             v-spacer
+        v-fab-transition
+            v-btn(fixed bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
+                v-icon mdi-chevron-up
+        v-fab-transition
+            v-speed-dial(fixed bottom right open-on-hover transition='slide-x-transition' v-show='!isScroll' style='z-index: 10;')
+                v-btn(slot='activator' color='red' dark fab hover)
+                    v-icon mdi-rocket
+                    v-icon close
+                v-tooltip(left)
+                    v-btn(fab dark color='green' slot='activator')
+                        v-icon mdi-settings
+                    span 設定
+                v-tooltip(left)
+                    v-btn(fab dark color='pink' slot='activator' @click='')
+                        v-icon mdi-chart-line
+                    span 成績
 
 </template>
 
@@ -138,6 +159,7 @@ import Course from './../Course'
 import Announce from './../Announce'
 import Homework from './../Homework'
 import Textbook from './../Textbook'
+import debounce from 'lodash/debounce'
 import { mapGetters, mapActions } from 'vuex'
 // const config = require('../../config.json')
 window.$ = window.jQuery = $
@@ -162,6 +184,7 @@ export default {
             showIntro: true,
             detectUrl: true,
             detectDate: true,
+            annDivider: false,
             expandFirstFolder: true,
             isDownloadQuestion: false,
             isDownloadTextbook: false
@@ -200,7 +223,6 @@ export default {
     watch: {
         setting: {
             handler () {
-                console.log('update')
                 this.updateSetting(this.setting)
             },
             deep: true
@@ -216,6 +238,12 @@ export default {
             'updateSetting',
             'updateHwFile'
         ]),
+        onScroll: debounce(function () {
+            this.isScroll = window.scrollY > 200
+        }, 100),
+        toTop () {
+            window.scroll({ top: 0, behavior: 'smooth' })
+        },
         showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', timeout = 3000} = {}) {
             this.toast.show = true
             this.toast.top = top
@@ -277,6 +305,8 @@ export default {
             let isError = !announce.stat || !homework.stat || !homeworkFile.stat || !textbook.stat
             if (isError) this.showToast({message: '取得資料錯誤', color: 'error'})
             else this.showToast({message: '取得資料成功', color: 'info'})
+        },
+        doNothing () {
         }
     }
 }

@@ -31,7 +31,7 @@ export default class Util {
 
     static openLink (url, download) {
         let link = document.createElement('a')
-        if (download) link.download = true
+        if (download) link.download = download
         link.target = '_blank'
         link.href = url
         link.click()

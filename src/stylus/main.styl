@@ -1,6 +1,6 @@
 @import '../../node_modules/vuetify/src/stylus/main'
 
-html, body, .mdl-layout-title 
+html, body, .mdl-layout-title, .application
     font-family "微软雅黑", "Microsoft Yahei", Helvetica, 'Helvetica Neue', Tahoma,Arial,sans-serif
     -webkit-font-smoothing antialiased
 
@@ -28,16 +28,13 @@ input[type=file]
     padding 20px 15px
 
 /* Adjust list */
-.list--group__header--active .list__tile
-    background: none
-
-.list--group .list__tile
-    padding-left: 36px
+.list__group__items li
+    padding-left: 36px    
 
 .list__tile--link
     transition .3s!important
 
-.list__tile--active
+.list__tile--active.primary--text
     border-left 6px solid #dd4b39
     color rgba(0,0,0,0.87)!important
 
@@ -46,18 +43,17 @@ input[type=file]
     width 20px
     height 76px
 
-.application--light .tabs .tabs__item
-    color: #FFF
+.list__group__header
+    padding: 0 6px
 
-.tabs__item
-    opacity: 0.7
+.list__group__header__prepend-icon i
+    font-size: 28px
 
-.application--light .tabs .tabs__item.tabs__item--active
-    color: #FFF
-    opacity: 1
+.list__group__header__prepend-icon.primary--text
+    color: rgba(0, 0, 0, 0.54)!important
 
 // fix for the hover effect on list
-.tile-hover .list__tile:hover
+.tile-hover .list__tile:hover, .list__group__items li:hover
     cursor: pointer
     background: rgba(0, 0, 0, .12)
 
@@ -164,14 +160,15 @@ ul.striped li:nth-child(odd)
 .notify.badge--overlap .badge__badge
     width: 10px
     height: 10px
-    top: 0
-    right: 0
 
 
 /*  Textbook  */
 
 
 /*  Score  */
+ul.stripe li:not(.subheader):nth-child(even)
+    background #F9F9F9
+
 @media screen and (max-width:600px)
     .score-card
         margin-left: -24px
@@ -203,6 +200,7 @@ ul.striped li:nth-child(odd)
 .upload-item
     margin-bottom: 5px
     border-radius: 2px
+    cursor: pointer
     padding: 5px 5px 0 16px
     max-width: 300px
     background-color: #f2f2f2
@@ -214,7 +212,7 @@ ul.striped li:nth-child(odd)
     background-color: #FFF
 
 .send-text-btn
-    height: 158px
+    height: 154px
     font-size: 18px
 
 @media screen and (max-width: 392px)
