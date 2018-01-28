@@ -70,11 +70,16 @@
                         v-btn(icon)
                             v-icon search
                     v-list.pa-0(two-line subheader)
-                        v-list-tile(v-if='Setting.showIntro' @click.native='downloadIntro')
+                        v-list-tile(v-if='Setting.showIntro' @click='downloadIntro')
                             v-list-tile-avatar
                                 v-icon(large) mdi-file-account
                             v-list-tile-content 
                                 v-list-tile-title 授課大綱
+                        v-list-tile(v-if='Setting.showTeacherInfo' @click='downloadTeaIndo')
+                            v-list-tile-avatar
+                                v-icon(large) mdi-file-account
+                            v-list-tile-content 
+                                v-list-tile-title 教師資訊
                         v-list-group(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='folder' v-if='TextbookList.content[index][0]')
                             v-list-tile(slot='activator' ripple)
                                 v-list-tile-content 
@@ -316,7 +321,10 @@ export default {
     watch: {
         async '$route' (target) {
             await Course.changeCourse(target.params.id)
-            if (this.score.flag) this.score.data = await Score.getScore()
+            if (this.score.flag) {
+                this.score.data = await Score.getScore()
+                window.scroll({ top: 0, behavior: 'smooth' })
+            }
         }
     },
     methods: {
@@ -394,6 +402,9 @@ export default {
         downloadIntro () {
             Util.openLink(config.ecourse.INTRO, false)
         },
+        downloadTeaIndo () {
+            Util.openLink(config.ecourse.TEACHER_INFO, false)
+        },
         downloadQues (id, type) {
             let link = `${config.ecourse.HOST}/${this.courseID}/homework/${id}/teacher/Question.${type}`
             Util.openLink(link, this.Setting.isDownloadQuestion)
@@ -404,7 +415,6 @@ export default {
         },
         async showScore () {
             this.score.flag = 1
-            this.toTop()
             setTimeout(() => {
                 this.score.flag = 2
             }, 300)

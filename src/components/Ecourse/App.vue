@@ -49,60 +49,21 @@
                             | &nbsp;
                             v-icon mdi-logout-variant
                             | &nbsp;登出
+ 
                 v-dialog(v-model='flag.setting' max-width=450 scroll)
-                        v-toolbar.cyan(dark)
-                            v-toolbar-side-icon
-                            v-toolbar-title 設定
-                        v-list.tile-hover(two-line subheader)
-                            v-subheader 公告
-                            v-list-tile(ripple avatar @click='')
+                    v-toolbar.blue(dark)
+                        v-icon mdi-wrench
+                        v-toolbar-title 設定
+                    v-list.tile-hover(two-line subheader)
+                        template(v-for='(item, key) in settingData')
+                            v-subheader(:key='key') {{ key }}
+                            v-list-tile(v-for='subItem in item' :key='subItem.title' ripple avatar @click='')
                                 v-list-tile-action
-                                    v-checkbox(color='blue' v-model='setting.detectDate')
-                                v-list-tile-content(@click='setting.detectDate = !setting.detectDate')
-                                    v-list-tile-title 偵測日期
-                                    v-list-tile-sub-title 公告日期添加底線
-                            v-list-tile(ripple avatar @click='')
-                                v-list-tile-action
-                                    v-checkbox(color='blue' v-model='setting.detectUrl')
-                                v-list-tile-content(@click='setting.detectUrl = !setting.detectUrl')
-                                    v-list-tile-title 偵測網址
-                                    v-list-tile-sub-title 公告網址變為可點之連結
-                            v-list-tile(ripple avatar @click='')
-                                v-list-tile-action
-                                    v-checkbox(color='blue' v-model='setting.annDivider')
-                                v-list-tile-content(@click='setting.annDivider = !setting.annDivider')
-                                    v-list-tile-title 顯示格線
-                                    v-list-tile-sub-title 每個項目之間添加分隔線
+                                    v-checkbox(color='blue darken-1' v-model='setting[subItem.field]')
+                                v-list-tile-content(@click='setting[subItem.field] = !setting[subItem.field]')
+                                    v-list-tile-title {{ subItem.title }}
+                                    v-list-tile-sub-title {{ subItem.description }}
                             v-divider
-                            v-subheader 作業
-                            v-list-tile(ripple avatar @click='')
-                                v-list-tile-action
-                                    v-checkbox(color='blue' v-model='setting.isDownloadQuestion')
-                                v-list-tile-content(@click='setting.isDownloadQuestion = !setting.isDownloadQuestion')
-                                    v-list-tile-title 強制下載題目
-                                    v-list-tile-sub-title 點擊後會強制下載而非打開新視窗(Safari無效)
-                            v-divider
-                            v-subheader 教材
-                            v-list-tile(ripple avatar @click='')
-                                v-list-tile-action
-                                    v-checkbox(color='blue' v-model='setting.showIntro')
-                                v-list-tile-content(@click='setting.showIntro = !setting.showIntro')
-                                    v-list-tile-title 授課大綱
-                                    v-list-tile-sub-title 是否顯示授課大綱
-                            v-list-tile(ripple avatar @click='')
-                                v-list-tile-action
-                                    v-checkbox(color='blue' v-model='setting.expandFirstFolder')
-                                v-list-tile-content(@click='setting.expandFirstFolder = !setting.expandFirstFolder')
-                                    v-list-tile-title 自動展開首項
-                                    v-list-tile-sub-title 教材第一個資料夾會自動打開
-                            v-list-tile(ripple avatar @click='')
-                                v-list-tile-action
-                                    v-checkbox(color='blue' v-model='setting.isDownloadTextbook')
-                                v-list-tile-content(@click='setting.isDownloadTextbook = !setting.isDownloadTextbook')
-                                    v-list-tile-title 強制下載教材
-                                    v-list-tile-sub-title 點擊後會強制下載而非打開新視窗(Safari無效)
-                            v-divider
-                            v-subheader 成績
 
                 v-dialog(v-model='flag.login')
                     v-card.dialog-box
@@ -181,13 +142,52 @@ export default {
             // authcode: false
         },
         setting: {
-            showIntro: true,
             detectUrl: true,
             detectDate: true,
             annDivider: false,
             expandFirstFolder: true,
             isDownloadQuestion: false,
-            isDownloadTextbook: false
+            isDownloadTextbook: false,
+            showIntro: true,
+            showTeacherInfo: true
+        },
+        settingData: {
+            '公告': [{
+                field: 'detectDate',
+                title: '日期偵測',
+                description: '公告日期添加底線'
+            }, {
+                field: 'detectUrl',
+                title: '偵測網址',
+                description: '公告網址變為可點之連結'
+            }, {
+                field: 'annDivider',
+                title: '顯示格線',
+                description: '每個項目之間添加分隔線'
+            }],
+            '作業': [{
+                field: 'isDownloadQuestion',
+                title: '強制下載題目',
+                description: '點擊後會強制下載而非打開新視窗(Safari無效)'
+            }],
+            '教材': [{
+                field: 'showIntro',
+                title: '授課大綱',
+                description: '是否顯示授課大綱'
+            }, {
+                field: 'showTeacherInfo',
+                title: '教師資訊',
+                description: '是否顯示教師資訊'
+            }, {
+                field: 'expandFirstFolder',
+                title: '自動展開首項',
+                description: '教材第一個資料夾會自動打開'
+            }, {
+                field: 'isDownloadTextbook',
+                title: '強制下載教材',
+                description: '點擊後會強制下載而非打開新視窗(Safari無效)'
+            }],
+            '成績': []
         },
         toast: {
             show: false,

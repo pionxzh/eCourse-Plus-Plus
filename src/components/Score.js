@@ -36,7 +36,7 @@ export default class Score {
                     })
             }
         })
-        console.log(result)
+        // console.log(result)
         return result
     }
 }
