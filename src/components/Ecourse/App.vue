@@ -6,7 +6,7 @@
                     v-list-tile.px-4(v-if='!User.loggedIn')
                         v-list-tile-content
                             v-btn(color='primary' @click='flag.login = true' dark) 登入
-                    v-list-tile.px-4(avatar ripple v-if='User.loggedIn')
+                    v-list-tile.px-4(avatar ripple v-else)
                         v-list-tile-avatar
                             img(src='https://i.imgur.com/KDLeUaq.jpg')
                         v-list-tile-content
@@ -34,7 +34,7 @@
             v-toolbar-title.white--text.ecourse-logo eCourse+
             v-spacer
             v-menu
-                v-btn.mr-5(icon slot='activator')
+                v-btn.setting-btn(icon slot='activator')
                     v-icon settings
                 v-list
                     v-list-tile.list__tile--link
@@ -57,13 +57,13 @@
                             v-subheader 公告
                             v-list-tile(avatar)
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.detectDate' @change='changeSetting({detectDate: setting.detectDate})')
+                                    v-checkbox(v-model='setting.detectDate')
                                 v-list-tile-content
                                     v-list-tile-title 偵測日期
                                     v-list-tile-sub-title 公告日期添加底線
                             v-list-tile(avatar)
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.detectUrl' @change='changeSetting({detectUrl: setting.detectUrl})')
+                                    v-checkbox(v-model='setting.detectUrl')
                                 v-list-tile-content
                                     v-list-tile-title 偵測網址
                                     v-list-tile-sub-title 公告網址變為可點之連結
@@ -71,30 +71,30 @@
                             v-subheader 作業
                             v-list-tile(avatar)
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.isDownloadQuestion' @change='changeSetting({isDownloadQuestion: setting.isDownloadQuestion})')
+                                    v-checkbox(v-model='setting.isDownloadQuestion')
                                 v-list-tile-content
                                     v-list-tile-title 強制下載題目
-                                    v-list-tile-sub-title 點擊下載按鈕後會強制下載而非打開新視窗(Safari無效)
+                                    v-list-tile-sub-title 點擊後會強制下載而非打開新視窗(Safari無效)
                             v-divider
                             v-subheader 教材
                             v-list-tile(avatar)
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.showIntro' @change='changeSetting({showIntro: setting.showIntro})')
+                                    v-checkbox(v-model='setting.showIntro')
                                 v-list-tile-content
                                     v-list-tile-title 授課大綱
                                     v-list-tile-sub-title 是否顯示授課大綱
                             v-list-tile(avatar)
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.expandFirstFolder' @change='changeSetting({expandFirstFolder: setting.expandFirstFolder})')
+                                    v-checkbox(v-model='setting.expandFirstFolder')
                                 v-list-tile-content
                                     v-list-tile-title 自動展開首項
                                     v-list-tile-sub-title 教材第一個資料夾會自動打開
                             v-list-tile(avatar)
                                 v-list-tile-action
-                                    v-checkbox(v-model='setting.isDownloadTextbook' @change='changeSetting({isDownloadTextbook: setting.isDownloadTextbook})')
+                                    v-checkbox(v-model='setting.isDownloadTextbook')
                                 v-list-tile-content
                                     v-list-tile-title 強制下載教材
-                                    v-list-tile-sub-title 點擊下載按鈕後會強制下載而非打開新視窗(Safari無效)
+                                    v-list-tile-sub-title 點擊後會強制下載而非打開新視窗(Safari無效)
                             v-divider
                             v-subheader 成績
 
@@ -109,9 +109,9 @@
                                         v-text-field(label='帳號' required v-model='username')
                                     v-flex(xs12)
                                         v-text-field(label='密碼' required type='password' v-model='password' @keyup.enter='login(false)')
-                                    v-flex(xs4 v-if='flag.authcode')
+                                    //v-flex(xs4 v-if='flag.authcode')
                                         img(:src='authcodeImg' ref='authcode' @click.stop="$refs.authcode.src = authcodeImg + '?rnd=' + Math.random()" style='margin-top: 19px;')
-                                    v-flex(xs8 v-if='flag.authcode')
+                                    //v-flex(xs8 v-if='flag.authcode')
                                         v-text-field(label='驗證碼' v-model='authcode' required)
                         v-card-actions
                             v-spacer
@@ -139,7 +139,7 @@ import Announce from './../Announce'
 import Homework from './../Homework'
 import Textbook from './../Textbook'
 import { mapGetters, mapActions } from 'vuex'
-const config = require('../../config.json')
+// const config = require('../../config.json')
 window.$ = window.jQuery = $
 
 export default {
@@ -149,14 +149,14 @@ export default {
         isScroll: false,
         username: '',
         password: '',
-        authcode: '',
-        authcodeImg: config.sso.authcode,
+        // authcode: '',
+        // authcodeImg: config.sso.authcode,
         flag: {
             drawer: true,
             setting: false,
             login: false,
-            about: false,
-            authcode: false
+            about: false
+            // authcode: false
         },
         setting: {
             showIntro: true,
@@ -173,7 +173,7 @@ export default {
             right: false,
             bottom: false,
             left: false,
-            color: 'error',
+            color: 'success',
             message: ''
         }
     }),
@@ -191,16 +191,20 @@ export default {
             }
         }
     },
-    watch: {
-        '$route' (target) {
-            Course.changeCourse(target.params.id)
-        }
-    },
     async created () {
-        await this.autoLogin()
-        if (this.$route.params.id) await Course.changeCourse(this.$route.params.id)
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
+        await this.autoLogin()
+        if (this.$route.params.id) await Course.changeCourse(this.$route.params.id)
+    },
+    watch: {
+        setting: {
+            handler () {
+                console.log('update')
+                this.updateSetting(this.setting)
+            },
+            deep: true
+        }
     },
     methods: {
         ...mapActions([
@@ -212,7 +216,7 @@ export default {
             'updateSetting',
             'updateHwFile'
         ]),
-        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'error', timeout = 3000} = {}) {
+        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', timeout = 3000} = {}) {
             this.toast.show = true
             this.toast.top = top
             this.toast.right = right
@@ -221,10 +225,6 @@ export default {
             this.toast.color = color
             this.toast.timeout = timeout
             this.toast.message = message
-        },
-        changeSetting (data) {
-            localStorage.setting = JSON.stringify(this.setting)
-            this.updateSetting(data)
         },
         async autoLogin () {
             if (!localStorage.user) return

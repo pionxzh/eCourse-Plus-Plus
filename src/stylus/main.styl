@@ -56,7 +56,9 @@ input[type=file]
     color: #FFF
     opacity: 1
 
+// fix for the hover effect on list
 .tile-hover .list__tile:hover
+    cursor: pointer
     background: rgba(0, 0, 0, .12)
 
 
@@ -70,6 +72,9 @@ input[type=file]
     background-position bottom
     background-size cover
 
+.color-nav.scroll > .toolbar__content
+    height: 64px!important
+
 .ecourse-logo
     font-family "Poiret One", Helvetica, 'Helvetica Neue', Tahoma,Arial,sans-serif
     font-size 50px
@@ -79,10 +84,19 @@ input[type=file]
     -ms-user-select: none
     user-select: none
 
+.setting-btn
+    margin-right: 48px
+
 @media screen and (max-width:600px)
-    .color-nav > .toolbar__content {
+    .color-nav > .toolbar__content
         height 64px!important
-    }
+
+    .setting-btn
+        margin-right: 24px
+
+@media screen and (max-width:370px)
+    .ecourse-logo
+        font-size: 40px
 
 /*  Left panel  */
 aside.gray-bg
@@ -155,9 +169,22 @@ ul.striped li:nth-child(odd)
 
 
 /*  Textbook  */
-.fix-hover:hover
-    background: rgba(0,0,0,0.12)
 
+
+/*  Score  */
+@media screen and (max-width:600px)
+    .score-card
+        margin-left: -24px
+        margin-right: -16px
+
+    .score-card .list__tile
+        font-size: 14px
+
+    .score-card button
+        min-width: 60px
+
+    .score-card .btn__content
+        padding: 0
 
 /*  Upload file  */
 .upload-type
@@ -220,13 +247,12 @@ ul.striped li:nth-child(odd)
   transform translateX(-10%)
 
 
-.slide-enter,.slide-enter-active {
+.slide-enter, .slide-enter-active
     -webkit-transition all .5s ease
     -o-transition all .5s ease
     transition all .5s ease!important
-}
 
-.slide-enter,.slide-leave-to
+.slide-enter, .slide-leave-to
     opacity 0
 
 .slide-enter

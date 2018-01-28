@@ -76,6 +76,7 @@ export const mutations = {
         Object.keys(setting).forEach(key => {
             state.settingData[key] = setting[key]
         })
+        localStorage.setting = JSON.stringify(state.settingData)
     },
     [types.HWFILE] (state, hwFile) {
         state.homeworkFile = hwFile
