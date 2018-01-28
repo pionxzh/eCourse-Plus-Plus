@@ -126,7 +126,7 @@
                             v-icon mdi-content-copy
                         span 複製
                     v-tooltip(top)
-                        v-btn(icon slot='activator'): v-icon mdi-camera
+                        v-btn(icon slot='activator' @click='screenShot'): v-icon mdi-camera
                         span 截圖
                 v-card-text(v-html='announce.content')
                 v-card-actions
@@ -387,6 +387,15 @@ export default {
             if (!Util.copyToClipboard(this.announce.text)) return
             this.announce.toastShow = true
             this.announce.message = '已將內容複製到剪貼簿。'
+        },
+        screenShot () {
+            let dom = document.getElementById('announce')
+            html2Canvas(dom).then(canvas => {
+                let img = canvas.toDataURL('image/png')
+                this.screenshot.flag = true
+                this.screenshot.url = img
+                Util.openLink(img, `${this.announce.title}.png`)
+            })
         },
         downloadTextbook (url) {
             let link = `${config.ecourse.HOST}${url.slice(8)}`
