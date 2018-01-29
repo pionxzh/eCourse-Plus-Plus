@@ -410,7 +410,7 @@ export default {
             Util.openLink(link, this.Setting.isDownloadQuestion)
         },
         downloadAns (fileName) {
-            let link = `${config.ecourse.HOST}/php/Testing_Assessment/show_allwork.php?action=downloadFile&work_id=${this.uploadHW.workID}&filename=${fileName}`
+            let link = `${config.ecourse.SHOW_WORK}?action=downloadFile&work_id=${this.uploadHW.workID}&filename=${fileName}`
             Util.openLink(link, false)
         },
         async showScore () {

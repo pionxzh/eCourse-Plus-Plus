@@ -65,7 +65,7 @@
                                     v-list-tile-sub-title {{ subItem.description }}
                             v-divider
 
-                v-dialog(v-model='flag.login')
+                v-dialog(width='300px' v-model='flag.login')
                     v-card.dialog-box
                         v-card-title.headline: div.text-xs-center 登入帳號
                         v-card-text 請輸入
@@ -82,7 +82,9 @@
                                         v-text-field(label='驗證碼' v-model='authcode' required)
                         v-card-actions
                             v-spacer
-                            v-btn(color='green darken-1' flat='flat' @click.native='login(false)') 登入
+                            v-btn(color='blue darken-1' @click.native='login(false)' large dark)
+                                v-icon mdi-flash
+                                | 登入
                             v-spacer
 
         v-content.mb-5
