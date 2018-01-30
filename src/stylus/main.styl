@@ -7,9 +7,12 @@ html, body, .mdl-layout-title, .application
 .main-card
     margin-top: 64px
 
-@media screen and (max-width:600px)
+@media screen and (max-width: 599px)
     .main-card
         margin-top: 10px
+
+    .container
+        padding: 20px 14px 24px 6px
 
 /*  Common class  */
 input[type=file]
@@ -30,6 +33,10 @@ input[type=file]
 /* Adjust list */
 .list__group__items li
     padding-left: 36px    
+
+@media screen and (max-width:600px)
+    .list__group__items li
+        padding-left: 0
 
 .list__tile--link
     transition .3s!important
@@ -64,7 +71,7 @@ input[type=file]
 
 .color-nav > .toolbar__content
     height 128px!important
-    background-image url(https://i.imgur.com/6WD8vm8.png)
+    background-image url('./assets/nav.png')
     background-position bottom
     background-size cover
 
@@ -133,7 +140,7 @@ ul.striped li:nth-child(odd)
         height 45px
     }
     .icon {
-        vertical-align sub
+        vertical-align: baseline
     }
 }
 
@@ -170,10 +177,6 @@ ul.stripe li:not(.subheader):nth-child(even)
     background #F9F9F9
 
 @media screen and (max-width:600px)
-    .score-card
-        margin-left: -24px
-        margin-right: -16px
-
     .score-card .list__tile
         font-size: 14px
 
@@ -215,10 +218,25 @@ ul.stripe li:not(.subheader):nth-child(even)
     height: 154px
     font-size: 18px
 
-@media screen and (max-width: 392px)
+@media screen and (max-width: 600px)
+    #hw
+        margin-top: -30px
+
+    .upload-type
+        height: 80px!important
+
+    .upload-type p
+        padding-top: 28px
+
+    textarea
+        height: 80px!important
+
     .send-text-btn
-        height: 98px
-        margin-top: -20px!important
+        height: 114px
+
+    .upload-wrapper .upload-item
+        margin-left: 0!important
+        margin-right: 0!important
 
 
 /*  animation  */

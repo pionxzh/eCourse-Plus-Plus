@@ -1,8 +1,10 @@
 import axios from 'axios'
+// import User from './User'
 import Util from './Util'
 const config = require('./../config.json')
+let Decoder = new TextDecoder('big5')
 
-export default class User {
+export default class Course {
     static getList (data) {
         try {
             let reg = /login_s\.php\?courseid=[0-9]+_[0-9]+_([0-9]+)" target="_top">([\u4e00-\u9fa5 a-zA-Z0-9\s()（）]+)<\/a>.+?;">([\u4e00-\u9fa5]+)<\/a>/g
@@ -25,10 +27,10 @@ export default class User {
     }
 
     static async changeCourse (courseID) {
-        await axios.get(config.ecourse.COURSE_SELECT, {params: {courseid: `106_1_${courseID}`}})
-            .then(response => {
-                // console.log(response.data)
-            })
-            .catch(e => Util.errHandler)
+        console.log(courseID)
+        let temp = await axios.get(config.ecourse.COURSE_SELECT, {responseType: 'arraybuffer', params: {courseid: `106_1_${courseID}`}}).catch(e => Util.errHandler)
+        let result = Decoder.decode(temp.data)
+        console.log(result)
+        return result.indexOf('權限錯誤') !== -1
     }
 }

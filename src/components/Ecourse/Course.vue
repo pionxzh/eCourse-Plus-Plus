@@ -5,14 +5,13 @@
             v-flex.pl-2(xs12 md4 v-if='score.flag === 0')
                 v-card.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(dark color='primary' flat style='overflow: hidden')
-                        v-toolbar-side-icon
-                        transition(name='fade-transition')
-                            v-toolbar-title(v-show='search.title') 公告
+                        v-toolbar-side-icon(v-show='search.title'): v-icon mdi-menu
+                        v-toolbar-title(v-show='search.title') 公告
                         v-spacer
-                        v-btn.mr-3(icon v-show='!search.flag' @click='expandSearch')
-                            v-icon search
+                        v-btn.mr-3(:ripple='false' icon aria-label='search' v-show='!search.flag' @click='expandSearch')
+                            v-icon mdi-magnify
                         v-text-field.exp-search(type='text' label='搜尋標題' ref='search' solo
-                            prepend-icon='search' @blur='expandSearch' light
+                            prepend-icon='mdi-magnify' @blur='expandSearch' light
                             v-model='search.keyword' :class='{"open": search.flag}')
                     v-list.tile-hover.pa-0(two-line subheader)
                         v-subheader(v-show='search.keyword') 搜尋結果
@@ -20,55 +19,56 @@
                             v-list-tile(avatar :key='item.id' v-show='item.title.indexOf(search.keyword) !== -1'
                                 @click.native='showAnnounce(index)')
                                 v-list-tile-avatar
-                                    v-badge.notify(overlap color='red' v-model='AnnNotify[item.id]')
+                                    v-badge.notify(overlap color='red' v-if='item.timeStamp' v-model='AnnNotify[item.id]')
                                         span(slot='badge')
-                                        v-icon(medium :class='[item.stat]') widgets
+                                        v-icon(medium) mdi-widgets
                                 v-list-tile-content
                                     v-list-tile-title {{ item.title }}
                                     v-list-tile-sub-title {{ item.timeStamp }}
-                            v-divider(v-if='Setting.annDivider')
+                            v-divider(v-if='Setting.showDivider')
         
         transition(name='slide-y-transition')
             v-flex.pl-2(xs12 md4 v-if='score.flag === 0')
                 v-card.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(color='green' flat dark)
-                        v-toolbar-side-icon
+                        v-toolbar-side-icon: v-icon mdi-menu
                         v-toolbar-title 作業
                         v-spacer
                         v-tooltip.mr-0(left)
-                            v-btn(icon slot='activator' @click='showScore')
+                            v-btn(icon aria-label='score' slot='activator' @click='showScore')
                                 v-icon mdi-chart-line
                             span 成績
                     v-list.tile-hover.pa-0(two-line subheader)
-                        v-list-tile(ripple avatar v-for='(item, index) in HomeworkList.list' :key='index' @click.native='showHomework(index)')
-                            template(v-if='item.id')
-                                v-list-tile-avatar
-                                    v-icon(medium) assignment
-                                v-list-tile-content
-                                    v-list-tile-title {{ item.title }}
-                                    v-list-tile-sub-title {{ item.timeStamp }} / {{ item.percentage }}%
-                                v-list-tile-action(v-if='HwFile[item.id] && !!HwFile[item.id].type')
-                                    v-tooltip(top)
-                                        v-btn(icon @click.stop='downloadQues(item.id, HwFile[item.id].type)' slot='activator')
-                                            v-icon(large color='grey lighten-1') {{ fileType[HwFile[item.id].type] || 'mdi-file' }}
-                                        span 作業題目
-                                v-list-tile-action
-                                    v-btn(icon @click.stop='showUpload(item.id)')
-                                        v-icon(large color='grey') mdi-upload
-                            template(v-else)
-                                v-list-tile-avatar
-                                v-list-tile-content
-                                    v-list-tile-title {{ item.title }}
+                        template(v-for='(item, index) in HomeworkList.list')
+                            v-list-tile(ripple avatar :key='index' @click.native='showHomework(index)')
+                                template(v-if='item.id')
+                                    v-list-tile-avatar
+                                        v-icon(medium) mdi-clipboard-text
+                                    v-list-tile-content
+                                        v-list-tile-title {{ item.title }}
+                                        v-list-tile-sub-title {{ item.timeStamp }} / {{ item.percentage }}%
+                                    v-list-tile-action(v-if='HwFile[item.id] && !!HwFile[item.id].type')
+                                        v-tooltip(top)
+                                            v-btn(icon aria-label='type' @click.stop='downloadQues(item.id, HwFile[item.id].type)' slot='activator')
+                                                v-icon(large color='grey lighten-1') {{ fileType[HwFile[item.id].type] || 'mdi-file' }}
+                                            span 作業題目
+                                    v-list-tile-action(v-if='!isMobile')
+                                        v-btn(icon aria-label='upload' @click.stop='showUpload(item.id)')
+                                            v-icon(large color='grey') mdi-upload
+                                template(v-else)
+                                    v-list-tile-avatar
+                                    v-list-tile-content
+                                        v-list-tile-title {{ item.title }}
+                            v-divider(v-if='Setting.showDivider')
 
         transition(name='slide-x-reverse-transition' mode='out-in')
             v-flex.pl-2(xs12 md4 v-if='score.flag === 0')
                 v-card.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(color='orange' flat dark)
-                        v-toolbar-side-icon
+                        v-toolbar-side-icon: v-icon mdi-menu
                         v-toolbar-title 教材
                         v-spacer
-                        v-btn(icon)
-                            v-icon search
+                        v-btn(aria-label='search' icon): v-icon mdi-search
                     v-list.pa-0(two-line subheader)
                         v-list-tile(v-if='Setting.showIntro' @click='downloadIntro')
                             v-list-tile-avatar
@@ -80,11 +80,11 @@
                                 v-icon(large) mdi-file-account
                             v-list-tile-content 
                                 v-list-tile-title 教師資訊
-                        v-list-group(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='folder' v-if='TextbookList.content[index][0]')
+                        v-list-group(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index][0]')
                             v-list-tile(slot='activator' ripple)
                                 v-list-tile-content 
                                     v-list-tile-title {{ item[0] }}
-                            v-list-tile(v-for='nitem in TextbookList.content[index][0]' :key='nitem[0]' @click.native='downloadTextbook(nitem[1])')
+                            v-list-tile(v-for='nitem in TextbookList.content[index][0]' :key='nitem[0]' :title='nitem[0]' @click.native='downloadTextbook(nitem[1])')
                                 v-list-tile-action
                                      v-icon(large) {{ fileType[nitem[4]] || 'mdi-file' }}
                                 v-list-tile-content 
@@ -92,14 +92,14 @@
                                     v-list-tile-sub-title {{ nitem[3].split(' ')[0] }}
         transition(name='slide-y-reverse-transition' mode='out-in')
             v-flex.pl-2(xs12 md6 offset-md3 v-if='score.flag === 2')
-                v-card.main-card.elevation-1.score-card(flat color='grey lighten-5')
+                v-card.main-card.elevation-1.score-card(color='grey lighten-5' flat)
                         v-toolbar(color='red' flat dark)
-                            v-toolbar-side-icon
+                            v-toolbar-side-icon: v-icon mdi-menu
                             v-toolbar-title 成績
                             v-spacer
                             v-tooltip.mr-0(left)
-                                v-btn(icon slot='activator' @click='score.flag = 0')
-                                    v-icon assignment
+                                v-btn(icon aria-label='score' slot='activator' @click='score.flag = 0')
+                                    v-icon mdi-clipboard-text
                                 span 作業
                         v-list.tile-hover.stripe.pa-0(subheader)
                             template(v-for='(item, key) in score.data' v-if='item.length')
@@ -109,10 +109,9 @@
                                         v-list-tile-title {{ slime.name }}
                                         v-list-tile-sub-title {{ slime.percentage }}
                                     v-list-tile-action
-                                        v-btn(flat outline) {{ slime.rank }}
+                                        v-btn(flat aria-label='rank' outline) {{ slime.rank }}
                                     v-list-tile-action
-                                        v-btn(flat outline) {{ slime.score }}
-                                    //v-progress-linear(:indeterminate='true')
+                                        v-btn(flat aria-label='score' outline) {{ slime.score }}
                                 
         v-dialog(v-model='announce.flag' max-width=490)
             v-card#announce.announce-dialog-box
@@ -121,43 +120,41 @@
                     div.text-xs-center {{ announce.title }}
                     v-spacer
                     v-tooltip(top)
-                        v-btn(icon slot='activator' @click='copyAnnounce')
+                        v-btn(icon aria-label='copy' slot='activator' @click='copyAnnounce')
                             v-icon mdi-content-copy
                         span 複製
-                    v-tooltip(top)
-                        v-btn(icon slot='activator' @click='screenShot'): v-icon mdi-camera
-                        span 截圖
                 v-card-text(v-html='announce.content')
                 v-card-actions
                     v-spacer
-                    v-btn(flat color='green darken-1' @click.native='announce.flag = false') 關閉
+                    v-btn(flat aria-label='close' color='green darken-1' @click.native='announce.flag = false') 關閉
                     v-spacer
         v-dialog(v-model='homework.flag' max-width=490)
             v-card.announce-dialog-box
-                v-card-title.headline: div.text-xs-center {{ homework.title }}
+                v-card-title.headline
+                    div.text-xs-center {{ homework.title }}
+                    v-spacer
+                    v-btn(icon aria-label='upload' v-if='isMobile' @click='showUpload(homework.id)')
+                        v-icon(color='grey darken-2') mdi-upload
                 v-card-text(v-html='homework.content')
                 v-card-actions
                     v-spacer
-                    v-btn(flat color='green darken-1' @click.native='homework.flag = false') 關閉
+                    v-btn(flat aria-label='close' color='green darken-1' @click.native='homework.flag = false') 關閉
                     v-spacer
-        v-dialog(v-model='screenshot.flag' max-width=560)
-            v-card.announce-dialog-box.elevation-5.grey
-                img.pa-3(:src='screenshot.url' width=560)
         v-dialog(v-model='uploadHW.flag' max-width=600 persistent)
             v-card.announce-dialog-box(style='background-color: #f2f2f2;')
                 v-snackbar(:timeout='3000' :top='true' :bottom='false' :color='uploadHW.toastColor'
                     v-model='uploadHW.toastShow' :absolute='true') {{uploadHW.message}}
                 div.headline.text-xs-center.pa-3 作業上傳
-                    v-btn.right.ma-0(icon ripple @click='uploadHW.flag = false') 
-                        v-icon(medium) close
+                    v-btn.right.ma-0(icon ripple aria-label='close' @click='uploadHW.flag = false') 
+                        v-icon(medium) mdi-close
                 v-layout(row wrap)
-                    v-container(fluid)
+                    v-container#hw(fluid)
                         v-subheader(style='color: rgba(0,0,0,0.54)') 已交作業
                         v-layout(row wrap)
-                            v-flex.upload-wrapper(xs6 v-for='file in uploadHW.list' :key='file.id')
+                            v-flex.upload-wrapper(xs12 sm6 v-for='file in uploadHW.list' :key='file.id')
                                 div.white.upload-item.elevation-2
                                     v-text-field(
-                                        :append-icon='file.success ? "mdi-check-circle" : file.new ? "none" : "delete"'
+                                        :append-icon='file.success ? "mdi-check-circle" : file.new ? "mdi-auto-fix" : "mdi-delete"'
                                         :append-icon-cb='() => removeAnswer(file.name)'
                                         :color='file.success ? "green" : "gray"'
                                         :class='{"input-group--focused" : file.success}'
@@ -167,12 +164,12 @@
                         v-subheader(style='color: rgba(0,0,0,0.54)') 上傳檔案
                         v-flex(xs12)
                             v-layout(row wrap)
-                                v-flex(sm9 md10)
+                                v-flex(xs8 sm9 md10)
                                     v-text-field.white-text-field(v-model='uploadHW.content' label='直接上傳答案文字' textarea auto-grow style='margin-top: -18px;')
-                                v-flex.pl-2(sm3 md2)
+                                v-flex.pl-2(xs4 sm3 md2)
                                     v-tooltip(left)
-                                        v-btn.mt-0.send-text-btn(color='red darken-1' @click='uploadText($event)' slot='activator' block dark) 
-                                            v-icon send
+                                        v-btn.mt-0.send-text-btn(aria-label='send' color='red darken-1' @click='uploadText($event)' slot='activator' block dark)
+                                            v-icon mdi-send
                                         span 送出
                         v-flex(xs12)
                             v-layout(row wrap)
@@ -181,13 +178,13 @@
                                         p.text-xs-center 
                                             v-icon(dark) mdi-upload
                                             | 上傳檔案
-                                        input(type='file' ref='uploadInput' :multiple='false' @change='uploadFile')
+                                        input(type='file' ref='uploadInput' :multiple='false' @change='uploadFile($event, false)')
                                 v-flex(xs6)
                                     v-card.upload-type(color='green darken-1' style='margin-left: 5px;' @click.native='$refs.uploadMulInput.click()' dark)
                                         p.text-xs-center
                                             v-icon(dark) mdi-upload-multiple
                                             | 相關檔案
-                                        input(type='file' ref='uploadMulInput' :multiple='true' @change='uploadFile')
+                                        input(type='file' ref='uploadMulInput' :multiple='true' @change='uploadFile($event, true)')
 
 
 </template>
@@ -197,7 +194,6 @@ import Util from '../Util'
 import Score from '../Score'
 import Course from './../Course'
 import Homework from '../Homework'
-import html2Canvas from 'html2canvas'
 import { mapGetters, mapActions } from 'vuex'
 
 const config = require('../../config.json')
@@ -205,6 +201,7 @@ const config = require('../../config.json')
 export default {
     data: () => ({
         isScroll: false,
+        isMobile: window.innerWidth < 800,
         search: {
             flag: false,
             title: true,
@@ -230,10 +227,6 @@ export default {
         score: {
             flag: 0,
             data: {}
-        },
-        screenshot: {
-            flag: false,
-            url: ''
         },
         uploadHW: {
             workID: 0,
@@ -377,6 +370,7 @@ export default {
             this.announce.content = content
         },
         showHomework (index) {
+            this.homework.id = this.HomeworkList.list[index].id
             this.homework.flag = true
             this.homework.title = this.HomeworkList.list[index].title
             this.homework.content = this.HomeworkList.list[index].content
@@ -385,15 +379,6 @@ export default {
             if (!Util.copyToClipboard(this.announce.text)) return
             this.announce.toastShow = true
             this.announce.message = '已將內容複製到剪貼簿。'
-        },
-        screenShot () {
-            let dom = document.getElementById('announce')
-            html2Canvas(dom).then(canvas => {
-                let img = canvas.toDataURL('image/png')
-                this.screenshot.flag = true
-                this.screenshot.url = img
-                Util.openLink(img, `${this.announce.title}.png`)
-            })
         },
         downloadTextbook (url) {
             let link = `${config.ecourse.HOST}${url.slice(8)}`
@@ -440,16 +425,20 @@ export default {
             this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
             this.showUploadToast('上傳成功')
         },
-        async uploadFile (e) {
+        async uploadFile (e, multiple) {
             const files = e.target.files || e.dataTransfer.files
             if (!files.length) return
-            this.uploadHW.list.push({
-                id: Math.random() * 1000,
-                name: files[0].name,
-                size: Util.getSize(files[0].size),
-                new: true
-            })
-            let result = await Homework.uploadFile(files, this.courseID, this.uploadHW.workID)
+
+            for (const file of files) {
+                this.uploadHW.list.push({
+                    id: Math.random() * 1000,
+                    name: file.name,
+                    size: Util.getSize(file.size),
+                    new: true
+                })
+            }
+
+            let result = await Homework.uploadFile(files, multiple, this.courseID, this.uploadHW.workID)
             if (!result) return
             this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
             this.uploadHW.list[this.uploadHW.list.length - 1].success = true

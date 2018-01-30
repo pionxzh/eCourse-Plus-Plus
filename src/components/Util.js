@@ -38,8 +38,8 @@ export default class Util {
         link.remove()
     }
 
-    static getCookie (name) {
+    /* static getCookie (name) {
         let match = document.cookie.split(';').find(x => x.startsWith(`${name}=`))
         if (match) return match.split('=')[1]
-    }
+    } */
 }

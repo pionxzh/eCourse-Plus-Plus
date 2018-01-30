@@ -5,18 +5,17 @@
                 v-list.pa-0(dense two-line)
                     v-list-tile.px-4(v-if='!User.loggedIn')
                         v-list-tile-content
-                            v-btn(color='primary' @click='flag.login = true' dark) 登入
+                            v-btn(color='primary' aria-label='login' @click='flag.login = true' dark) 登入
                     v-list-tile.px-4(avatar ripple v-else)
                         v-list-tile-avatar(size=48)
-                            img(src='https://i.imgur.com/KDLeUaq.jpg')
+                            img(src='../../assets/nav.png')
                         v-list-tile-content
                             v-list-tile-title {{User.name}}
                             v-list-tile-sub-title.blue-grey--text.lighten-1--text
-                                v-icon.blue-grey--text.lighten-1--text.body-1 place
+                                v-icon.blue-grey--text.lighten-1--text.body-1 mdi-map-marker
                                 span {{User.department}}, {{User.classes}}
                     
             v-list.pt-0.striped.course-list(dense three-line)
-                v-divider
                 v-list-tile
                     v-list-tile-action
                     v-list-tile-content
@@ -30,12 +29,12 @@
                         v-list-tile-sub-title
                             span {{item.professor}}
         v-toolbar.color-nav(dark color='primary' fixed app)
-            v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer')
+            v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
             v-toolbar-title.white--text.ecourse-logo eCourse+
             v-spacer
             v-menu
-                v-btn.setting-btn(icon slot='activator')
-                    v-icon settings
+                v-btn.setting-btn(icon aria-label='setting' slot='activator')
+                    v-icon mdi-settings
                 v-list
                     v-list-tile.list__tile--link
                         v-list-tile-title(@click='flag.setting = true') &nbsp;&nbsp;設定
@@ -59,7 +58,7 @@
                             v-subheader(:key='key') {{ key }}
                             v-list-tile(v-for='subItem in item' :key='subItem.title' ripple avatar @click='')
                                 v-list-tile-action
-                                    v-checkbox(color='blue darken-1' v-model='setting[subItem.field]')
+                                    v-switch(color='blue darken-1' v-model='setting[subItem.field]')
                                 v-list-tile-content(@click='setting[subItem.field] = !setting[subItem.field]')
                                     v-list-tile-title {{ subItem.title }}
                                     v-list-tile-sub-title {{ subItem.description }}
@@ -82,7 +81,7 @@
                                         v-text-field(label='驗證碼' v-model='authcode' required)
                         v-card-actions
                             v-spacer
-                            v-btn(color='blue darken-1' @click.native='login(false)' large dark)
+                            v-btn(color='blue darken-1' aria-label='login' @click.native='login(false)' large dark)
                                 v-icon mdi-flash
                                 | 登入
                             v-spacer
@@ -95,22 +94,21 @@
                 v-snackbar(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
         v-footer(absolute)
             v-spacer
-            span © 2018 @Copyright by Pionxzh
+            span © 2018 Copyright by Pionxzh
             v-spacer
         v-fab-transition
-            v-btn(fixed bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
+            v-btn(fixed aria-label='fab' bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
                 v-icon mdi-chevron-up
         v-fab-transition
-            v-speed-dial(fixed bottom right open-on-hover transition='slide-x-transition' v-show='!isScroll' style='z-index: 10;')
-                v-btn(slot='activator' color='red' dark fab hover)
+            v-speed-dial(fixed bottom right :open-on-hover='!isMobile' transition='slide-x-transition' v-show='!isScroll' style='z-index: 10;')
+                v-btn(slot='activator' aria-label='close' color='red' dark fab)
                     v-icon mdi-rocket
-                    v-icon close
                 v-tooltip(left)
-                    v-btn(fab dark color='green' slot='activator')
+                    v-btn(fab dark aria-label='setting' color='green' slot='activator' @click='flag.setting = true')
                         v-icon mdi-settings
                     span 設定
                 v-tooltip(left)
-                    v-btn(fab dark color='pink' slot='activator' @click='')
+                    v-btn(fab dark aria-label='score' color='pink' slot='activator' @click='')
                         v-icon mdi-chart-line
                     span 成績
 
@@ -132,6 +130,7 @@ export default {
     data: () => ({
         loading: false,
         isScroll: false,
+        isMobile: window.innerWidth < 800,
         username: '',
         password: '',
         // authcode: '',
@@ -146,7 +145,7 @@ export default {
         setting: {
             detectUrl: true,
             detectDate: true,
-            annDivider: false,
+            showDivider: false,
             expandFirstFolder: true,
             isDownloadQuestion: false,
             isDownloadTextbook: false,
@@ -154,6 +153,11 @@ export default {
             showTeacherInfo: true
         },
         settingData: {
+            '外觀': [{
+                field: 'showDivider',
+                title: '顯示格線',
+                description: '在每個項目之間添加分隔線'
+            }],
             '公告': [{
                 field: 'detectDate',
                 title: '日期偵測',
@@ -162,10 +166,6 @@ export default {
                 field: 'detectUrl',
                 title: '偵測網址',
                 description: '公告網址變為可點之連結'
-            }, {
-                field: 'annDivider',
-                title: '顯示格線',
-                description: '每個項目之間添加分隔線'
             }],
             '作業': [{
                 field: 'isDownloadQuestion',
@@ -217,6 +217,7 @@ export default {
         }
     },
     async created () {
+        if (this.isMobile) this.flag.drawer = false
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
         await this.autoLogin()

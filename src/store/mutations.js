@@ -7,7 +7,7 @@ import * as types from './mutations_type.js'
 export const mutations = {
     [types.USER] (state, userData) {
         Object.keys(userData).forEach(key => {
-            state.userData[key] = userData[key]
+            Vue.set(state.userData, key, userData[key])
         })
     },
     [types.COURSE] (state, courseList) {
@@ -32,14 +32,12 @@ export const mutations = {
                     id: key,
                     title: nItem[8],
                     content: nItem[9] || '沒有內容',
-                    // important: !!nItem[8],
                     timeStamp: nItem[2]
                 })
                 return orderBy(temp, ['timeStamp', 'title'], ['desc', 'asc'])
             }, [])
             return result
         }, {})
-        // console.log('annNotify', announceNotify)
         localStorage.annNotify = JSON.stringify(announceNotify)
         state.announceNotify = announceNotify
     },
@@ -73,7 +71,7 @@ export const mutations = {
         state.textbookData = temp
     },
     [types.SETTING] (state, setting) {
-        console.log('Setting\n', setting)
+        // console.log('Setting\n', setting)
         Object.keys(setting).forEach(key => {
             Vue.set(state.settingData, key, setting[key])
         })

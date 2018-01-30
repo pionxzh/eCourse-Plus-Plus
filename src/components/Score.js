@@ -5,9 +5,6 @@ const config = require('./../config.json')
 let Decoder = new TextDecoder('big5')
 
 export default class Score {
-    static async getData (data) {
-    }
-
     static async getScore (courseID) {
         let score = await axios.get(config.ecourse.COURSE_SCORE, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e))
         let scoreData = $.parseHTML(Decoder.decode(score.data))

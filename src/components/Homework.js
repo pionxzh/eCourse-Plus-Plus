@@ -52,7 +52,6 @@ export default class Homework {
             result.type = question.data.type.slice(1)
             // result.size = question.data.size
         }
-        // console.log(result)
         return result
     }
 
@@ -78,8 +77,7 @@ export default class Homework {
                 name: 'homework.html',
                 size: '? bytes',
                 content: question.data.work,
-                timeStamp: question.data.mtime,
-                progress: 100
+                timeStamp: question.data.mtime
             }
         }
         console.log(result)
@@ -102,15 +100,14 @@ export default class Homework {
             action: 'handinwork'
         })
         let result = await axios.post(config.ecourse.SHOW_WORK, data, {responseType: 'arraybuffer'})
-        if (Decoder.decode(result.data).indexOf('成功') === -1) return false
-        return true
+        return Decoder.decode(result.data).indexOf('成功') !== -1
     }
 
-    static async uploadFile (files, courseID, workID) {
-        console.log(files)
+    static async uploadFile (files, multiple, courseID, workID) {
         let formData = new FormData()
         formData.append('work_id', workID)
-        if (files.length === 1) {
+
+        if (!multiple) {
             formData.append('action', 'uploadstuwork')
             formData.append('uploadfile1', files[0], files[0].name)
         } else {
@@ -121,7 +118,6 @@ export default class Homework {
             }
         }
         let result = await axios.post(config.ecourse.SHOW_WORK, formData, {responseType: 'arraybuffer'})
-        if (Decoder.decode(result.data).indexOf('成功') === -1) return false
-        return true
+        return Decoder.decode(result.data).indexOf('成功') !== -1
     }
 }
