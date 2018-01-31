@@ -25,10 +25,7 @@ export default class SSO {
     static async logout () {
         let result = {}
         await axios.get(config.sso.logout)
-        .then(response => {
-            let temp = jQuery.parseHTML(response.data)
-            console.log(temp)
-        })
+        .then(response => {})
         .catch(e => {
             if (e.message === 'Network Error') {
                 result.stat = true

@@ -26,5 +26,3 @@ npm run e2e
 # run all tests
 npm test
 ```
-=======
-Make eCourse great again

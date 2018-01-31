@@ -64,6 +64,10 @@ export default class User {
         localStorage.removeItem('annNotify')
     }
 
+    static async ping () {
+        await axios.get(config.ecourse.PING).catch(e => Util.errHandler(e, 'Ping Error!'))
+    }
+
     static crossHandler (e) {
         if (e.message !== 'Network Error') {
             Util.errHandler(e, 'Login Error!')

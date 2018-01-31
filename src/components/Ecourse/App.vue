@@ -2,13 +2,13 @@
     v-app#ccu
         v-navigation-drawer.gray-bg(persistent v-model='flag.drawer' enable-resize-watcher app)
             v-toolbar.personal-info.pa-3(flat)
-                v-list.pa-0(dense two-line)
+                v-list.pa-0(two-line)
                     v-list-tile.px-4(v-if='!User.loggedIn')
                         v-list-tile-content
                             v-btn(color='primary' aria-label='login' @click='flag.login = true' dark) 登入
                     v-list-tile.px-4(avatar ripple v-else)
                         v-list-tile-avatar(size=48)
-                            img(src='../../assets/nav.png')
+                            img.avatar-wrapper.elevation-1(src='../../assets/nav.png')
                         v-list-tile-content
                             v-list-tile-title {{User.name}}
                             v-list-tile-sub-title.blue-grey--text.lighten-1--text
@@ -67,7 +67,7 @@
                 v-dialog(width='300px' v-model='flag.login')
                     v-card.dialog-box
                         v-card-title.headline: div.text-xs-center 登入帳號
-                        v-card-text 請輸入
+                        v-card-text(style='font-size: 15px;') ※請輸入
                             b 單一入口帳號密碼
                             v-container(grid-list-md)
                                 v-layout(wrap)
@@ -189,7 +189,11 @@ export default {
                 title: '強制下載教材',
                 description: '點擊後會強制下載而非打開新視窗(Safari無效)'
             }],
-            '成績': []
+            '成績': [{
+                field: 'rankColorBlock',
+                title: '顯示排名色塊',
+                description: '成績前依據排名顯示色塊'
+            }]
         },
         toast: {
             show: false,
@@ -257,6 +261,12 @@ export default {
             this.toast.timeout = timeout
             this.toast.message = message
         },
+        keepAlive () {
+            /* Ping server every 5min to avoid session expired (expired time = 6min ?) */
+            setTimeout(() => {
+                setInterval(() => User.ping(), 1000 * 60 * 5)
+            }, 1000 * 60 * 3)
+        },
         async autoLogin () {
             if (!localStorage.user) return
 
@@ -308,8 +318,8 @@ export default {
             let isError = !announce.stat || !homework.stat || !homeworkFile.stat || !textbook.stat
             if (isError) this.showToast({message: '取得資料錯誤', color: 'error'})
             else this.showToast({message: '取得資料成功', color: 'info'})
-        },
-        doNothing () {
+
+            this.keepAlive()
         }
     }
 }

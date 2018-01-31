@@ -27,10 +27,9 @@ export default class Course {
     }
 
     static async changeCourse (courseID) {
-        console.log(courseID)
         let temp = await axios.get(config.ecourse.COURSE_SELECT, {responseType: 'arraybuffer', params: {courseid: `106_1_${courseID}`}}).catch(e => Util.errHandler)
         let result = Decoder.decode(temp.data)
-        console.log(result)
+        // console.log(result)
         return result.indexOf('權限錯誤') !== -1
     }
 }
