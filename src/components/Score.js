@@ -25,11 +25,16 @@ export default class Score {
                 default:
                     let score = $(row[2]).text() ? `${$(row[2]).text()}分` : '-'
                     let rank = $(row[3]).text().replace('你沒有成績', '-')
+                    let bits = rank.split('/')
+                    let num = 1 - (bits[0] / bits[1])
+                    console.log(num)
+                    let color = Util.hslToRgb(num * 1.2 / 3.6, 1, 0.5)
                     result[title].push({
                         name: $(row[0]).text(),
                         percentage: $(row[1]).text(),
                         score: score,
-                        rank: rank
+                        rank: rank,
+                        color: `rgb(${color[0]}, ${color[1]}, ${color[2]})`
                     })
             }
         })

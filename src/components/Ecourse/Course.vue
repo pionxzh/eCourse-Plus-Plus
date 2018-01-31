@@ -8,10 +8,10 @@
                         v-toolbar-side-icon(v-show='search.title'): v-icon mdi-menu
                         v-toolbar-title(v-show='search.title') 公告
                         v-spacer
-                        v-btn.mr-3(:ripple='false' icon aria-label='search' v-show='!search.flag' @click='expandSearch')
+                        v-btn.mr-3(:ripple='false' icon aria-label='search' v-show='!search.flag' @click='toggleSearch')
                             v-icon mdi-magnify
                         v-text-field.exp-search(type='text' label='搜尋標題' ref='search' solo
-                            prepend-icon='mdi-magnify' @blur='expandSearch' light
+                            prepend-icon='mdi-magnify' @blur='toggleSearch' light
                             v-model='search.keyword' :class='{"open": search.flag}')
                     v-list.tile-hover.pa-0(two-line subheader)
                         v-subheader(v-show='search.keyword') 搜尋結果
@@ -75,12 +75,14 @@
                                 v-icon(large) mdi-file-account
                             v-list-tile-content 
                                 v-list-tile-title 授課大綱
+                        v-divider(v-if='Setting.showDivider')
                         v-list-tile(v-if='Setting.showTeacherInfo' @click='downloadTeaIndo')
                             v-list-tile-avatar
                                 v-icon(large) mdi-file-account
                             v-list-tile-content 
                                 v-list-tile-title 教師資訊
-                        v-list-group(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index][0]')
+                        v-divider(v-if='Setting.showDivider')
+                        v-list-group.hot-fix-for-list(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index][0]')
                             v-list-tile(slot='activator' ripple)
                                 v-list-tile-content 
                                     v-list-tile-title {{ item[0] }}
@@ -104,7 +106,7 @@
                         v-list.tile-hover.stripe.pa-0(subheader)
                             template(v-for='(item, key) in score.data' v-if='item.length')
                                 v-subheader {{ key }}
-                                v-list-tile(ripple avatar v-for='slime in item' :key='slime.name + slime.percentage' :class='{"yellow lighten-1": key === "總成績"}' @click='')
+                                v-list-tile(ripple avatar v-for='slime in item' :key='slime.name + slime.percentage' :class='{"yellow lighten-1": key === "總成績", "color-indicator": Setting.rankColorBlock}' @click='' :style='{"border-color": slime.color}')
                                     v-list-tile-content
                                         v-list-tile-title {{ slime.name }}
                                         v-list-tile-sub-title {{ slime.percentage }}
@@ -325,7 +327,7 @@ export default {
             'updateAnnNotify',
             'updateHwNotify'
         ]),
-        expandSearch () {
+        toggleSearch () {
             if (this.search.flag) {
                 this.search.flag = false
                 setTimeout(() => {

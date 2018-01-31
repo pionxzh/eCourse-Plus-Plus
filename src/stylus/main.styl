@@ -64,6 +64,15 @@ input[type=file]
     cursor: pointer
     background: rgba(0, 0, 0, .12)
 
+.hot-fix-for-list .list__group__header__prepend-icon
+    margin-left: 0
+.hot-fix-for-list .list__group__header__append-icon
+    margin-left: -200px
+.hot-fix-for-list .list__tile
+    max-width: 400px
+@media screen and (max-width:600px)
+    .hot-fix-for-list .list__tile
+        max-width: 220px
 
 /*  Nav  */
 .card--flex-toolbar
@@ -119,25 +128,22 @@ ul.striped li:nth-child(odd)
     color #757575
     font-size 18px
 
+.avatar-wrapper
+    border: none
+
 .personal-info {
     background-color #263238!important
 
     button {
-        color #FFF!important
         font-size 19px
         margin-left 50px
     }
     .list__tile__title {
-        color #FFF!important
+        color #e0e0e0!important
         font-size 18px
     }
     .list__tile--avatar {
         font-family "Roboto","Helvetica","Arial",sans-serif
-    }
-    .list__tile--avatar .avatar img,
-    .list__tile--avatar .avatar .icon {
-        width 45px
-        height 45px
     }
     .icon {
         vertical-align: baseline
@@ -175,6 +181,12 @@ ul.striped li:nth-child(odd)
 /*  Score  */
 ul.stripe li:not(.subheader):nth-child(even)
     background #F9F9F9
+
+.score-card .color-indicator
+    border-left: 5px solid transparent
+
+.score-card .color-indicator .list__tile--avatar
+    margin-left: -5px
 
 @media screen and (max-width:600px)
     .score-card .list__tile
