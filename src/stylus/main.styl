@@ -7,12 +7,18 @@ html, body, .mdl-layout-title, .application
 .main-card
     margin-top: 64px
 
+.bottom-nav
+    margin-bottom: 60px
+
 @media screen and (max-width: 599px)
     .main-card
         margin-top: 10px
 
     .container
         padding: 20px 14px 24px 6px
+
+    .short .snack__content
+        margin: 0 25px 0 25px
 
 /*  Common class  */
 input[type=file]
@@ -27,8 +33,22 @@ input[type=file]
 .cursor-p
     cursor: pointer
 
+.no-select
+    -webkit-user-select: none
+    -moz-user-select: none
+    -ms-user-select: none
+    user-select: none
+
 .dialog-box
     padding 20px 15px
+
+.hidden-more-text
+    width: 80%
+    overflow: hidden
+    text-overflow: ellipsis
+
+.hidden-more-text span
+    white-space: nowrap
 
 /* Adjust list */
 .list__group__items li
@@ -64,15 +84,11 @@ input[type=file]
     cursor: pointer
     background: rgba(0, 0, 0, .12)
 
-.hot-fix-for-list .list__group__header__prepend-icon
-    margin-left: 0
-.hot-fix-for-list .list__group__header__append-icon
-    margin-left: -200px
 .hot-fix-for-list .list__tile
     max-width: 400px
 @media screen and (max-width:600px)
     .hot-fix-for-list .list__tile
-        max-width: 220px
+        max-width: 57.5vw
 
 /*  Nav  */
 .card--flex-toolbar
@@ -85,7 +101,7 @@ input[type=file]
     background-size cover
 
 .color-nav.scroll > .toolbar__content
-    height: 64px!important
+    height: 56px!important
 
 .ecourse-logo
     font-family "Poiret One", Helvetica, 'Helvetica Neue', Tahoma,Arial,sans-serif

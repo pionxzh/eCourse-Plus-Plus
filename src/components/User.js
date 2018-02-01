@@ -60,6 +60,7 @@ export default class User {
     }
     static async logout () {
         await axios.get(config.ecourse.LOGOUT).catch(e => Util.errHandler(e, 'Logout Error!'))
+        localStorage.removeItem('user')
         localStorage.removeItem('setting')
         localStorage.removeItem('annNotify')
     }

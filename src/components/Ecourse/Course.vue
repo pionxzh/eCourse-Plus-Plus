@@ -1,12 +1,12 @@
 <template lang='pug'>
     v-layout(row wrap :key='$route.params.id')
-        v-snackbar(:timeout='3000' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
+        v-snackbar.short(:timeout='1500' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
         transition(name='slide-x-transition')
-            v-flex.pl-2(xs12 md4 v-if='score.flag === 0')
+            v-flex.pl-2(xs12 md4 v-if='(isMobile && tag === "announce") || (!isMobile && tag !== "score")')
                 v-card.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(dark color='primary' flat style='overflow: hidden')
                         v-toolbar-side-icon(v-show='search.title'): v-icon mdi-menu
-                        v-toolbar-title(v-show='search.title') 公告
+                        v-toolbar-title.no-select(v-show='search.title') 公告
                         v-spacer
                         v-btn.mr-3(:ripple='false' icon aria-label='search' v-show='!search.flag' @click='toggleSearch')
                             v-icon mdi-magnify
@@ -27,14 +27,14 @@
                                     v-list-tile-sub-title {{ item.timeStamp }}
                             v-divider(v-if='Setting.showDivider')
         
-        transition(name='slide-y-transition')
-            v-flex.pl-2(xs12 md4 v-if='score.flag === 0')
+        transition(:name='isMobile ? "slide-x-transition" : "slide-y-transition"')
+            v-flex.pl-2(xs12 md4 v-if='(isMobile && tag === "homework") || (!isMobile && tag !== "score")')
                 v-card.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(color='green' flat dark)
                         v-toolbar-side-icon: v-icon mdi-menu
-                        v-toolbar-title 作業
+                        v-toolbar-title.no-select 作業
                         v-spacer
-                        v-tooltip.mr-0(left)
+                        v-tooltip.mr-0.hidden-sm-and-down(left)
                             v-btn(icon aria-label='score' slot='activator' @click='showScore')
                                 v-icon mdi-chart-line
                             span 成績
@@ -61,14 +61,14 @@
                                         v-list-tile-title {{ item.title }}
                             v-divider(v-if='Setting.showDivider')
 
-        transition(name='slide-x-reverse-transition' mode='out-in')
-            v-flex.pl-2(xs12 md4 v-if='score.flag === 0')
+        transition(:name='isMobile ? "slide-x-transition" : "slide-x-reverse-transition"')
+            v-flex.pl-2(xs12 md4 v-if='(isMobile && tag === "textbook") || (!isMobile && tag !== "score")')
                 v-card.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(color='orange' flat dark)
                         v-toolbar-side-icon: v-icon mdi-menu
-                        v-toolbar-title 教材
+                        v-toolbar-title.no-select 教材
                         v-spacer
-                        v-btn(aria-label='search' icon): v-icon mdi-search
+                        v-btn.mr-2(aria-label='search' icon): v-icon mdi-magnify
                     v-list.pa-0(two-line subheader)
                         v-list-tile(v-if='Setting.showIntro' @click='downloadIntro')
                             v-list-tile-avatar
@@ -92,19 +92,19 @@
                                 v-list-tile-content 
                                     v-list-tile-title {{ nitem[0] }}
                                     v-list-tile-sub-title {{ nitem[3].split(' ')[0] }}
-        transition(name='slide-y-reverse-transition' mode='out-in')
-            v-flex.pl-2(xs12 md6 offset-md3 v-if='score.flag === 2')
-                v-card.main-card.elevation-1.score-card(color='grey lighten-5' flat)
+        transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
+            v-flex.pl-2(xs12 md6 offset-md3 v-if='(isMobile && tag === "score") || (!isMobile && tag === "score")')
+                v-card.main-card.score-card(color='grey lighten-5' flat :class='{"elevation-1": !isMobile}')
                         v-toolbar(color='red' flat dark)
-                            v-toolbar-side-icon: v-icon mdi-menu
+                            v-toolbar-side-icon.ml-2: v-icon mdi-menu
                             v-toolbar-title 成績
                             v-spacer
-                            v-tooltip.mr-0(left)
-                                v-btn(icon aria-label='score' slot='activator' @click='score.flag = 0')
+                            v-tooltip.mr-0.hidden-sm-and-down(left)
+                                v-btn(icon aria-label='score' slot='activator' @click='tag="yo~~"')
                                     v-icon mdi-clipboard-text
                                 span 作業
-                        v-list.tile-hover.stripe.pa-0(subheader)
-                            template(v-for='(item, key) in score.data' v-if='item.length')
+                        template(v-for='(item, key) in score.data' v-if='item.length')
+                            v-list.tile-hover.stripe.pa-0(subheader)
                                 v-subheader {{ key }}
                                 v-list-tile(ripple avatar v-for='slime in item' :key='slime.name + slime.percentage' :class='{"yellow lighten-1": key === "總成績", "color-indicator": Setting.rankColorBlock}' @click='' :style='{"border-color": slime.color}')
                                     v-list-tile-content
@@ -115,11 +115,12 @@
                                     v-list-tile-action
                                         v-btn(flat aria-label='score' outline) {{ slime.score }}
                                 
-        v-dialog(v-model='announce.flag' max-width=490)
+        v-dialog(v-model='announce.flag' :max-width='isMobile ? 350 : 490')
             v-card#announce.announce-dialog-box
-                v-snackbar(:timeout='3000' top=true bottom=false absolute=true color='success' v-model='announce.toastShow') {{announce.message}}
+                v-snackbar(:timeout='1000' top=true bottom=false absolute=true color='success' v-model='announce.toastShow') {{announce.message}}
                 v-card-title.headline
-                    div.text-xs-center {{ announce.title }}
+                    div.text-xs-center(:class='{"hidden-more-text": isMobile}')
+                        span {{ announce.title }}
                     v-spacer
                     v-tooltip(top)
                         v-btn(icon aria-label='copy' slot='activator' @click='copyAnnounce')
@@ -133,7 +134,8 @@
         v-dialog(v-model='homework.flag' max-width=490)
             v-card.announce-dialog-box
                 v-card-title.headline
-                    div.text-xs-center {{ homework.title }}
+                    div.text-xs-center(:class='{"hidden-more-text": isMobile}')
+                        span {{ homework.title }}
                     v-spacer
                     v-btn(icon aria-label='upload' v-if='isMobile' @click='showUpload(homework.id)')
                         v-icon(color='grey darken-2') mdi-upload
@@ -144,7 +146,7 @@
                     v-spacer
         v-dialog(v-model='uploadHW.flag' max-width=600 persistent)
             v-card.announce-dialog-box(style='background-color: #f2f2f2;')
-                v-snackbar(:timeout='3000' :top='true' :bottom='false' :color='uploadHW.toastColor'
+                v-snackbar(:timeout='1000' :top='true' :bottom='false' :color='uploadHW.toastColor'
                     v-model='uploadHW.toastShow' :absolute='true') {{uploadHW.message}}
                 div.headline.text-xs-center.pa-3 作業上傳
                     v-btn.right.ma-0(icon ripple aria-label='close' @click='uploadHW.flag = false') 
@@ -196,12 +198,15 @@ import Util from '../Util'
 import Score from '../Score'
 import Course from './../Course'
 import Homework from '../Homework'
+import debounce from 'lodash/debounce'
 import { mapGetters, mapActions } from 'vuex'
 
 const config = require('../../config.json')
 
 export default {
+    props: ['tab'],
     data: () => ({
+        tag: 'announce',
         isScroll: false,
         isMobile: window.innerWidth < 800,
         search: {
@@ -228,7 +233,8 @@ export default {
         },
         score: {
             flag: 0,
-            data: {}
+            data: {},
+            roll: {}
         },
         uploadHW: {
             workID: 0,
@@ -314,13 +320,28 @@ export default {
         }
     },
     watch: {
-        async '$route' (target) {
+        '$route': debounce(async (target) => {
             await Course.changeCourse(target.params.id)
-            if (this.score.flag) {
+            if (this.tag === 'score') {
                 this.score.data = await Score.getScore()
+                this.score.roll = await Score.getRoll()
                 window.scroll({ top: 0, behavior: 'smooth' })
             }
+        }, 50),
+        async tab (newValue) {
+            this.tag = 'middle'
+            setTimeout(() => { this.tag = newValue }, 350)
+            if (newValue === 'score') this.score.data = await Score.getScore()
         }
+    },
+    async beforeRouteEnter (to, from, next) {
+        console.log('enter')
+        if (to.params.id) {
+            setTimeout(async () => {
+                await Course.changeCourse(to.params.id)
+            }, 1500)
+        }
+        next()
     },
     methods: {
         ...mapActions([
@@ -401,11 +422,9 @@ export default {
             Util.openLink(link, false)
         },
         async showScore () {
-            this.score.flag = 1
-            setTimeout(() => {
-                this.score.flag = 2
-            }, 300)
+            this.tag = 'score'
             this.score.data = await Score.getScore()
+            this.score.roll = await Score.getRoll()
         },
         async showUpload (workID) {
             this.uploadHW.workID = workID

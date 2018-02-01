@@ -15,7 +15,7 @@
                                 v-icon.blue-grey--text.lighten-1--text.body-1 mdi-map-marker
                                 span {{User.department}}, {{User.classes}}
                     
-            v-list.pt-0.striped.course-list(dense three-line)
+            v-list.pt-0.striped.course-list(dense :two-line='isMobile' :three-line='!isMobile')
                 v-list-tile
                     v-list-tile-action
                     v-list-tile-content
@@ -30,7 +30,7 @@
                             span {{item.professor}}
         v-toolbar.color-nav(dark color='primary' fixed app)
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
-            v-toolbar-title.white--text.ecourse-logo eCourse+
+            v-toolbar-title.white--text.ecourse-logo.no-select eCourse+
             v-spacer
             v-menu
                 v-btn.setting-btn(icon aria-label='setting' slot='activator')
@@ -48,59 +48,36 @@
                             | &nbsp;
                             v-icon mdi-logout-variant
                             | &nbsp;登出
- 
-                v-dialog(v-model='flag.setting' max-width=450 scroll)
-                    v-toolbar.blue(dark)
-                        v-icon mdi-wrench
-                        v-toolbar-title 設定
-                    v-list.tile-hover(two-line subheader)
-                        template(v-for='(item, key) in settingData')
-                            v-subheader(:key='key') {{ key }}
-                            v-list-tile(v-for='subItem in item' :key='subItem.title' ripple avatar @click='')
-                                v-list-tile-action
-                                    v-switch(color='blue darken-1' v-model='setting[subItem.field]')
-                                v-list-tile-content(@click='setting[subItem.field] = !setting[subItem.field]')
-                                    v-list-tile-title {{ subItem.title }}
-                                    v-list-tile-sub-title {{ subItem.description }}
-                            v-divider
-
-                v-dialog(width='300px' v-model='flag.login')
-                    v-card.dialog-box
-                        v-card-title.headline: div.text-xs-center 登入帳號
-                        v-card-text(style='font-size: 15px;') ※請輸入
-                            b 單一入口帳號密碼
-                            v-container(grid-list-md)
-                                v-layout(wrap)
-                                    v-flex(xs12)
-                                        v-text-field(label='帳號' required v-model='username')
-                                    v-flex(xs12)
-                                        v-text-field(label='密碼' required type='password' v-model='password' @keyup.enter='login(false)')
-                                    //v-flex(xs4 v-if='flag.authcode')
-                                        img(:src='authcodeImg' ref='authcode' @click.stop="$refs.authcode.src = authcodeImg + '?rnd=' + Math.random()" style='margin-top: 19px;')
-                                    //v-flex(xs8 v-if='flag.authcode')
-                                        v-text-field(label='驗證碼' v-model='authcode' required)
-                        v-card-actions
-                            v-spacer
-                            v-btn(color='blue darken-1' aria-label='login' @click.native='login(false)' large dark)
-                                v-icon mdi-flash
-                                | 登入
-                            v-spacer
 
         v-content.mb-5
             v-container(fluid)
                 transition(name='slide' mode='out-in')
                     keep-alive
-                        router-view
-                v-snackbar(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
-        v-footer(absolute)
+                        router-view(:tab.sync='tag')
+                v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
+
+        v-bottom-nav.hidden-md-and-up(app fixed shift :active.sync='tag' :color='bottomNavColor')
+            v-btn(flat dark value='announce')
+                span 公告
+                v-icon mdi-calendar-text
+            v-btn(flat dark value='homework')
+                span 作業
+                v-icon mdi-clipboard-text
+            v-btn(flat dark value='textbook')
+                span 教材
+                v-icon mdi-book-open-variant
+            v-btn(flat dark value='score')
+                span 成績
+                v-icon mdi-chart-line
+        v-footer.hidden-sm-and-down(absolute)
             v-spacer
-            span © 2018 Copyright by Pionxzh
+            span © 20018 Copyright by Pionxzh
             v-spacer
         v-fab-transition
-            v-btn(fixed aria-label='fab' bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
+            v-btn.hidden-sm-and-down(fixed aria-label='fab' bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
                 v-icon mdi-chevron-up
-        v-fab-transition
-            v-speed-dial(fixed bottom right :open-on-hover='!isMobile' transition='slide-x-transition' v-show='!isScroll' style='z-index: 10;')
+        v-fab-transition.hidden-sm-and-down
+            v-speed-dial.hidden-sm-and-down(fixed bottom right :open-on-hover='!isMobile' transition='slide-x-transition' v-show='!isScroll' style='z-index: 10;')
                 v-btn(slot='activator' aria-label='close' color='red' dark fab)
                     v-icon mdi-rocket
                 v-tooltip(left)
@@ -111,18 +88,56 @@
                     v-btn(fab dark aria-label='score' color='pink' slot='activator' @click='')
                         v-icon mdi-chart-line
                     span 成績
+        v-dialog(v-model='flag.setting' max-width=450 scroll)
+            v-toolbar.blue(dark)
+                v-icon mdi-wrench
+                v-toolbar-title 設定
+                v-spacer
+                v-btn.mr-3(icon @click='flag.setting = false'): v-icon mdi-close
+            v-list.tile-hover(two-line subheader)
+                template(v-for='(item, key) in settingData')
+                    v-subheader.no-select(:key='key') {{ key }}
+                    v-list-tile(v-for='subItem in item' :key='subItem.title' ripple avatar @click='')
+                        v-list-tile-action
+                            v-switch(color='blue darken-1' v-model='setting[subItem.field]')
+                        v-list-tile-content(@click='setting[subItem.field] = !setting[subItem.field]')
+                            v-list-tile-title {{ subItem.title }}
+                            v-list-tile-sub-title {{ subItem.description }}
+                    v-divider
+
+        v-dialog(width='300px' v-model='flag.login')
+            v-card.dialog-box
+                v-card-title.headline: div.text-xs-center 登入帳號
+                v-card-text(style='font-size: 15px;') ※請輸入
+                    b 單一入口帳號密碼
+                    v-container(grid-list-md)
+                        v-layout(wrap)
+                            v-flex(xs12)
+                                v-text-field(label='帳號' required v-model='username')
+                            v-flex(xs12)
+                                v-text-field(label='密碼' required type='password' v-model='password' @keyup.enter='login(false)')
+                            //v-flex(xs4 v-if='flag.authcode')
+                                img(:src='authcodeImg' ref='authcode' @click.stop="$refs.authcode.src = authcodeImg + '?rnd=' + Math.random()" style='margin-top: 19px;')
+                            //v-flex(xs8 v-if='flag.authcode')
+                                v-text-field(label='驗證碼' v-model='authcode' required)
+                v-card-actions
+                    v-spacer
+                    v-btn(color='blue darken-1' aria-label='login' @click.native='login(false)' large dark)
+                        v-icon mdi-flash
+                        | 登入
+                    v-spacer
 
 </template>
 
 <script>
 import User from './../User'
 import Course from './../Course'
+// import SW from './../ServiceWorker'
 import Announce from './../Announce'
 import Homework from './../Homework'
 import Textbook from './../Textbook'
 import debounce from 'lodash/debounce'
 import { mapGetters, mapActions } from 'vuex'
-// const config = require('../../config.json')
 window.$ = window.jQuery = $
 
 export default {
@@ -131,6 +146,7 @@ export default {
         loading: false,
         isScroll: false,
         isMobile: window.innerWidth < 800,
+        tag: 'announce',
         username: '',
         password: '',
         // authcode: '',
@@ -218,14 +234,25 @@ export default {
                 pass: this.password,
                 ver: 'C'
             }
+        },
+        bottomNavColor () {
+            switch (this.tag) {
+                case 'announce': return 'blue'
+                case 'homework': return 'green'
+                case 'textbook': return 'orange'
+                case 'score': return 'red'
+            }
         }
     },
     async created () {
+        /* navigator.serviceWorker.register('./../ServiceWorker.js')
+        .then(register => console.log('SW registered!', register))
+        .catch(e => console.log(e, 'SW Error!')) */
+
         if (this.isMobile) this.flag.drawer = false
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
         await this.autoLogin()
-        if (this.$route.params.id) await Course.changeCourse(this.$route.params.id)
     },
     watch: {
         setting: {
@@ -251,7 +278,7 @@ export default {
         toTop () {
             window.scroll({ top: 0, behavior: 'smooth' })
         },
-        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', timeout = 3000} = {}) {
+        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', timeout = 1500} = {}) {
             this.toast.show = true
             this.toast.top = top
             this.toast.right = right

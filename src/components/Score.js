@@ -5,7 +5,7 @@ const config = require('./../config.json')
 let Decoder = new TextDecoder('big5')
 
 export default class Score {
-    static async getScore (courseID) {
+    static async getScore () {
         let score = await axios.get(config.ecourse.COURSE_SCORE, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e))
         let scoreData = $.parseHTML(Decoder.decode(score.data))
         let scoreNode = $(scoreData).find('tr[bgcolor="#4d6eb2"], tr[bgcolor="#E6FFFC"], tr[bgcolor="#F0FFEE"], tr[bgcolor="#B0BFC3"]').get()
@@ -27,7 +27,6 @@ export default class Score {
                     let rank = $(row[3]).text().replace('你沒有成績', '-')
                     let bits = rank.split('/')
                     let num = 1 - (bits[0] / bits[1])
-                    console.log(num)
                     let color = Util.hslToRgb(num * 1.2 / 3.6, 1, 0.5)
                     result[title].push({
                         name: $(row[0]).text(),
@@ -40,5 +39,19 @@ export default class Score {
         })
         // console.log(result)
         return result
+    }
+
+    static async getRoll () {
+        let roll = await axios.get(config.ecourse.ROLL, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e))
+        let rollData = Decoder.decode(roll.data)
+        console.log(rollData)
+        let reg = /<TD\scolspan="2">([0-9/出缺席]*?)<\/TD>\s*?<TD\scolspan="2">([0-9/出缺席]*?)<\/TD>/g
+        let result = []
+        let temp
+        do {
+            temp = reg.exec(rollData)
+            if (temp) result.push([temp[1], temp[2]])
+        } while (temp)
+        console.log(result)
     }
 }
