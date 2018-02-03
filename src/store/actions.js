@@ -32,6 +32,10 @@ export const updateAnnNotify = ({ commit }, [courseID, key]) => {
     commit(types.ANNOUNCE_NOTIFY, [courseID, key])
 }
 
-export const updateHwNotify = ({ commit }, [courseID, key]) => {
-    commit(types.HOMEWORK_NOTIFY, [courseID, key])
+export const loadLocalData = ({ commit }) => {
+    commit(types.LOAD)
+}
+
+export const clearData = ({ commit }) => {
+    commit(types.CLEAR)
 }

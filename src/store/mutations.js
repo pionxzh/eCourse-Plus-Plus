@@ -12,6 +12,7 @@ export const mutations = {
     },
     [types.COURSE] (state, courseList) {
         state.courseList = courseList
+        localStorage.courseList = JSON.stringify(courseList)
     },
     [types.ANNOUNCE] (state, [announce, announceNotify]) {
         let now = new Date()
@@ -38,8 +39,9 @@ export const mutations = {
             }, [])
             return result
         }, {})
-        localStorage.annNotify = JSON.stringify(announceNotify)
         state.announceNotify = announceNotify
+        localStorage.announce = JSON.stringify(state.announceData)
+        localStorage.annNotify = JSON.stringify(announceNotify)
     },
     async [types.HOMEWORK] (state, homework) {
         state.homeworkData = homework.reduce((result, item) => {
@@ -58,6 +60,7 @@ export const mutations = {
             }, [])
             return result
         }, {})
+        localStorage.homework = JSON.stringify(state.homeworkData)
     },
     [types.TEXTBOOK] (state, obj) {
         let textbook = obj.textbook
@@ -69,6 +72,7 @@ export const mutations = {
             temp[element].content = textbook[index]
         })
         state.textbookData = temp
+        localStorage.textbook = JSON.stringify(state.textbookData)
     },
     [types.SETTING] (state, setting) {
         // console.log('Setting\n', setting)
@@ -84,8 +88,21 @@ export const mutations = {
         state.announceNotify[courseID][key] = false
         localStorage.annNotify = JSON.stringify(state.announceNotify)
     },
-    [types.HOMEWORK_NOTIFY] (state, [courseID, key]) {
-        state.homeworkNotify[courseID][key] = false
-        localStorage.homeworkNotify = JSON.stringify(state.homeworkNotify)
+    [types.LOAD] (state) {
+        // 有annNotify表示其他人有被記錄
+        if (!localStorage.annNotify) return
+        state.courseList = JSON.parse(localStorage.courseList)
+        state.announceData = JSON.parse(localStorage.announce)
+        state.homeworkData = JSON.parse(localStorage.homework)
+        state.textbookData = JSON.parse(localStorage.textbook)
+        state.homeworkData = JSON.parse(localStorage.homework)
+        state.announceNotify = JSON.parse(localStorage.annNotify)
+    },
+    [types.CLEAR] (state) {
+        state.courseList = []
+        state.announceData = {}
+        state.homeworkData = {}
+        state.textbookData = {}
+        state.announceNotify = {}
     }
 }

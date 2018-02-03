@@ -38,17 +38,11 @@ export default class User {
         let wrongFlag = false
         data = Qs.stringify(data)
         await axios.post(config.ecourse.LOGIN, data)
-        .then(response => {
-            // if (Decoder.decode(response.data).indexOf('密碼錯誤') === -1) wrongFlag = false
-            wrongFlag = true
-        })
+        .then(response => { wrongFlag = true })
         .catch(e => { result.stat = this.crossHandler(e) })
 
         await axios.post(config.ecourse.MOBILE, data)
-        .then(response => {
-            // if (Decoder.decode(response.data).indexOf('密碼錯誤') === -1) wrongFlag = false
-            wrongFlag = true
-        })
+        .then(response => { wrongFlag = true })
         .catch(e => { result.stat = this.crossHandler(e) })
 
         if (wrongFlag) {
@@ -61,7 +55,6 @@ export default class User {
     static async logout () {
         await axios.get(config.ecourse.LOGOUT).catch(e => Util.errHandler(e, 'Logout Error!'))
         localStorage.removeItem('user')
-        localStorage.removeItem('setting')
         localStorage.removeItem('annNotify')
     }
 

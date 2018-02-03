@@ -54,7 +54,7 @@
                 transition(name='slide' mode='out-in')
                     keep-alive
                         router-view(:tab.sync='tag')
-                v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
+                v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show' :multi-line='toast.multi') {{toast.message}}
 
         v-bottom-nav.hidden-md-and-up(app fixed shift :active.sync='tag' :color='bottomNavColor')
             v-btn(flat dark value='announce')
@@ -71,7 +71,7 @@
                 v-icon mdi-chart-line
         v-footer.hidden-sm-and-down(absolute)
             v-spacer
-            span © 20018 Copyright by Pionxzh
+            span © 2018 Copyright by Pionxzh
             v-spacer
         v-fab-transition
             v-btn.hidden-sm-and-down(fixed aria-label='fab' bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
@@ -219,7 +219,8 @@ export default {
             bottom: false,
             left: false,
             color: 'success',
-            message: ''
+            message: '',
+            multi: false
         }
     }),
     computed: {
@@ -245,14 +246,14 @@ export default {
         }
     },
     async created () {
-        /* navigator.serviceWorker.register('./../ServiceWorker.js')
-        .then(register => console.log('SW registered!', register))
-        .catch(e => console.log(e, 'SW Error!')) */
-
         if (this.isMobile) this.flag.drawer = false
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
-        await this.autoLogin()
+        if (navigator.onLine) await this.autoLogin()
+        else {
+            this.showToast({message: '當前處於離線狀態，部分功能可能受限', color: 'info', multi: true})
+            this.loadLocalData()
+        }
     },
     watch: {
         setting: {
@@ -270,7 +271,9 @@ export default {
             'updateHomework',
             'updateTextbook',
             'updateSetting',
-            'updateHwFile'
+            'updateHwFile',
+            'loadLocalData',
+            'clearData'
         ]),
         onScroll: debounce(function () {
             this.isScroll = window.scrollY > 200
@@ -299,6 +302,7 @@ export default {
 
             let mainPage = await User.getIndex()
             if (mainPage.indexOf('權限錯誤') === -1) {
+                // 考慮移除updateUser，可以存在這個instance裡頭就好?
                 this.updateUser({username: JSON.parse(localStorage.user).username, loggedIn: true})
                 await this.fetchData()
                 return
@@ -309,6 +313,7 @@ export default {
             let data = remember ? JSON.parse(localStorage.user) : this.loginData
 
             let result = await User.login(data)
+            // 登入失敗
             if (!result.stat) return this.showToast({message: result.message, color: 'error'})
 
             if (!remember) localStorage.user = JSON.stringify(this.loginData)
@@ -320,6 +325,7 @@ export default {
         async logout () {
             await User.logout()
             this.updateUser({loggedIn: false})
+            this.clearData()
             this.showToast({message: '登出成功', color: 'success'})
         },
         async fetchData () {

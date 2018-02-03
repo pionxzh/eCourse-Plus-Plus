@@ -291,8 +291,7 @@ export default {
             Textbook: 'getTextbook',
             Setting: 'getSetting',
             HomeworkFile: 'getHomeworkFile',
-            AnnouceNotify: 'getAnnNotify',
-            HomeworkNotify: 'getHwNotify'
+            AnnouceNotify: 'getAnnNotify'
         }),
         courseID () {
             return this.$route.params.id
@@ -335,7 +334,6 @@ export default {
         }
     },
     async beforeRouteEnter (to, from, next) {
-        console.log('enter')
         if (to.params.id) {
             setTimeout(async () => {
                 await Course.changeCourse(to.params.id)
@@ -345,8 +343,7 @@ export default {
     },
     methods: {
         ...mapActions([
-            'updateAnnNotify',
-            'updateHwNotify'
+            'updateAnnNotify'
         ]),
         toggleSearch () {
             if (this.search.flag) {
