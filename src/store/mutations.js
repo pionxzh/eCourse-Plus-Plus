@@ -14,8 +14,9 @@ export const mutations = {
         state.courseList = courseList
         localStorage.courseList = JSON.stringify(courseList)
     },
-    [types.ANNOUNCE] (state, [announce, announceNotify]) {
+    [types.ANNOUNCE] (state, announce) {
         let now = new Date()
+        let announceNotify = localStorage.annNotify ? JSON.parse(localStorage.annNotify) : {}
         state.template = announce.map(item => item[0], [])
         state.announceData = announce.reduce((result, item) => {
             let courseID = item[0]
@@ -26,8 +27,9 @@ export const mutations = {
             result[courseID].list = !item[2].length ? [{title: '暫無公告'}] : item[2].reduce((temp, nItem) => {
                 let key = nItem[0]
                 /* Decide isNew by is time's difference less than 7 days */
+                // change to 14 days for testing, remember to change it back
                 if (announceNotify[courseID][key] === undefined) {
-                    announceNotify[courseID][key] = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 7
+                    announceNotify[courseID][key] = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 14
                 }
                 temp.push({
                     id: key,

@@ -173,6 +173,7 @@ export default {
             isDownloadTextbook: false,
             showIntro: true,
             showTeacherInfo: true,
+            rankColorBlock: true,
             enableNotify: false
         },
         settingData: {
@@ -184,7 +185,7 @@ export default {
             '通知': [{
                 field: 'enableNotify',
                 title: '啟用通知功能',
-                description: '每當有新公告、新作業時會有通知'
+                description: '自動檢查新公告、新作業，顯示在右上小鈴鐺'
             }],
             '公告': [{
                 field: 'detectDate',
@@ -198,7 +199,7 @@ export default {
             '作業': [{
                 field: 'isDownloadQuestion',
                 title: '強制下載題目',
-                description: '點擊後會強制下載而非打開新視窗(Safari無效)'
+                description: '強制下載文件而非打開新視窗(Safari無效)'
             }],
             '教材': [{
                 field: 'showIntro',
@@ -215,7 +216,7 @@ export default {
             }, {
                 field: 'isDownloadTextbook',
                 title: '強制下載教材',
-                description: '點擊後會強制下載而非打開新視窗(Safari無效)'
+                description: '強制下載文件而非打開新視窗(Safari無效)'
             }],
             '成績': [{
                 field: 'rankColorBlock',
@@ -261,17 +262,16 @@ export default {
         if (this.isMobile) this.flag.drawer = false
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
+        this.loadLocalData()
         if (navigator.onLine) await this.autoLogin()
         else {
             this.showToast({message: '當前處於離線狀態，部分功能可能受限', color: 'info', multi: true})
-            this.loadLocalData()
         }
     },
     watch: {
         setting: {
             handler () {
                 this.updateSetting(this.setting)
-                if (this.setting.enableNotify) this.enableNotification()
             },
             deep: true
         }
@@ -315,7 +315,7 @@ export default {
 
             let mainPage = await User.getIndex()
             if (mainPage.indexOf('權限錯誤') === -1) {
-                // 考慮移除updateUser，可以存在這個instance裡頭就好?
+                /* 考慮移除updateUser，可以存在這個instance裡頭就好 */
                 this.updateUser({username: JSON.parse(localStorage.user).username, loggedIn: true})
                 await this.fetchData()
                 return
@@ -326,7 +326,7 @@ export default {
             let data = remember ? JSON.parse(localStorage.user) : this.loginData
 
             let result = await User.login(data)
-            // 登入失敗
+            /* 登入失敗 */
             if (!result.stat) return this.showToast({message: result.message, color: 'error'})
 
             if (!remember) localStorage.user = JSON.stringify(this.loginData)
@@ -349,8 +349,7 @@ export default {
             this.updateCourse(courrseList.data)
 
             let announce = await Announce.getData()
-            let annNotify = localStorage.annNotify ? JSON.parse(localStorage.annNotify) : {}
-            this.updateAnnounce([announce.data, annNotify])
+            this.updateAnnounce(announce.data)
 
             let homework = await Homework.getData()
             this.updateHomework(homework.data)
@@ -366,51 +365,6 @@ export default {
             else this.showToast({message: '取得資料成功', color: 'info'})
 
             this.keepAlive()
-        },
-        enableNotification () {
-            if (!('PushManager' in window)) return false
-            let that = this
-            // Get `push notification` subscription
-            navigator.serviceWorker.ready.then((registration) => {
-                registration.pushManager.getSubscription()
-                    .then((subscription) => {
-                        console.log('sub', subscription)
-                        if (subscription) {
-                            that.showToast({message: '通知開啟成功', color: 'success'})
-                        }
-                        registration.pushManager.subscribe({
-                            // Always show notification when received
-                            userVisibleOnly: true
-                        })
-                            .then(function (subscription) {
-                                console.info('Push notification subscribed.', subscription)
-                                that.showToast({message: '通知開啟成功', color: 'success'})
-                            })
-                            .catch(function (e) {
-                                console.error('Push notification subscription error: ', e)
-                                that.setting.enableNotify = false
-                                that.showToast({message: '通知開啟失敗', color: 'error'})
-                            })
-                    })
-                    .catch((e) => {
-                        console.error('Error occurred while getSubscription()', e)
-                        that.setting.enableNotify = false
-                        that.showToast({message: '通知開啟失敗', color: 'error'})
-                    })
-            })
-            /*
-            let result = NotifyManager.subscribePush()
-            console.log(result)
-            if (result) {
-                this.setting.enableNotify = true
-                this.showToast({message: '通知開啟成功', color: 'success'})
-            } else {
-                this.setting.enableNotify = false
-                this.showToast({message: '通知開啟失敗', color: 'success'})
-            }
-            */
-            // this.setting.enableNotify = false
-            // return this.showToast({message: '當前瀏覽器不支援此功能，建議改以其他瀏覽器開啟', color: 'error'})
         }
     }
 }
