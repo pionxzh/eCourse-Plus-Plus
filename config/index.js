@@ -15,7 +15,7 @@ module.exports = {
         // Gzip off because cloudFalre has gzip file for dev
         productionGzip: false,
         productionGzipExtensions: ['js', 'css'],
-        bundleAnalyzerReport: true
+        bundleAnalyzerReport: false
     },
     dev: {
         env: require('./dev.env'),

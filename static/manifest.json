@@ -8,8 +8,15 @@
             "type": "image/png"
         }
     ],
+    "author": {
+        "name": "Pionxzh",
+        "website": "https://pionxzh.com",
+        "github": "https://github.com/pionxzh",
+        "source-repo": "https://github.com/pionxzh/eCourse-Plus-Plus"
+    },
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#693333",
-    "theme_color": "#693333"
+    "background_color": "#2196f3",
+    "theme_color": "#2196f3",
+    "gcm_sender_id": "690644662687"
 }
