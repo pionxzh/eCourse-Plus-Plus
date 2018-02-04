@@ -8,12 +8,12 @@
     <meta name="fragment" content="!">
     <title>Ecourse+</title>
     <link rel="canonical" href="https://ecourse.pionxzh.com" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="theme-color" content="#693333">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#2196f3">
 
     <!-- Add to home screen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -30,6 +30,20 @@
     <!-- Only include in production -->
     <%= htmlWebpackPlugin.options.serviceWorkerLoader %>
     <!-- built files will be auto injected -->
+    
+    <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyAMzo2yigx5VeXx3tjL5HGe81FjIvEGYzE",
+            authDomain: "ecourse-25613.firebaseapp.com",
+            databaseURL: "https://ecourse-25613.firebaseio.com",
+            projectId: "ecourse-25613",
+            storageBucket: "ecourse-25613.appspot.com",
+            messagingSenderId: "690644662687"
+        };
+        firebase.initializeApp(config);
+    </script>
 </body>
 
 </html>

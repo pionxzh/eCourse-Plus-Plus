@@ -43,7 +43,12 @@
                     v-list-tile.list__tile--link
                         v-list-tile-title(@click='fetchData') &nbsp;&nbsp;強制刷新&nbsp;&nbsp;
                     v-divider
-                    v-list-tile.list__tile--link
+                    v-list-tile.list__tile--link(v-if='!User.loggedIn')
+                        v-list-tile-title(@click='flag.login = true')
+                            | &nbsp;
+                            v-icon mdi-logout-variant
+                            | &nbsp;登入
+                    v-list-tile.list__tile--link(v-if='User.loggedIn')
                         v-list-tile-title(@click='logout')
                             | &nbsp;
                             v-icon mdi-logout-variant
@@ -137,6 +142,7 @@ import Announce from './../Announce'
 import Homework from './../Homework'
 import Textbook from './../Textbook'
 import debounce from 'lodash/debounce'
+// import NotifyManager from './../NotifyManager'
 import { mapGetters, mapActions } from 'vuex'
 window.$ = window.jQuery = $
 
@@ -166,13 +172,19 @@ export default {
             isDownloadQuestion: false,
             isDownloadTextbook: false,
             showIntro: true,
-            showTeacherInfo: true
+            showTeacherInfo: true,
+            enableNotify: false
         },
         settingData: {
             '外觀': [{
                 field: 'showDivider',
                 title: '顯示格線',
                 description: '在每個項目之間添加分隔線'
+            }],
+            '通知': [{
+                field: 'enableNotify',
+                title: '啟用通知功能',
+                description: '每當有新公告、新作業時會有通知'
             }],
             '公告': [{
                 field: 'detectDate',
@@ -259,6 +271,7 @@ export default {
         setting: {
             handler () {
                 this.updateSetting(this.setting)
+                if (this.setting.enableNotify) this.enableNotification()
             },
             deep: true
         }
@@ -353,6 +366,51 @@ export default {
             else this.showToast({message: '取得資料成功', color: 'info'})
 
             this.keepAlive()
+        },
+        enableNotification () {
+            if (!('PushManager' in window)) return false
+            let that = this
+            // Get `push notification` subscription
+            navigator.serviceWorker.ready.then((registration) => {
+                registration.pushManager.getSubscription()
+                    .then((subscription) => {
+                        console.log('sub', subscription)
+                        if (subscription) {
+                            that.showToast({message: '通知開啟成功', color: 'success'})
+                        }
+                        registration.pushManager.subscribe({
+                            // Always show notification when received
+                            userVisibleOnly: true
+                        })
+                            .then(function (subscription) {
+                                console.info('Push notification subscribed.', subscription)
+                                that.showToast({message: '通知開啟成功', color: 'success'})
+                            })
+                            .catch(function (e) {
+                                console.error('Push notification subscription error: ', e)
+                                that.setting.enableNotify = false
+                                that.showToast({message: '通知開啟失敗', color: 'error'})
+                            })
+                    })
+                    .catch((e) => {
+                        console.error('Error occurred while getSubscription()', e)
+                        that.setting.enableNotify = false
+                        that.showToast({message: '通知開啟失敗', color: 'error'})
+                    })
+            })
+            /*
+            let result = NotifyManager.subscribePush()
+            console.log(result)
+            if (result) {
+                this.setting.enableNotify = true
+                this.showToast({message: '通知開啟成功', color: 'success'})
+            } else {
+                this.setting.enableNotify = false
+                this.showToast({message: '通知開啟失敗', color: 'success'})
+            }
+            */
+            // this.setting.enableNotify = false
+            // return this.showToast({message: '當前瀏覽器不支援此功能，建議改以其他瀏覽器開啟', color: 'error'})
         }
     }
 }
