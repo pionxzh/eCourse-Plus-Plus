@@ -38,6 +38,14 @@ html, body, .mdl-layout-title, .application
     .short .snack__content
         margin: 0 25px 0 25px
 
+/* hide scroll bar on desktop to improve UX */
+@media screen and (min-width: 600px)
+    ::-webkit-scrollbar
+        width:0px!important
+
+    body::-webkit-scrollbar
+        width:0 px!important
+
 /*  Common class  */
 input[type=file]
     display: none
@@ -242,6 +250,16 @@ ul.stripe li:not(.subheader):nth-child(even)
 .score-card .color-indicator .list__tile--avatar
     margin-left: -5px
 
+.block-score
+    background-color: transparent!important
+
+.block-score li.score-item
+    margin-top: 8px
+    background-color: white!important
+
+.block-score .score-item:nth-child(2)
+    margin-top: 0
+
 @media screen and (max-width:600px)
     .score-card .list__tile
         font-size: 14px
@@ -251,6 +269,56 @@ ul.stripe li:not(.subheader):nth-child(even)
 
     .score-card .btn__content
         padding: 0
+
+.roll-wrapper
+    padding: 3px
+
+/* do some css trick to center the content */
+.roll-item
+    width: 100%
+    height: 100%
+    flex: 1 0 auto
+    text-align: center
+    border-radius: 5px
+    overflow: hidden
+    border: #b3e5fc solid 1px
+
+.roll-item:before
+    content:''
+    float:left
+    padding-top:100%
+
+.roll-item div
+    padding-top: calc(50% - 10px)
+
+.checkmark
+    width: 100%
+    height: 100%
+    margin-left: 20px
+    margin-top: -10px
+    -webkit-transform: rotate(45deg)
+    transform: rotate(45deg)
+
+.checkmark:before
+    content:""
+    position: absolute
+    width: 14px
+    height: 56px
+    top: 0px
+    left: 21px
+    background-color: #b3e5fc
+    border-radius: 6px
+
+.checkmark:after
+    content:""
+    position: absolute
+    width: 28px;
+    height: 14px;
+    top: 42px;
+    left: 0;
+    background-color: #b3e5fc
+    border-radius: 6px
+
 
 /*  Upload file  */
 .upload-type

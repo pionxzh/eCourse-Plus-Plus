@@ -24,6 +24,14 @@ export const updateSetting = ({ commit }, setting) => {
     commit(types.SETTING, setting)
 }
 
+export const updateScore = ({ commit }, score) => {
+    commit(types.SCORE, score)
+}
+
+export const updateRoll = ({ commit }, roll) => {
+    commit(types.ROLL, roll)
+}
+
 export const updateHwFile = ({ commit }, hwFile) => {
     commit(types.HWFILE, hwFile)
 }

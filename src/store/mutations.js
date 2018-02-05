@@ -83,6 +83,14 @@ export const mutations = {
         })
         localStorage.setting = JSON.stringify(state.settingData)
     },
+    [types.SCORE] (state, [key, data]) {
+        Vue.set(state.scoreData, key, data)
+        localStorage.score = JSON.stringify(state.scoreData)
+    },
+    [types.ROLL] (state, [key, data]) {
+        Vue.set(state.rollData, key, data)
+        localStorage.roll = JSON.stringify(state.rollData)
+    },
     [types.HWFILE] (state, hwFile) {
         state.homeworkFile = hwFile
     },
@@ -98,6 +106,8 @@ export const mutations = {
         state.homeworkData = JSON.parse(localStorage.homework)
         state.textbookData = JSON.parse(localStorage.textbook)
         state.homeworkData = JSON.parse(localStorage.homework)
+        state.scoreData = JSON.parse(localStorage.score)
+        state.rollData = JSON.parse(localStorage.roll)
         state.announceNotify = JSON.parse(localStorage.annNotify)
     },
     [types.CLEAR] (state) {

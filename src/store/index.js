@@ -21,6 +21,8 @@ export default new Vuex.Store({
         announceData: {},
         homeworkData: {},
         textbookData: {},
+        scoreData: {},
+        rollData: {},
         settingData: {},
         homeworkFile: {},
 

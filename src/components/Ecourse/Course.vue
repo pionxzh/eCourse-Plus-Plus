@@ -97,8 +97,8 @@
                                     v-divider(v-if='Setting.showDivider')
                             v-divider(v-if='Setting.showDivider')
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
-            v-flex.pl-2(xs12 md6 offset-md3 v-if='(isMobile && tag === "score") || (!isMobile && tag === "score")')
-                v-card.main-card.score-card(color='grey lighten-5' flat :class='{"elevation-1": !isMobile}')
+            v-flex.pl-2(xs12 md6 offset-md1 v-if='tag === "score"')
+                v-card.main-card.score-card(color='grey lighten-5' flat :class='{"elevation-1": !Setting.scoreStyle2}')
                         v-toolbar(color='red' flat dark)
                             v-toolbar-side-icon.ml-2: v-icon mdi-menu
                             v-toolbar-title 成績
@@ -107,10 +107,10 @@
                                 v-btn(icon aria-label='score' slot='activator' @click='tag="yo~~"')
                                     v-icon mdi-clipboard-text
                                 span 作業
-                        template(v-for='(item, key) in score.data' v-if='item.length')
-                            v-list.tile-hover.stripe.pa-0(subheader)
+                        template(v-for='(item, key) in ScoreData' v-if='item && item.length')
+                            v-list.tile-hover.pa-0(subheader :class='{"stripe": !Setting.scoreStyle2, "block-score": Setting.scoreStyle2}')
                                 v-subheader {{ key }}
-                                v-list-tile(ripple avatar v-for='slime in item' :key='slime.name + slime.percentage' :class='{"yellow lighten-1": key === "總成績", "color-indicator": Setting.rankColorBlock}' @click='' :style='{"border-color": slime.color}')
+                                v-list-tile(ripple avatar v-for='slime in item' :key='slime.name + slime.percentage' :class='{"yellow lighten-1": key === "總成績", "color-indicator": Setting.rankColorBlock, "score-item": Setting.scoreStyle2, "elevation-1": Setting.scoreStyle2}' @click='' :style='{"border-color": slime.color}')
                                     v-list-tile-content
                                         v-list-tile-title {{ slime.name }}
                                         v-list-tile-sub-title {{ slime.percentage }}
@@ -118,6 +118,22 @@
                                         v-btn(flat aria-label='rank' outline) {{ slime.rank }}
                                     v-list-tile-action
                                         v-btn(flat aria-label='score' outline) {{ slime.score }}
+        transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
+            v-flex.pl-2(xs12 md4 v-if='tag === "score"')
+                v-card.main-card.score-card.elevation-1(color='grey lighten-5' flat :class='{"mt-5": isMobile}')
+                    v-toolbar(color='purple' flat dark)
+                        v-toolbar-side-icon.ml-2: v-icon mdi-menu
+                        v-toolbar-title 點名
+                    v-layout.fix-flex(row wrap)
+                        template(v-for='item in RollData')
+                            v-flex.fix-flex-item.roll-wrapper(xs3 sm3)
+                                div.roll-item
+                                    div(style='font-weight: 800') {{ item[0] }}
+                                    div.checkmark
+                        v-flex(xs12 v-if='!RollData.length')
+                            v-card(flat)
+                                v-card-title 沒有點名資料
+                            
                                 
         v-dialog(v-model='announce.flag' :max-width='isMobile ? 350 : 490')
             v-card#announce.announce-dialog-box
@@ -203,7 +219,6 @@ import Util from '../Util'
 import Score from '../Score'
 import Course from './../Course'
 import Homework from '../Homework'
-import debounce from 'lodash/debounce'
 import { mapGetters, mapActions } from 'vuex'
 
 const config = require('../../config.json')
@@ -211,6 +226,7 @@ const config = require('../../config.json')
 export default {
     props: ['tab'],
     data: () => ({
+        // 把score跟roll都放進storeㄅz
         tag: 'announce',
         isScroll: false,
         isMobile: window.innerWidth < 800,
@@ -236,11 +252,7 @@ export default {
         textbook: {
             flag: false
         },
-        score: {
-            flag: 0,
-            data: {},
-            roll: {}
-        },
+        scoreUpdate: {},
         uploadHW: {
             workID: 0,
             content: '',
@@ -294,6 +306,8 @@ export default {
             Announce: 'getAnnounce',
             Homework: 'getHomework',
             Textbook: 'getTextbook',
+            Score: 'getScore',
+            Roll: 'getRoll',
             Setting: 'getSetting',
             HomeworkFile: 'getHomeworkFile',
             AnnouceNotify: 'getAnnNotify'
@@ -310,6 +324,12 @@ export default {
         TextbookList () {
             return this.Textbook[this.$route.params.id] || {name: 'QAO找不到', list: {}}
         },
+        ScoreData () {
+            return this.Score[this.$route.params.id] || {'目前沒有成績': null}
+        },
+        RollData () {
+            return this.Roll[this.$route.params.id] || []
+        },
         HwFile () {
             return this.HomeworkFile[this.$route.params.id] || localStorage.homeworkFile ? JSON.parse(localStorage.homeworkFile)[this.$route.params.id] : {}
         },
@@ -324,30 +344,22 @@ export default {
         }
     },
     watch: {
-        '$route': debounce(async (target) => {
-            await Course.changeCourse(target.params.id)
-            if (this.tag === 'score') {
-                this.score.data = await Score.getScore()
-                this.score.roll = await Score.getRoll()
-                window.scroll({ top: 0, behavior: 'smooth' })
-            }
-        }, 50),
         async tab (newValue) {
             this.tag = 'middle'
             setTimeout(() => { this.tag = newValue }, 350)
-            if (newValue === 'score') this.score.data = await Score.getScore()
+            if (newValue === 'score') await this.showScore()
         }
     },
-    async beforeRouteEnter (to, from, next) {
-        if (to.params.id) {
-            setTimeout(async () => {
-                await Course.changeCourse(to.params.id)
-            }, 1500)
-        }
+    async beforeRouteUpdate (target, from, next) {
+        await Course.changeCourse(target.params.id)
+        console.log(this.tag)
+        if (this.tag === 'score') this.showScore(target.params.id)
         next()
     },
     methods: {
         ...mapActions([
+            'updateScore',
+            'updateRoll',
             'updateAnnNotify'
         ]),
         toggleSearch () {
@@ -423,10 +435,18 @@ export default {
             let link = `${config.ecourse.SHOW_WORK}?action=downloadFile&work_id=${this.uploadHW.workID}&filename=${fileName}`
             Util.openLink(link, false)
         },
-        async showScore () {
+        async showScore (id) {
+            let key = id || this.courseID
             this.tag = 'score'
-            this.score.data = await Score.getScore()
-            this.score.roll = await Score.getRoll()
+            console.log('showScore')
+            if (this.scoreUpdate[key]) return
+            this.scoreUpdate[key] = true
+            console.log(true)
+            let result = await Score.getScore()
+            this.updateScore([this.courseID, result])
+
+            result = await Score.getRoll()
+            this.updateRoll([this.courseID, result])
         },
         async showUpload (workID) {
             this.uploadHW.workID = workID

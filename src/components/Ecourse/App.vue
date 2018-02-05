@@ -5,7 +5,7 @@
                 v-list.pa-0(two-line)
                     v-list-tile.px-4(v-if='!User.loggedIn')
                         v-list-tile-content
-                            v-btn(color='primary' aria-label='login' @click='flag.login = true' dark) 登入
+                            v-btn(color='primary' aria-label='login' @click='flag.login = true' :loading='loading' :disabled='loading' dark) 登入
                     v-list-tile.px-4(avatar ripple v-else)
                         v-list-tile-avatar(size=48)
                             img.avatar-wrapper.elevation-1(src='../../assets/nav.png')
@@ -67,18 +67,18 @@
                                 div.headline.mb-3.mx-3 輕鬆瀏覽公告、作業、教材與成績
                                 div.mb-5
                                     v-tooltip(top)
-                                        v-btn.mx-3(icon color='white' href='https://google.com' target='_blank' rel='noopener' slot='activator')
-                                            v-icon(color="primary") mdi-facebook
+                                        v-btn.mx-3(icon large color='white' href='https://google.com' target='_blank' rel='noopener' slot='activator')
+                                            v-icon(color='primary') mdi-facebook
                                         span Facebook
                                     v-tooltip(top)
-                                        v-btn.mx-3(icon color='white' slot='activator')
-                                            v-icon(color="primary") mdi-twitter
+                                        v-btn.mx-3(icon large color='white' slot='activator')
+                                            v-icon(color='primary') mdi-twitter
                                         span 別按了 沒有twitter
                                     v-tooltip(top)
-                                        v-btn.mx-3(icon color='white' href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener' slot='activator')
-                                            v-icon(color="primary") mdi-github-circle
+                                        v-btn.mx-3(icon large color='white' href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener' slot='activator')
+                                            v-icon(color='primary') mdi-github-circle
                                         span GitHub
-                                v-btn.mb-2.primary--text(color='white' v-if='!User.loggedIn' @click='flag.login = true' large)
+                                v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='loading' :disabled='loading' @click='flag.login = true' large)
                                     strong 開始使用
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn' @click='showpPrompt' large)
                                     v-icon mdi-apps
@@ -155,7 +155,7 @@
                                 v-text-field(label='驗證碼' v-model='authcode' required)
                 v-card-actions
                     v-spacer
-                    v-btn(color='blue darken-1' aria-label='login' @click.native='login(false)' large dark)
+                    v-btn(color='blue darken-1' aria-label='login' :loading='loading' :disabled='loading' @click='login(false)' large dark)
                         v-icon mdi-flash
                         | 登入
                     v-spacer
@@ -165,7 +165,6 @@
 <script>
 import User from './../User'
 import Course from './../Course'
-// import SW from './../ServiceWorker'
 import Announce from './../Announce'
 import Homework from './../Homework'
 import Textbook from './../Textbook'
@@ -202,6 +201,7 @@ export default {
             isDownloadTextbook: false,
             showIntro: true,
             showTeacherInfo: true,
+            scoreStyle2: false,
             rankColorBlock: true,
             enableNotify: false
         },
@@ -248,6 +248,10 @@ export default {
                 description: '強制下載文件而非打開新視窗(Safari無效)'
             }],
             '成績': [{
+                field: 'scoreStyle2',
+                title: '切換成績風格',
+                description: '變一塊一塊，適合手機端'
+            }, {
                 field: 'rankColorBlock',
                 title: '顯示排名色塊',
                 description: '成績前依據排名顯示色塊'
@@ -328,13 +332,14 @@ export default {
         toTop () {
             window.scroll({ top: 0, behavior: 'smooth' })
         },
-        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', timeout = 1500} = {}) {
+        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', multi = false, timeout = 1500} = {}) {
             this.toast.show = true
             this.toast.top = top
             this.toast.right = right
             this.toast.bottom = bottom
             this.toast.left = left
             this.toast.color = color
+            this.toast.multi = multi
             this.toast.timeout = timeout
             this.toast.message = message
         },
@@ -359,6 +364,7 @@ export default {
             await this.login(true)
         },
         async login (remember) {
+            this.loading = true
             let data = remember ? JSON.parse(localStorage.user) : this.loginData
 
             let result = await User.login(data)
@@ -376,9 +382,11 @@ export default {
             this.updateUser({loggedIn: false})
             this.clearData()
             this.flag.drawer = false
+            this.$router.push({path: '/'})
             this.showToast({message: '登出成功', color: 'success'})
         },
         async fetchData () {
+            this.loading = true
             this.flag.drawer = true
 
             let mainPage = await User.getIndex()
@@ -401,13 +409,16 @@ export default {
 
             let isError = !announce.stat || !homework.stat || !homeworkFile.stat || !textbook.stat
             if (isError) this.showToast({message: '取得資料錯誤', color: 'error'})
-            else this.showToast({message: '取得資料成功', color: 'info'})
+            else this.showToast({message: '資料更新成功', color: 'info'})
+
+            this.loading = false
+            if (this.$route.params.id) await Course.changeCourse(this.$route.params.id)
 
             this.keepAlive()
         },
         showpPrompt () {
             if (this.deferredPrompt) this.deferredPrompt.prompt()
-            else this.showToast({message: '呼叫失敗，可在右上角設定中找到"添加至桌面"選項', color: 'error', multi: true})
+            else this.showToast({message: '呼叫失敗，可在瀏覽器設定中找到"添加至桌面"選項', color: 'error', multi: true})
         }
     }
 }
