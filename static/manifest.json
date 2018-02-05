@@ -1,10 +1,15 @@
 {
     "name": "Ecourse+",
-	"short_name": "E+",
+	"short_name": "Ec+",
     "icons": [
         {
-            "src": "/android-chrome-192x192.png",
+            "src": "/static/android-chrome-192x192.png",
             "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/android-chrome-512x512.png",
+            "sizes": "512x512",
             "type": "image/png"
         }
     ],
@@ -16,7 +21,7 @@
     },
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#2196f3",
-    "theme_color": "#2196f3",
+    "background_color": "#607d8b",
+    "theme_color": "#607d8b",
     "gcm_sender_id": "690644662687"
 }
