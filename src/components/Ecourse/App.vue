@@ -30,7 +30,7 @@
                             span {{item.professor}}
         v-toolbar.color-nav(dark color='primary' fixed app)
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
-            v-toolbar-title.white--text.ecourse-logo.no-select eCourse+
+            router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title.white--text.ecourse-logo.no-select eCourse+
             v-spacer
             v-menu
                 v-btn.setting-btn(icon aria-label='setting' slot='activator')
@@ -53,15 +53,43 @@
                             | &nbsp;
                             v-icon mdi-logout-variant
                             | &nbsp;登出
+        v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show' :multi-line='toast.multi') {{toast.message}}
+        v-content(:class='{"mb-5": $route.params.id, "mb-0": !$route.params.id}')
+            transition(name='slide' mode='out-in')
+                v-jumbotron.main-card(v-if='!$route.params.id' gradient='to right top, #1867c0, #19e5f4' height='auto' dark)
+                    v-container(fill-height align-center)
+                        v-layout.text-xs-center(align-center wrap)
+                            v-flex.mt-3(xs12)
+                                v-avatar.grey.lighten-4.mt-5(:size='isMobile ? 174 : 194')
+                                    img(src='../../../static/icon.png' alt='Logo')
+                                    div(:class="{mobile: isMobile}").img-circle
+                                h1.display-3.head-name.no-select eCourse+
+                                div.headline.mb-3.mx-3 輕鬆瀏覽公告、作業、教材與成績
+                                div.mb-5
+                                    v-tooltip(top)
+                                        v-btn.mx-3(icon color='white' href='https://google.com' target='_blank' rel='noopener' slot='activator')
+                                            v-icon(color="primary") mdi-facebook
+                                        span Facebook
+                                    v-tooltip(top)
+                                        v-btn.mx-3(icon color='white' slot='activator')
+                                            v-icon(color="primary") mdi-twitter
+                                        span 別按了 沒有twitter
+                                    v-tooltip(top)
+                                        v-btn.mx-3(icon color='white' href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener' slot='activator')
+                                            v-icon(color="primary") mdi-github-circle
+                                        span GitHub
+                                v-btn.mb-2.primary--text(color='white' v-if='!User.loggedIn' @click='flag.login = true' large)
+                                    strong 開始使用
+                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn' @click='showpPrompt' large)
+                                    v-icon mdi-apps
+                                    strong &nbsp;添加到桌面
+                                div Version 1.0.2
+                v-container(fluid v-if='$route.params.id')
+                    transition(name='slide' mode='out-in')
+                        keep-alive
+                            router-view(:tab.sync='tag')
 
-        v-content.mb-5
-            v-container(fluid)
-                transition(name='slide' mode='out-in')
-                    keep-alive
-                        router-view(:tab.sync='tag')
-                v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show' :multi-line='toast.multi') {{toast.message}}
-
-        v-bottom-nav.hidden-md-and-up(app fixed shift :active.sync='tag' :color='bottomNavColor')
+        v-bottom-nav.hidden-md-and-up(app fixed shift :active.sync='tag' :color='bottomNavColor' v-if='$route.params.id')
             v-btn(flat dark value='announce')
                 span 公告
                 v-icon mdi-calendar-text
@@ -76,7 +104,7 @@
                 v-icon mdi-chart-line
         v-footer.hidden-sm-and-down(absolute)
             v-spacer
-            span © 2018 Copyright by Pionxzh
+            span © 2018 Developed by Pionxzh
             v-spacer
         v-fab-transition
             v-btn.hidden-sm-and-down(fixed aria-label='fab' bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
@@ -152,6 +180,7 @@ export default {
         loading: false,
         isScroll: false,
         isMobile: window.innerWidth < 800,
+        deferredPrompt: null,
         tag: 'announce',
         username: '',
         password: '',
@@ -261,6 +290,11 @@ export default {
     async created () {
         if (this.isMobile) this.flag.drawer = false
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
+        window.addEventListener('beforeinstallprompt', (event) => {
+            event.preventDefault()
+            this.deferredPrompt = event
+            return false
+        })
         this.updateSetting(this.setting)
         this.loadLocalData()
         if (navigator.onLine) await this.autoLogin()
@@ -311,8 +345,10 @@ export default {
             }, 1000 * 60 * 3)
         },
         async autoLogin () {
-            if (!localStorage.user) return
-
+            if (!localStorage.user) {
+                this.flag.drawer = false
+                return
+            }
             let mainPage = await User.getIndex()
             if (mainPage.indexOf('權限錯誤') === -1) {
                 /* 考慮移除updateUser，可以存在這個instance裡頭就好 */
@@ -339,9 +375,12 @@ export default {
             await User.logout()
             this.updateUser({loggedIn: false})
             this.clearData()
+            this.flag.drawer = false
             this.showToast({message: '登出成功', color: 'success'})
         },
         async fetchData () {
+            this.flag.drawer = true
+
             let mainPage = await User.getIndex()
             let user = User.getData(mainPage)
             let courrseList = Course.getList(mainPage)
@@ -365,6 +404,10 @@ export default {
             else this.showToast({message: '取得資料成功', color: 'info'})
 
             this.keepAlive()
+        },
+        showpPrompt () {
+            if (this.deferredPrompt) this.deferredPrompt.prompt()
+            else this.showToast({message: '呼叫失敗，可在右上角設定中找到"添加至桌面"選項', color: 'error', multi: true})
         }
     }
 }

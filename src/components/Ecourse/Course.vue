@@ -82,16 +82,20 @@
                             v-list-tile-content 
                                 v-list-tile-title 教師資訊
                         v-divider(v-if='Setting.showDivider')
-                        v-list-group.hot-fix-for-list(v-for='(item, index) in TextbookList.list' :key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index][0]')
-                            v-list-tile(slot='activator' ripple)
-                                v-list-tile-content 
-                                    v-list-tile-title {{ item[0] }}
-                            v-list-tile(v-for='nitem in TextbookList.content[index][0]' :key='nitem[0]' :title='nitem[0]' @click.native='downloadTextbook(nitem[1])')
-                                v-list-tile-action
-                                     v-icon(large) {{ fileType[nitem[4]] || 'mdi-file' }}
-                                v-list-tile-content 
-                                    v-list-tile-title {{ nitem[0] }}
-                                    v-list-tile-sub-title {{ nitem[3].split(' ')[0] }}
+                        template(v-for='(item, index) in TextbookList.list')
+                            v-list-group.hot-fix-for-list(:key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index][0]')
+                                v-list-tile(slot='activator' ripple)
+                                    v-list-tile-content 
+                                        v-list-tile-title {{ item[0] }}
+                                template(v-for='nitem in TextbookList.content[index][0]')
+                                    v-list-tile(:key='nitem[0]' :title='nitem[0]' @click.native='downloadTextbook(nitem[1])')
+                                        v-list-tile-action
+                                            v-icon(large) {{ fileType[nitem[4]] || 'mdi-file' }}
+                                        v-list-tile-content 
+                                            v-list-tile-title {{ nitem[0] }}
+                                            v-list-tile-sub-title {{ nitem[3].split(' ')[0] }}
+                                    v-divider(v-if='Setting.showDivider')
+                            v-divider(v-if='Setting.showDivider')
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
             v-flex.pl-2(xs12 md6 offset-md3 v-if='(isMobile && tag === "score") || (!isMobile && tag === "score")')
                 v-card.main-card.score-card(color='grey lighten-5' flat :class='{"elevation-1": !isMobile}')
@@ -152,7 +156,7 @@
                     v-btn.right.ma-0(icon ripple aria-label='close' @click='uploadHW.flag = false') 
                         v-icon(medium) mdi-close
                 v-layout(row wrap)
-                    v-container#hw(fluid)
+                    v-container(fluid)
                         v-subheader(style='color: rgba(0,0,0,0.54)') 已交作業
                         v-layout(row wrap)
                             v-flex.upload-wrapper(xs12 sm6 v-for='file in uploadHW.list' :key='file.id')
@@ -165,7 +169,8 @@
                                         loading readonly v-model='file.name' :label='file.size'
                                         @click.native='downloadAns(file.name)')
                                         v-progress-linear(v-if='file.new' slot='progress' :indeterminate='true' :value='1' height='4')
-                        v-subheader(style='color: rgba(0,0,0,0.54)') 上傳檔案
+                        v-subheader(style='color: rgba(0,0,0,0.54)') 上傳檔案&nbsp;&nbsp;&nbsp;&nbsp;
+                            span.red--text ※檔案上限為20mb
                         v-flex(xs12)
                             v-layout(row wrap)
                                 v-flex(xs8 sm9 md10)
