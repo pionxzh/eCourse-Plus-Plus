@@ -170,8 +170,18 @@ ul.striped li:nth-child(odd)
     color #757575
     font-size 18px
 
-.avatar-wrapper
-    border: none
+.avatar-overlay
+    position: absolute
+    border-radius: 50%
+    cursor: pointer
+    background-color: rgba(255, 87, 34, 0.7)
+    height: 58px
+    width: 58px
+    opacity: 0
+    transition: .2s
+
+.avatar:hover .avatar-overlay
+    opacity: 1
 
 .personal-info {
     background-color #263238!important
@@ -204,7 +214,7 @@ ul.striped li:nth-child(odd)
 .img-circle
     height: 204px
     width: 204px
-    border: white solid 2px
+    border: #2f3d4f  solid 2px
     position: absolute
     border-radius: 50%
 

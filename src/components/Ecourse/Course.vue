@@ -248,9 +248,6 @@ export default {
             title: '',
             contnet: ''
         },
-        textbook: {
-            flag: false
-        },
         scoreUpdate: {},
         uploadHW: {
             workID: 0,
@@ -348,6 +345,25 @@ export default {
         async courseID (target) {
             if (this.tag === 'score') this.showScore()
         }
+    },
+    /* temp fix for mobile device pressing back navigation */
+    beforeRouteLeave: function (to, from, next) {
+        if (this.announce.flag | this.homework.flag | this.uploadHW.flag) {
+            this.announce.flag = false
+            this.homework.flag = false
+            this.uploadHW.flag = false
+            return next(false)
+        }
+        next()
+    },
+    beforeRouteUpdate: function (to, from, next) {
+        if (this.announce.flag | this.homework.flag | this.uploadHW.flag) {
+            this.announce.flag = false
+            this.homework.flag = false
+            this.uploadHW.flag = false
+            return next(false)
+        }
+        next()
     },
     methods: {
         ...mapActions([

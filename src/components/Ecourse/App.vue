@@ -7,9 +7,13 @@
                         v-list-tile-content
                             v-btn(color='primary' aria-label='login' @click='flag.login = true' :loading='loading' :disabled='loading' dark) 登入
                     v-list-tile.px-4(avatar ripple v-else)
-                        v-list-tile-avatar(size=48)
-                            img.avatar-wrapper.elevation-1(src='../../assets/nav.png')
-                        v-list-tile-content
+                        v-list-tile-avatar(size=58)
+                            div.avatar-overlay(@click='$refs.avatar.click()')
+                                v-icon(dark) mdi-cloud-upload
+                                input(type='file' ref='avatar' multiple=false @change='uploadAvatar')
+                            img.avatar-wrapper.elevation-1(v-if='!avatar.length' src='../../assets/nav.png')
+                            img.avatar-wrapper.elevation-1(v-else style='object-fit: cover;' :src='avatar')
+                        v-list-tile-content.ml-3
                             v-list-tile-title {{User.name}}
                             v-list-tile-sub-title.blue-grey--text.lighten-1--text
                                 v-icon.blue-grey--text.lighten-1--text.body-1 mdi-map-marker
@@ -182,6 +186,7 @@ export default {
         tag: 'announce',
         username: '',
         password: '',
+        avatar: '',
         // authcode: '',
         // authcodeImg: config.sso.authcode,
         flag: {
@@ -313,6 +318,16 @@ export default {
             deep: true
         }
     },
+    /* temp fix for mobile device pressing back navigation */
+    beforeRouteLeave: function (to, from, next) {
+        if (this.flag.setting | this.flag.login | this.flag.about) {
+            this.flag.setting = false
+            this.flag.login = false
+            this.flag.about = false
+            return next(false)
+        }
+        next()
+    },
     methods: {
         ...mapActions([
             'updateUser',
@@ -392,6 +407,9 @@ export default {
             let courrseList = Course.getList(mainPage)
             this.updateUser(user)
             this.updateCourse(courrseList.data)
+            if (localStorage[`avatar${this.User.studentId}`]) {
+                this.avatar = localStorage[`avatar${this.User.studentId}`]
+            }
 
             let announce = await Announce.getData()
             this.updateAnnounce(announce.data)
@@ -417,6 +435,16 @@ export default {
         showpPrompt () {
             if (this.deferredPrompt) this.deferredPrompt.prompt()
             else this.showToast({message: '呼叫失敗，可在瀏覽器設定中找到"添加至桌面"選項', color: 'error', multi: true})
+        },
+        uploadAvatar (e) {
+            let file = e.target.files[0]
+            if (!file) return
+            let reader = new FileReader()
+            reader.onloadend = () => {
+                this.avatar = reader.result
+                localStorage[`avatar${this.User.studentId}`] = reader.result
+            }
+            reader.readAsDataURL(file)
         }
     }
 }
