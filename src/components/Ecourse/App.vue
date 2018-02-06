@@ -171,7 +171,6 @@ import Textbook from './../Textbook'
 import debounce from 'lodash/debounce'
 // import NotifyManager from './../NotifyManager'
 import { mapGetters, mapActions } from 'vuex'
-window.$ = window.jQuery = $
 
 export default {
     name: 'Ecourse',
@@ -379,7 +378,6 @@ export default {
         },
         async logout () {
             await User.logout()
-            this.updateUser({loggedIn: false})
             this.clearData()
             this.flag.drawer = false
             this.$router.push({path: '/'})

@@ -5,9 +5,9 @@ const config = require('./../config.json')
 export default class Announce {
     static async getData (data) {
         let announce = await axios.get(config.ecourse.ANNOUNCE).catch(e => Util.errHandler(e, 'Get Announce Error!'))
-        let result = $($.parseHTML(announce.data, true)).filter('script:not([src])')[0].innerHTML
+        let result = /var js\s=\s(.+)/.exec(announce.data)[1]
         try {
-            let announceData = JSON.parse(result.substring(result.indexOf('js =') + 5, result.indexOf('//console') - 10))
+            let announceData = JSON.parse(result.slice(0, -1))
             console.log('Announce:\n', announceData)
             return {stat: true, data: announceData}
         } catch (e) {

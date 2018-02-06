@@ -7,30 +7,31 @@ let Decoder = new TextDecoder('big5')
 export default class Score {
     static async getScore () {
         let score = await axios.get(config.ecourse.COURSE_SCORE, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e))
-        let scoreData = $.parseHTML(Decoder.decode(score.data))
-        let scoreNode = $(scoreData).find('tr[bgcolor="#4d6eb2"], tr[bgcolor="#E6FFFC"], tr[bgcolor="#F0FFEE"], tr[bgcolor="#B0BFC3"]').get()
+        let parser = new DOMParser()
+        let scoreData = parser.parseFromString(Decoder.decode(score.data), 'text/html')
+        let scoreNode = scoreData.querySelectorAll('tr[bgcolor="#4d6eb2"], tr[bgcolor="#E6FFFC"], tr[bgcolor="#F0FFEE"], tr[bgcolor="#B0BFC3"]')
         let result = {}
         let title = ''
         scoreNode.forEach(element => {
-            let row = $(element).children()
-            switch ($(element).attr('bgcolor')) {
+            let row = element.childNodes
+            switch (element.getAttribute('bgcolor')) {
                 case '#4d6eb2':
-                    title = $(row[0]).text().replace('(名稱)', '')
+                    title = row[0].textContent.replace('(名稱)', '')
                     result[title] = []
                     break
                 case '#B0BFC3':
-                    if (result['總成績'] !== undefined) result['總成績'][0].score = `${$(row[1]).text()}分`
+                    if (result['總成績'] !== undefined) result['總成績'][0].score = `${row[1].textContent}分`
                     else result['總成績'] = [{ name: '總成績', rank: $(row[1]).text() }]
                     break
                 default:
-                    let score = $(row[2]).text() ? `${$(row[2]).text()}分` : '-'
-                    let rank = $(row[3]).text().replace('你沒有成績', '-')
+                    let score = row[2].textContent ? `${row[2].textContent}分` : '-'
+                    let rank = row[3].textContent.replace('你沒有成績', '-')
                     let bits = rank.split('/')
                     let num = 1 - (bits[0] / bits[1])
                     let color = Util.hslToRgb(num * 1.2 / 3.6, 1, 0.5)
                     result[title].push({
-                        name: $(row[0]).text(),
-                        percentage: $(row[1]).text(),
+                        name: row[0].textContent,
+                        percentage: row[1].textContent,
                         score: score,
                         rank: rank,
                         color: `rgb(${color[0]}, ${color[1]}, ${color[2]})`
@@ -51,7 +52,6 @@ export default class Score {
             temp = reg.exec(rollData)
             if (temp) result.push([temp[1], temp[2]])
         } while (temp)
-        console.log(result)
         return result
     }
 }

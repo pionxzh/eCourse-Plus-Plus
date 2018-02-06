@@ -9,9 +9,9 @@ export default class Homework {
     static async getData (data) {
         let homework = await axios.get(config.ecourse.HOMEWORK)
         .catch(e => Util.errHandler(e, 'Get Homework Error!'))
-        let result = $($.parseHTML(homework.data, true)).filter('script:not([src])')[0].innerHTML
+        let result = /var js\s=\s(.+)/.exec(homework.data)[1]
         try {
-            let homeworkData = JSON.parse(result.substring(result.indexOf('js =') + 5, result.indexOf('function') - 7))
+            let homeworkData = JSON.parse(result.slice(0, -1))
             console.log('Homework:\n', homeworkData)
             return {stat: true, data: homeworkData}
         } catch (e) {

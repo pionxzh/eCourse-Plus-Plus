@@ -1,5 +1,4 @@
 import axios from 'axios'
-// import User from './User'
 import Util from './Util'
 const config = require('./../config.json')
 let Decoder = new TextDecoder('big5')
@@ -27,9 +26,12 @@ export default class Course {
     }
 
     static async changeCourse (courseID) {
-        let temp = await axios.get(config.ecourse.COURSE_SELECT, {responseType: 'arraybuffer', params: {courseid: `106_1_${courseID}`}}).catch(e => Util.errHandler)
-        let result = Decoder.decode(temp.data)
-        // console.log(result)
-        return result.indexOf('權限錯誤') !== -1
+        /* prevent the repeat of sending request */
+        if (courseID === this.previous) return false
+        this.previous = courseID
+
+        let temp = await axios.get(config.ecourse.COURSE_SELECT, {responseType: 'arraybuffer', params: {courseid: `106_1_${courseID}`}})
+        .catch(e => Util.errHandler)
+        return Decoder.decode(temp.data).indexOf('權限錯誤') === -1
     }
 }
