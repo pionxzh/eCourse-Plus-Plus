@@ -12,14 +12,9 @@ export default class User {
     }
 
     static getData (data) {
-        let result = {
-            name: '',
-            classes: '',
-            studentId: '',
-            department: ''
-        }
+        let result = { name: '', classes: '', studentId: '', department: '' }
         try {
-            let reg = /：([\u4e00-\u9fa5 a-zA-Z0-9\s()]+).{15}：([0-9]+).{15}：([\u4e00-\u9fa5/a-zA-Z0-9]+).{15}：([a-zA-Z0-9]+)/g
+            let reg = /：([\u4e00-\u9fa5 a-zA-Z0-9\s()]+).{15}：([0-9]+).{15}：([\u4e00-\u9fa5/a-zA-Z0-9]+).{15}：([a-zA-Z0-9]+)/
             // let reg = /<div\salign="center">([^&]+)&nbsp;&nbsp;\s([^&]+)&nbsp;&nbsp;\s([^&]+)&nbsp;&nbsp;\s([^<]+)/g
             let temp = [...(reg.exec(data))]
             result.name = temp[1]
@@ -54,8 +49,6 @@ export default class User {
     }
     static async logout () {
         await axios.get(config.ecourse.LOGOUT).catch(e => Util.errHandler(e, 'Logout Error!'))
-        localStorage.removeItem('user')
-        localStorage.removeItem('annNotify')
     }
 
     static async ping () {

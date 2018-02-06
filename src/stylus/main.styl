@@ -288,16 +288,19 @@ ul.stripe li:not(.subheader):nth-child(even)
     float:left
     padding-top:100%
 
-.roll-item div
+.roll-item .text
     padding-top: calc(50% - 10px)
+    position: relative
+    z-index: 1
 
 .checkmark
-    width: 100%
     height: 100%
-    margin-left: 20px
-    margin-top: -10px
+    margin-left: 30%
+    margin-top: -20%
     -webkit-transform: rotate(45deg)
     transform: rotate(45deg)
+    position: relative
+    z-index: 0
 
 .checkmark:before
     content:""
@@ -306,7 +309,7 @@ ul.stripe li:not(.subheader):nth-child(even)
     height: 56px
     top: 0px
     left: 21px
-    background-color: #b3e5fc
+    background-color: #bfebff
     border-radius: 6px
 
 .checkmark:after
@@ -316,7 +319,7 @@ ul.stripe li:not(.subheader):nth-child(even)
     height: 14px;
     top: 42px;
     left: 0;
-    background-color: #b3e5fc
+    background-color: #bfebff
     border-radius: 6px
 
 

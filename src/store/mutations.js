@@ -111,10 +111,16 @@ export const mutations = {
         state.announceNotify = JSON.parse(localStorage.annNotify)
     },
     [types.CLEAR] (state) {
+        state.userData.loggedIn = false
         state.courseList = []
         state.announceData = {}
         state.homeworkData = {}
         state.textbookData = {}
         state.announceNotify = {}
+        /* prevent autoLogin active */
+        localStorage.removeItem('user')
+        /* prevent new user use the same data */
+        localStorage.removeItem('annNotify')
+        /* other localStorage item will automatically be overwrite */
     }
 }

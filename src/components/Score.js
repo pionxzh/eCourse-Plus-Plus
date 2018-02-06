@@ -21,7 +21,7 @@ export default class Score {
                     break
                 case '#B0BFC3':
                     if (result['總成績'] !== undefined) result['總成績'][0].score = `${row[1].textContent}分`
-                    else result['總成績'] = [{ name: '總成績', rank: $(row[1]).text() }]
+                    else result['總成績'] = [{ name: '總成績', rank: row[1].textContent }]
                     break
                 default:
                     let score = row[2].textContent ? `${row[2].textContent}分` : '-'

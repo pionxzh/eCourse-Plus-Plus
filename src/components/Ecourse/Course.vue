@@ -126,10 +126,10 @@
                         v-toolbar-title 點名
                     v-layout.fix-flex(row wrap)
                         template(v-for='item in RollData')
-                            v-flex.fix-flex-item.roll-wrapper(xs3 sm3)
+                            v-flex.fix-flex-item.roll-wrapper(xs3 sm3 md2)
                                 div.roll-item
-                                    div(style='font-weight: 800') {{ item[0] }}
-                                    div.checkmark
+                                    div.text(style='font-weight: 800') {{ item[0] }}
+                                    div.checkmark(v-if='item[1] === "出席"')
                         v-flex(xs12 v-if='!RollData.length')
                             v-card(flat)
                                 v-card-title 沒有點名資料
@@ -226,7 +226,6 @@ const config = require('../../config.json')
 export default {
     props: ['tab'],
     data: () => ({
-        // 把score跟roll都放進storeㄅz
         tag: 'announce',
         isScroll: false,
         isMobile: window.innerWidth < 800,
@@ -338,9 +337,6 @@ export default {
         },
         AnnNotify () {
             return this.AnnouceNotify[this.$route.params.id] || {}
-        },
-        HwNotify () {
-            return this.HomeworkNotify[this.$route.params.id] || {}
         }
     },
     watch: {
@@ -348,13 +344,10 @@ export default {
             this.tag = 'middle'
             setTimeout(() => { this.tag = newValue }, 350)
             if (newValue === 'score') await this.showScore()
+        },
+        async courseID (target) {
+            if (this.tag === 'score') this.showScore()
         }
-    },
-    async beforeRouteUpdate (target, from, next) {
-        await Course.changeCourse(target.params.id)
-        console.log(this.tag)
-        if (this.tag === 'score') this.showScore(target.params.id)
-        next()
     },
     methods: {
         ...mapActions([
@@ -402,15 +395,15 @@ export default {
             if (this.AnnNotify[this.AnnounceList.list[key].id]) {
                 this.updateAnnNotify([this.courseID, this.AnnounceList.list[key].id])
             }
-            this.announce.flag = true
             this.announce.title = this.AnnounceList.list[key].title
             this.announce.content = content
+            this.announce.flag = true
         },
         showHomework (index) {
             this.homework.id = this.HomeworkList.list[index].id
-            this.homework.flag = true
             this.homework.title = this.HomeworkList.list[index].title
             this.homework.content = this.HomeworkList.list[index].content
+            this.homework.flag = true
         },
         copyAnnounce () {
             if (!Util.copyToClipboard(this.announce.text)) return
@@ -421,32 +414,35 @@ export default {
             let link = `${config.ecourse.HOST}${url.slice(8)}`
             Util.openLink(link, this.Setting.isDownloadTextbook)
         },
-        downloadIntro () {
+        async downloadIntro () {
+            await Course.changeCourse(this.courseID)
             Util.openLink(config.ecourse.INTRO, false)
         },
-        downloadTeaIndo () {
+        async downloadTeaIndo () {
+            await Course.changeCourse(this.courseID)
             Util.openLink(config.ecourse.TEACHER_INFO, false)
         },
         downloadQues (id, type) {
             let link = `${config.ecourse.HOST}/${this.courseID}/homework/${id}/teacher/Question.${type}`
             Util.openLink(link, this.Setting.isDownloadQuestion)
         },
-        downloadAns (fileName) {
+        async downloadAns (fileName) {
+            await Course.changeCourse(this.courseID)
             let link = `${config.ecourse.SHOW_WORK}?action=downloadFile&work_id=${this.uploadHW.workID}&filename=${fileName}`
             Util.openLink(link, false)
         },
-        async showScore (id) {
-            let key = id || this.courseID
+        async showScore () {
             this.tag = 'score'
-            console.log('showScore')
-            if (this.scoreUpdate[key]) return
-            this.scoreUpdate[key] = true
-            console.log(true)
-            let result = await Score.getScore()
-            this.updateScore([this.courseID, result])
+            if (this.scoreUpdate[this.courseID]) return
+            this.scoreUpdate[this.courseID] = true
 
-            result = await Score.getRoll()
-            this.updateRoll([this.courseID, result])
+            await Course.changeCourse(this.courseID)
+            let [score, roll] = await Promise.all([Score.getScore(), Score.getRoll()])
+            // let result = await Score.getScore()
+            this.updateScore([this.courseID, score])
+
+            // result = await Score.getRoll()
+            this.updateRoll([this.courseID, roll])
         },
         async showUpload (workID) {
             this.uploadHW.workID = workID
