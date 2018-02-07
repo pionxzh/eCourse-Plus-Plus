@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" prefix="og: http://ogp.me/ns#">
 
 <head>
     <meta charset="utf-8">
@@ -7,12 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="fragment" content="!">
     <title>Ecourse+</title>
-    <html prefix='og: http://ogp.me/ns#'></html>
-    <meta property="og:title" content="Ecourse+"></meta>
-    <meta property="og:type" content="website"></meta>
-    <meta property="og:description" content="透過電腦或手機輕鬆瀏覽Ecourse上的公告、作業、教材與成績"></meta>
-    <meta property="og:url" content="ecourse.pionxzh.com"></meta>
-    <meta property="og:image" content="https://i.imgur.com/S8vOuJI.png"></meta>
     <link rel="canonical" href="https://ecourse.pionxzh.com" />
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
@@ -20,16 +14,20 @@
     <link rel="manifest" href="/static/manifest.json">
     <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#009688">
     <link rel="shortcut icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/2.1.19/css/materialdesignicons.min.css" />
     <meta name="theme-color" content="#2a3a4e">
     <meta name="description" content="【中正大學】透過電腦或手機輕鬆瀏覽Ecourse上的公告、作業、教材與成績">
+    <meta property="og:title" content="Ecourse+" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="透過電腦或手機輕鬆瀏覽Ecourse上的公告、作業、教材與成績" />
+    <meta property="og:url" content="ecourse.pionxzh.com" />
+    <meta property="og:image" content="https://i.imgur.com/S8vOuJI.png" />
 
     <!-- Add to home screen for Safari on iOS -->
+    <meta name="application-name" content="Ecourse+">
+    <meta name="apple-mobile-web-app-title" content="Ecourse+">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Ecourse+">
-    <meta name="application-name" content="Ecourse+">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/2.1.19/css/materialdesignicons.min.css" />
 </head>
 
 <body>
@@ -37,6 +35,7 @@
     <!-- Only include in production -->
     <%= htmlWebpackPlugin.options.serviceWorkerLoader %>
     <!-- built files will be auto injected -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smoothscroll/1.4.6/SmoothScroll.min.js"></script>
 </body>
 
 </html>
