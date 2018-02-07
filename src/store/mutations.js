@@ -106,8 +106,8 @@ export const mutations = {
         state.homeworkData = JSON.parse(localStorage.homework)
         state.textbookData = JSON.parse(localStorage.textbook)
         state.homeworkData = JSON.parse(localStorage.homework)
-        state.scoreData = JSON.parse(localStorage.score)
-        state.rollData = JSON.parse(localStorage.roll)
+        if (localStorage.score) state.scoreData = JSON.parse(localStorage.score)
+        if (localStorage.roll) state.rollData = JSON.parse(localStorage.roll)
         state.announceNotify = JSON.parse(localStorage.annNotify)
     },
     [types.CLEAR] (state) {

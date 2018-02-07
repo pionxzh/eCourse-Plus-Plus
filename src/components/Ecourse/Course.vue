@@ -29,7 +29,7 @@
         
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-transition"')
             v-flex.pl-2(xs12 md4 v-if='(isMobile && tag === "homework") || (!isMobile && tag !== "score")')
-                v-card.main-card.elevation-1(color='grey lighten-5' flat)
+                v-card#homework.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(color='green' flat dark)
                         v-toolbar-side-icon: v-icon mdi-menu
                         v-toolbar-title.no-select 作業
@@ -63,7 +63,7 @@
 
         transition(:name='isMobile ? "slide-x-transition" : "slide-x-reverse-transition"')
             v-flex.pl-2(xs12 md4 v-if='(isMobile && tag === "textbook") || (!isMobile && tag !== "score")')
-                v-card.main-card.elevation-1(color='grey lighten-5' flat)
+                v-card#textbook.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(color='orange' flat dark)
                         v-toolbar-side-icon: v-icon mdi-menu
                         v-toolbar-title.no-select 教材
@@ -98,7 +98,7 @@
                             v-divider(v-if='Setting.showDivider')
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
             v-flex.pl-2(xs12 md6 offset-md1 v-if='tag === "score"')
-                v-card.main-card.score-card(color='grey lighten-5' flat :class='{"elevation-1": !Setting.scoreStyle2}')
+                v-card#score.main-card.score-card(color='grey lighten-5' flat :class='{"elevation-1": !Setting.scoreStyle2}')
                         v-toolbar(color='red' flat dark)
                             v-toolbar-side-icon.ml-2: v-icon mdi-menu
                             v-toolbar-title 成績
@@ -120,7 +120,7 @@
                                         v-btn(flat aria-label='score' outline) {{ slime.score }}
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
             v-flex.pl-2(xs12 md4 v-if='tag === "score"')
-                v-card.main-card.score-card.elevation-1(color='grey lighten-5' flat :class='{"mt-5": isMobile}')
+                v-card#roll.main-card.score-card.elevation-1(color='grey lighten-5' flat :class='{"mt-5": isMobile}')
                     v-toolbar(color='purple' flat dark)
                         v-toolbar-side-icon.ml-2: v-icon mdi-menu
                         v-toolbar-title 點名
@@ -152,7 +152,7 @@
                     v-btn(flat aria-label='close' color='green darken-1' @click.native='announce.flag = false') 關閉
                     v-spacer
         v-dialog(v-model='homework.flag' max-width=490)
-            v-card.announce-dialog-box
+            v-card#hw.announce-dialog-box
                 v-card-title.headline
                     div.text-xs-center(:class='{"hidden-more-text": isMobile}')
                         span {{ homework.title }}
@@ -165,7 +165,7 @@
                     v-btn(flat aria-label='close' color='green darken-1' @click.native='homework.flag = false') 關閉
                     v-spacer
         v-dialog(v-model='uploadHW.flag' max-width=600 persistent)
-            v-card.announce-dialog-box(style='background-color: #f2f2f2;')
+            v-card#file-upload.announce-dialog-box(style='background-color: #f2f2f2;')
                 v-snackbar(:timeout='1000' :top='true' :bottom='false' :color='uploadHW.toastColor'
                     v-model='uploadHW.toastShow' :absolute='true') {{uploadHW.message}}
                 div.headline.text-xs-center.pa-3 作業上傳
@@ -494,7 +494,10 @@ export default {
             }
 
             let result = await Homework.uploadFile(files, multiple, this.courseID, this.uploadHW.workID)
-            if (!result) return
+            if (!result) {
+                this.uploadHW.list[this.uploadHW.list.length - 1] = null
+                return this.showUploadToast('上傳失敗')
+            }
             this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
             this.uploadHW.list[this.uploadHW.list.length - 1].success = true
             this.showUploadToast('上傳成功')

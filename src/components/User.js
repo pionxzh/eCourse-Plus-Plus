@@ -32,6 +32,7 @@ export default class User {
         let result = {}
         let wrongFlag = false
         data = Qs.stringify(data)
+        /* finding way to figure out the CORS error... */
         await axios.post(config.ecourse.LOGIN, data)
         .then(response => { wrongFlag = true })
         .catch(e => { result.stat = this.crossHandler(e) })

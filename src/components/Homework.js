@@ -21,21 +21,27 @@ export default class Homework {
     }
 
     static async getAllQuestion (homeworkData) {
-        let homeworkFile = {}
+        this.homeworkFile = {}
+        let queuePromise = []
         let oldHwFile = localStorage.homeworkFile ? JSON.parse(localStorage.homeworkFile) : {}
         for (let key in homeworkData) {
             let list = homeworkData[key].list
-            homeworkFile[key] = {}
+            this.homeworkFile[key] = {}
             for (let item of list) {
                 if (!item.id) continue
                 let cid = item.id
-                let isSkip = !!oldHwFile[key] && !!oldHwFile[key][cid] && Date.now() < oldHwFile[key][cid].timeStamp + 1000 * 60 * 60 * 24
-                homeworkFile[key][cid] = isSkip ? oldHwFile[key][cid] : await this.getQuestion(key, cid)
+                /* 48小時檢查一次 策略可以再進一步優化為過期的作業不予理會 減少request */
+                let isSkip = !!oldHwFile[key] && !!oldHwFile[key][cid] && Date.now() < oldHwFile[key][cid].timeStamp + 36e5 * 48
+                if (isSkip) this.homeworkFile[key][cid] = oldHwFile[key][cid]
+                else queuePromise.push(this.getQuestion(key, cid))
             }
         }
-        console.log('HwFile:\n', homeworkFile)
-        localStorage.homeworkFile = JSON.stringify(homeworkFile)
-        return {stat: true, data: homeworkFile}
+        /* using Promise.all to parallel request */
+        await Promise.all(queuePromise)
+
+        console.log('HwFile:\n', this.homeworkFile)
+        localStorage.homeworkFile = JSON.stringify(this.homeworkFile)
+        return {stat: true, data: this.homeworkFile}
     }
 
     static async getQuestion (courseID, workID) {
@@ -44,15 +50,12 @@ export default class Homework {
             courseid: courseID,
             workid: workID
         }}).catch(e => Util.errHandler(e, 'Get Question Error!'))
-        let result = {
-            type: null,
-            timeStamp: Date.now()
-        }
+        let result = { type: null, timeStamp: Date.now() }
         if (question.data.size && !question.data.status) {
             result.type = question.data.type.slice(1)
             // result.size = question.data.size
         }
-        return result
+        this.homeworkFile[courseID][workID] = result
     }
 
     static async getAnswer (courseID, workID) {

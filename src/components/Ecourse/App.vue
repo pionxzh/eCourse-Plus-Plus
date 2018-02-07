@@ -159,7 +159,7 @@
                                 v-text-field(label='驗證碼' v-model='authcode' required)
                 v-card-actions
                     v-spacer
-                    v-btn(color='blue darken-1' aria-label='login' :loading='loading' :disabled='loading' @click='login(false)' large dark)
+                    v-btn(color='blue darken-1' aria-label='login' :loading='loading' @click='login(false)' large dark)
                         v-icon mdi-flash
                         | 登入
                     v-spacer
@@ -298,16 +298,16 @@ export default {
     async created () {
         if (this.isMobile) this.flag.drawer = false
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
+        this.updateSetting(this.setting)
         window.addEventListener('beforeinstallprompt', (event) => {
             event.preventDefault()
             this.deferredPrompt = event
             return false
         })
-        this.updateSetting(this.setting)
-        this.loadLocalData()
         if (navigator.onLine) await this.autoLogin()
         else {
-            this.showToast({message: '當前處於離線狀態，部分功能可能受限', color: 'info', multi: true})
+            this.loadLocalData()
+            this.showToast({message: '當前處於離線狀態', color: 'info', multi: true})
         }
     },
     watch: {
@@ -359,15 +359,14 @@ export default {
         },
         keepAlive () {
             /* Ping server every 5min to avoid session expired (expired time = 6min ?) */
-            setTimeout(() => {
-                setInterval(() => User.ping(), 1000 * 60 * 5)
-            }, 1000 * 60 * 3)
+            setInterval(() => User.ping(), 1000 * 60 * 5)
         },
         async autoLogin () {
             if (!localStorage.user) {
                 this.flag.drawer = false
                 return
             }
+            this.loadLocalData()
             let mainPage = await User.getIndex()
             if (mainPage.indexOf('權限錯誤') === -1) {
                 /* 考慮移除updateUser，可以存在這個instance裡頭就好 */
@@ -411,17 +410,13 @@ export default {
                 this.avatar = localStorage[`avatar${this.User.studentId}`]
             }
 
-            let announce = await Announce.getData()
+            let [announce, homework, textbook] = await Promise.all([Announce.getData(), Homework.getData(), Textbook.getData()])
             this.updateAnnounce(announce.data)
-
-            let homework = await Homework.getData()
             this.updateHomework(homework.data)
+            this.updateTextbook(textbook.data)
 
             let homeworkFile = await Homework.getAllQuestion(this.HomeworkData)
             this.updateHwFile(homeworkFile.data)
-
-            let textbook = await Textbook.getData()
-            this.updateTextbook(textbook.data)
 
             let isError = !announce.stat || !homework.stat || !homeworkFile.stat || !textbook.stat
             if (isError) this.showToast({message: '取得資料錯誤', color: 'error'})

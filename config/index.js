@@ -12,10 +12,10 @@ module.exports = {
         assetsSubDirectory: 'static',
         assetsPublicPath: '/',
         productionSourceMap: false,
-        // Gzip off because cloudFalre has gzip file for dev
+        // Gzip off because cloudFlare has gzip file for dev
         productionGzip: false,
         productionGzipExtensions: ['js', 'css'],
-        bundleAnalyzerReport: false
+        bundleAnalyzerReport: true
     },
     dev: {
         env: require('./dev.env'),
