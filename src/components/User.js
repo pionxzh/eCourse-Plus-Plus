@@ -12,10 +12,9 @@ export default class User {
     }
 
     static getData (data) {
-        let result = { name: '', classes: '', studentId: '', department: '' }
+        let result = { name: '匿名用戶', classes: '抓取資料', studentId: '', department: '錯誤' }
         try {
             let reg = /：([\u4e00-\u9fa5 a-zA-Z0-9\s()]+).{15}：([0-9]+).{15}：([\u4e00-\u9fa5/a-zA-Z0-9]+).{15}：([a-zA-Z0-9]+)/
-            // let reg = /<div\salign="center">([^&]+)&nbsp;&nbsp;\s([^&]+)&nbsp;&nbsp;\s([^&]+)&nbsp;&nbsp;\s([^<]+)/g
             let temp = [...(reg.exec(data))]
             result.name = temp[1]
             result.classes = temp[4]

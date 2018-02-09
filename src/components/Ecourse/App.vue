@@ -1,14 +1,14 @@
 <template lang='pug'>
     v-app#ccu
         v-navigation-drawer.gray-bg(persistent v-model='flag.drawer' enable-resize-watcher app)
-            v-toolbar.personal-info.pa-3(flat)
+            v-toolbar#personal-info.pa-3(flat)
                 v-list.pa-0(two-line)
                     v-list-tile.px-4(v-if='!User.loggedIn')
                         v-list-tile-content
                             v-btn(color='primary' aria-label='login' @click='flag.login = true' :loading='loading' :disabled='loading' dark) 登入
                     v-list-tile.px-4(avatar ripple v-else)
                         v-list-tile-avatar(size=58)
-                            div.avatar-overlay(@click='$refs.avatar.click()')
+                            div#avatar-overlay(@click='$refs.avatar.click()')
                                 v-icon(dark) mdi-cloud-upload
                                 input(type='file' ref='avatar' multiple=false @change='uploadAvatar')
                             img.avatar-wrapper.elevation-1(v-if='!avatar.length' src='../../assets/nav.png')
@@ -23,32 +23,32 @@
                 v-list-tile
                     v-list-tile-action
                     v-list-tile-content
-                        v-list-tile-title.course-head
+                        v-list-tile-title#course-head
                             span 課程列表
-                v-list-tile(v-for='(item, index) in CourseList' :key='item.id' :to="{ path: '/course/' + item.id }" ripple)
+                v-list-tile(v-for='(item, index) in CourseList' :key='item.id' :to="{ path: '/course/' + item.id }" :ripple='!isMobile')
                     v-list-tile-action
                     v-list-tile-content
                         v-list-tile-title.course-list-name
                             span {{item.name}}
                         v-list-tile-sub-title
                             span {{item.professor}}
-        v-toolbar.color-nav(dark color='primary' fixed app)
+        v-toolbar#color-nav(dark color='primary' fixed app)
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
-            router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title.white--text.ecourse-logo.no-select eCourse+
+            router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title.white--text#ecourse-logo.no-select eCourse+
             v-spacer
             v-menu
-                v-btn.setting-btn(icon aria-label='setting' slot='activator')
+                v-btn#setting-btn(icon aria-label='setting' slot='activator')
                     v-icon mdi-settings
                 v-list
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click='flag.setting = true') &nbsp;&nbsp;設定
+                        v-list-tile-title(@click='this.flag.setting = true') &nbsp;&nbsp;設定
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click='flag.about = true') &nbsp;&nbsp;關於本站
+                        v-list-tile-title(@click='this.flag.about = true') &nbsp;&nbsp;關於本站
                     v-list-tile.list__tile--link
                         v-list-tile-title(@click='fetchData') &nbsp;&nbsp;強制刷新&nbsp;&nbsp;
                     v-divider
                     v-list-tile.list__tile--link(v-if='!User.loggedIn')
-                        v-list-tile-title(@click='flag.login = true')
+                        v-list-tile-title(@click='this.flag.login = true')
                             | &nbsp;
                             v-icon mdi-logout-variant
                             | &nbsp;登入
@@ -61,10 +61,10 @@
         v-content(:class='{"mb-5": $route.params.id, "mb-0": !$route.params.id}')
             transition(name='slide' mode='out-in')
                 v-jumbotron.main-card(v-if='!$route.params.id' gradient='to right top, #1867c0, #19e5f4' height='auto' dark)
-                    v-container(fill-height align-center)
+                    v-container(fill-height align-center :class='{"py-5": !isMobile}')
                         v-layout.text-xs-center(align-center wrap)
-                            v-flex.mt-3(xs12)
-                                v-avatar.grey.lighten-4.mt-5(:size='isMobile ? 174 : 194')
+                            v-flex(xs12)
+                                v-avatar.grey.lighten-4(:size='isMobile ? 174 : 194' :class='{"mt-4": isMobile, "mt-5": !isMobile}')
                                     img(src='../../../static/icon.png' alt='Logo')
                                     div(:class="{mobile: isMobile}").img-circle
                                 h1.display-3.head-name.no-select eCourse+
@@ -82,7 +82,7 @@
                                         v-btn.mx-3(icon large color='white' href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener' slot='activator')
                                             v-icon(color='primary') mdi-github-circle
                                         span GitHub
-                                v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='loading' :disabled='loading' @click='flag.login = true' large)
+                                v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='loading' :disabled='loading' @click='this.flag.login = true' large)
                                     strong 開始使用
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn' @click='showpPrompt' large)
                                     v-icon mdi-apps
@@ -118,20 +118,20 @@
                 v-btn(slot='activator' aria-label='close' color='red' dark fab)
                     v-icon mdi-rocket
                 v-tooltip(left)
-                    v-btn(fab dark aria-label='setting' color='green' slot='activator' @click='flag.setting = true')
+                    v-btn(fab dark aria-label='setting' color='green' slot='activator' @click='this.flag.setting = true')
                         v-icon mdi-settings
                     span 設定
                 v-tooltip(left)
-                    v-btn(fab dark aria-label='score' color='pink' slot='activator' @click='')
+                    v-btn(fab dark aria-label='score' color='pink' slot='activator' v-if='$route.params.id' @click='tag = "score"')
                         v-icon mdi-chart-line
                     span 成績
-        v-dialog(v-model='flag.setting' max-width=450 scroll)
-            v-toolbar.blue(dark)
+        v-dialog(v-model='flag.setting' max-width=450 :fullscreen='isMobile' scroll)
+            v-toolbar.blue(dark :fixed='isMobile')
                 v-icon mdi-wrench
                 v-toolbar-title 設定
                 v-spacer
-                v-btn.mr-3(icon @click='flag.setting = false'): v-icon mdi-close
-            v-list.tile-hover(two-line subheader)
+                v-btn.mr-3(icon @click='this.flag.setting = false'): v-icon mdi-close
+            v-list.tile-hover(two-line subheader :class='{"mt-5": isMobile}')
                 template(v-for='(item, key) in settingData')
                     v-subheader.no-select(:key='key') {{ key }}
                     v-list-tile(v-for='subItem in item' :key='subItem.title' ripple avatar @click='')
@@ -200,9 +200,9 @@ export default {
             detectUrl: true,
             detectDate: true,
             showDivider: false,
-            expandFirstFolder: true,
+            expandFirstFolder: false,
             isDownloadQuestion: false,
-            isDownloadTextbook: false,
+            isDownloadTextbook: true,
             showIntro: true,
             showTeacherInfo: true,
             scoreStyle2: false,
@@ -318,16 +318,6 @@ export default {
             deep: true
         }
     },
-    /* temp fix for mobile device pressing back navigation */
-    beforeRouteLeave: function (to, from, next) {
-        if (this.flag.setting | this.flag.login | this.flag.about) {
-            this.flag.setting = false
-            this.flag.login = false
-            this.flag.about = false
-            return next(false)
-        }
-        next()
-    },
     methods: {
         ...mapActions([
             'updateUser',
@@ -367,17 +357,17 @@ export default {
                 return
             }
             this.loadLocalData()
+            this.loading = true
             let mainPage = await User.getIndex()
             if (mainPage.indexOf('權限錯誤') === -1) {
                 /* 考慮移除updateUser，可以存在這個instance裡頭就好 */
-                this.updateUser({username: JSON.parse(localStorage.user).username, loggedIn: true})
+                this.updateUser({username: JSON.parse(localStorage.user).id, loggedIn: true})
                 await this.fetchData()
                 return
             }
             await this.login(true)
         },
         async login (remember) {
-            this.loading = true
             let data = remember ? JSON.parse(localStorage.user) : this.loginData
 
             let result = await User.login(data)

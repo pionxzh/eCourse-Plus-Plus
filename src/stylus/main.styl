@@ -1,13 +1,5 @@
 @import '../../node_modules/vuetify/src/stylus/main'
 
-/* cyrillic */
-@font-face {
-  font-family: 'Poiret One';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Poiret One'), local('PoiretOne-Regular'), url(https://fonts.gstatic.com/s/poiretone/v5/cKr_e199f0xMkxMkRbEJXyEAvth_LlrfE80CYdSH47w.woff2) format('woff2');
-  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
 /* latin */
 @font-face {
   font-family: 'Poiret One';
@@ -120,16 +112,16 @@ input[type=file]
 .card--flex-toolbar
     margin-top -64px
 
-.color-nav > .toolbar__content
+#color-nav > .toolbar__content
     height 128px!important
     background-image url('./assets/nav.png')
     background-position bottom
     background-size cover
 
-.color-nav.scroll > .toolbar__content
+#color-nav.scroll > .toolbar__content
     height: 56px!important
 
-.ecourse-logo
+#ecourse-logo
     font-family "Poiret One", Helvetica, 'Helvetica Neue', Tahoma,Arial,sans-serif
     font-size 50px
     text-shadow 1px 2px #5f5f5f
@@ -138,18 +130,18 @@ input[type=file]
     -ms-user-select: none
     user-select: none
 
-.setting-btn
+#setting-btn
     margin-right: 48px
 
 @media screen and (max-width:600px)
-    .color-nav > .toolbar__content
+    #color-nav > .toolbar__content
         height 64px!important
 
-    .setting-btn
+    #setting-btn
         margin-right: 24px
 
 @media screen and (max-width:370px)
-    .ecourse-logo
+    #ecourse-logo
         font-size: 40px
 
 /*  Left panel  */
@@ -159,7 +151,7 @@ aside.gray-bg
 ul.striped li:nth-child(odd)
     background #F1F1F1
 
-.course-head
+#course-head
     color #111111
     font-size 20px
 
@@ -170,7 +162,7 @@ ul.striped li:nth-child(odd)
     color #757575
     font-size 18px
 
-.avatar-overlay
+#avatar-overlay
     position: absolute
     border-radius: 50%
     cursor: pointer
@@ -180,10 +172,10 @@ ul.striped li:nth-child(odd)
     opacity: 0
     transition: .2s
 
-.avatar:hover .avatar-overlay
+.avatar:hover #avatar-overlay
     opacity: 1
 
-.personal-info {
+#personal-info {
     background-color #263238!important
 
     button {
@@ -274,7 +266,7 @@ ul.stripe li:not(.subheader):nth-child(even)
     .score-card .list__tile
         font-size: 14px
 
-    .score-card button
+    .score-card .score-block
         min-width: 60px
 
     .score-card .btn__content
@@ -366,9 +358,6 @@ ul.stripe li:not(.subheader):nth-child(even)
     font-size: 18px
 
 @media screen and (max-width: 600px)
-    #hw
-        margin-top: -30px
-
     .upload-type
         height: 80px!important
 
