@@ -21,6 +21,7 @@ export default class Homework {
     }
 
     static async getAllQuestion (homeworkData) {
+        let today = Util.getToday()
         this.homeworkFile = {}
         let queuePromise = []
         let oldHwFile = localStorage.homeworkFile ? JSON.parse(localStorage.homeworkFile) : {}
@@ -30,13 +31,13 @@ export default class Homework {
             for (let item of list) {
                 if (!item.id) continue
                 let cid = item.id
-                /* 48小時檢查一次 策略可以再進一步優化為過期的作業不予理會 減少request */
-                let isSkip = !!oldHwFile[key] && !!oldHwFile[key][cid] && Date.now() < oldHwFile[key][cid].timeStamp + 36e5 * 48
+                /* 24小時檢查一次 過期的作業不予理會 減少request */
+                let isSkip = !!oldHwFile[key] && !!oldHwFile[key][cid] && today > item.timeStamp && Date.now() < oldHwFile[key][cid].timeStamp + 36e5 * 24
                 if (isSkip) this.homeworkFile[key][cid] = oldHwFile[key][cid]
                 else queuePromise.push(this.getQuestion(key, cid))
             }
         }
-        /* using Promise.all to parallel request */
+        /* using Promise.all for parallel request */
         await Promise.all(queuePromise)
 
         console.log('HwFile:\n', this.homeworkFile)
@@ -51,49 +52,38 @@ export default class Homework {
             workid: workID
         }}).catch(e => Util.errHandler(e, 'Get Question Error!'))
         let result = { type: null, timeStamp: Date.now() }
-        if (question.data.size && !question.data.status) {
+        if (question.data.size) {
             result.type = question.data.type.slice(1)
-            // result.size = question.data.size
         }
         this.homeworkFile[courseID][workID] = result
     }
 
     static async getAnswer (courseID, workID) {
-        let question = await axios.get(config.ecourse.UNDER_DIR_FILE, {params: {
+        let answer = await axios.get(config.ecourse.UNDER_DIR_FILE, {params: {
             action: 'seemywork',
             courseid: courseID,
             workid: workID
         }}).catch(e => Util.errHandler(e, 'Get Answer Error!'))
-        let result = []
-        if (Array.isArray(question.data)) {
-            question.data.pop()
-            for (let item of question.data) {
+        if (Array.isArray(answer.data)) {
+            let result = []
+            answer.data.pop()
+            for (let item of answer.data) {
                 result.push({
-                    id: Math.random() * 1000,
+                    // id: Math.random() * 1000,
                     name: item[0],
                     size: Util.getSize(item[1]),
                     timeStamp: item[2]
                 })
             }
+            return result
         } else {
-            result[0] = {
+            return [{
+                id: Math.random() * 1000,
                 name: 'homework.html',
-                size: '? bytes',
-                content: question.data.work,
-                timeStamp: question.data.mtime
-            }
+                size: '',
+                timeStamp: answer.data.mtime
+            }]
         }
-        console.log(result)
-        return result
-    }
-
-    static async removeAnswer (courseID, workID, fileName) {
-        let result = await axios.get(config.ecourse.SHOW_WORK, {params: {
-            action: 'del',
-            work_id: workID,
-            filename: fileName
-        }})
-        return result.data
     }
 
     static async uploadText (content, workID) {
@@ -120,7 +110,16 @@ export default class Homework {
                 formData.append(`uploadfile${index}`, file)
             }
         }
-        let result = await axios.post(config.ecourse.SHOW_WORK, formData, {responseType: 'arraybuffer'})
-        return Decoder.decode(result.data).indexOf('成功') !== -1
+        let temp = await axios.post(config.ecourse.SHOW_WORK, formData, {responseType: 'arraybuffer'})
+        return Decoder.decode(temp.data).indexOf('成功') > -1
+    }
+
+    static async removeAnswer (courseID, workID, fileName) {
+        await axios.get(config.ecourse.UNDER_DIR_FILE, {params: {
+            action: 'delete',
+            courseid: courseID,
+            workid: workID,
+            filename: fileName
+        }})
     }
 }

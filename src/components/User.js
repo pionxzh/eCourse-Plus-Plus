@@ -7,8 +7,7 @@ let Decoder = new TextDecoder('big5')
 export default class User {
     static async getIndex () {
         let index = await axios.get(config.ecourse.INDEX, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e, 'Get MainPage Error!'))
-        let result = Decoder.decode(index.data)
-        return result
+        return Decoder.decode(index.data)
     }
 
     static getData (data) {

@@ -10,10 +10,12 @@ export default class Util {
         return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(decimals))} ${sizes[i]}`
     }
 
-    static dayDiff (time) {
+    static getToday () {
         let now = new Date()
-        let old = new Date(time)
-        return Math.abs(now - old) / 8.64e7
+        let year = now.getFullYear().toString()
+        let month = (now.getMonth() + 101).toString().substring(1)
+        let day = (now.getDate() + 100).toString().substring(1)
+        return `${year}-${month}-${day}`
     }
 
     static copyToClipboard (content) {
