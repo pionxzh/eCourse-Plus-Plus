@@ -10,6 +10,10 @@ export const mutations = {
             Vue.set(state.userData, key, userData[key])
         })
     },
+    [types.TABLE] (state, timeTable) {
+        state.timeTable = timeTable
+        localStorage.timeTable = JSON.stringify(timeTable)
+    },
     [types.COURSE] (state, courseList) {
         state.courseList = courseList
         localStorage.courseList = JSON.stringify(courseList)

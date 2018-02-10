@@ -40,6 +40,14 @@ module.exports = {
                 pathRewrite: {
                   '^/ec/': ''
                 }
+            },
+            '/kiki/': {
+                target: 'https://kiki.ccu.edu.tw/',  
+                changeOrigin: true,
+                secure: false,
+                pathRewrite: {
+                  '^/kiki/': ''
+                }
             }
         },
         cssSourceMap: false

@@ -23,5 +23,10 @@
         "TEACHER_INFO": "/ec/php/Learner_Profile/show_teacher_info.php",
         "ROLL": "/ec/php/Trackin/ShowStudentRollBook.php",
         "PING": "/ec/php/online/online.php"
+    },
+    "kiki": {
+        "LOGIN": "/kiki/~ccmisp06/cgi-bin/class_new/bookmark.php",
+        "LOGOUT": "/kiki/~ccmisp06/cgi-bin/class_new/logout.php",
+        "TABLE": "/kiki/~ccmisp06/cgi-bin/class_new/Selected_View00.cgi"
     }
 }

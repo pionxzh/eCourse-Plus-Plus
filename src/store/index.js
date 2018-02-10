@@ -17,6 +17,7 @@ export default new Vuex.Store({
             classes: ''
         },
         template: {},
+        timeTable: [],
         courseList: [],
         announceData: {},
         homeworkData: {},

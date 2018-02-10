@@ -4,6 +4,10 @@ export const updateUser = ({ commit }, userData) => {
     commit(types.USER, userData)
 }
 
+export const updateTimeTable = ({ commit }, timeTable) => {
+    commit(types.TABLE, timeTable)
+}
+
 export const updateCourse = ({ commit }, courseList) => {
     commit(types.COURSE, courseList)
 }

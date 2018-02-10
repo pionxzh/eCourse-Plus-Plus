@@ -4,6 +4,10 @@ export const getUser = state => {
     return state.userData
 }
 
+export const getTimeTable = state => {
+    return state.timeTable
+}
+
 export const getCourseList = state => {
     return state.courseList
 }

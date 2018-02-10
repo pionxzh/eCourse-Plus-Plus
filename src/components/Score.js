@@ -8,8 +8,8 @@ export default class Score {
     static async getScore () {
         let score = await axios.get(config.ecourse.COURSE_SCORE, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e))
         let parser = new DOMParser()
-        let scoreData = parser.parseFromString(Decoder.decode(score.data), 'text/html')
-        let scoreNode = scoreData.querySelectorAll('tr[bgcolor="#4d6eb2"], tr[bgcolor="#E6FFFC"], tr[bgcolor="#F0FFEE"], tr[bgcolor="#B0BFC3"]')
+        let dom = parser.parseFromString(Decoder.decode(score.data), 'text/html')
+        let scoreNode = dom.querySelectorAll('tr[bgcolor="#4d6eb2"], tr[bgcolor="#E6FFFC"], tr[bgcolor="#F0FFEE"], tr[bgcolor="#B0BFC3"]')
         let result = {}
         let title = ''
         scoreNode.forEach(element => {
