@@ -1,5 +1,5 @@
 <template lang='pug'>
-    v-app#ccu
+    v-app#ccu(:class='{"weather-theme": setting.weatherTheme}')
         v-navigation-drawer.gray-bg(persistent v-model='flag.drawer' enable-resize-watcher app)
             v-toolbar#personal-info.pa-3(flat)
                 v-list.pa-0(two-line)
@@ -41,14 +41,14 @@
                     v-icon mdi-settings
                 v-list
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click='this.flag.setting = true') &nbsp;&nbsp;設定
+                        v-list-tile-title(@click='flag.setting = true') &nbsp;&nbsp;設定
                     v-list-tile.list__tile--link
-                        v-list-tile-title(@click='this.flag.about = true') &nbsp;&nbsp;關於本站
-                    v-list-tile.list__tile--link
+                        v-list-tile-title(@click='flag.about = true') &nbsp;&nbsp;關於本站
+                    //v-list-tile.list__tile--link
                         v-list-tile-title(@click='fetchData') &nbsp;&nbsp;強制刷新&nbsp;&nbsp;
                     v-divider
                     v-list-tile.list__tile--link(v-if='!User.loggedIn')
-                        v-list-tile-title(@click='this.flag.login = true')
+                        v-list-tile-title(@click='flag.login = true')
                             | &nbsp;
                             v-icon mdi-logout-variant
                             | &nbsp;登入
@@ -58,6 +58,17 @@
                             v-icon mdi-logout-variant
                             | &nbsp;登出
         v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show' :multi-line='toast.multi') {{toast.message}}
+        div.theme-wrapper
+            svg.bg-mask.is-sunset(v-if='setting.weatherTheme' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid slice')
+                defs
+                    mask#mask(fill='url(#gradient)')
+                        rect(x='0' y='0' width='1' height='1')
+                    linearGradient#gradient(x1='0' y1='0' x2='100%' y2='0' spreadMethod='pad' gradientTransform='rotate(45)')
+                        stop(offset='0%' stop-color='#fff' stop-opacity='1')
+                        stop(offset='100%' stop-color='#fff' stop-opacity='0')
+                rect.gradient__bg(x='0' y='0' width='100' height='100')
+                rect.gradient__fg(x='0' y='0' width='100' height='100' mask='url(#mask)')
+            div#real-horizon(v-if='setting.weatherTheme')
         v-content(:class='{"mb-5": $route.params.id, "mb-0": !$route.params.id}')
             transition(name='slide' mode='out-in')
                 v-jumbotron.main-card(v-if='!$route.params.id' gradient='to right top, #1867c0, #19e5f4' height='auto' dark)
@@ -82,12 +93,13 @@
                                         v-btn.mx-3(icon large color='white' href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener' slot='activator')
                                             v-icon(color='primary') mdi-github-circle
                                         span GitHub
-                                v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='loading' :disabled='loading' @click='this.flag.login = true' large)
+                                v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='loading' :disabled='loading' @click='flag.login = true' large)
                                     strong 開始使用
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn' @click='showpPrompt' large)
                                     v-icon mdi-apps
                                     strong &nbsp;添加到桌面
-                                div Version 1.0.2
+                                div Version 1.0.3
+                                div - 新增天色主題
                 v-container(fluid v-if='$route.params.id')
                     transition(name='slide' mode='out-in')
                         keep-alive
@@ -106,7 +118,7 @@
             v-btn(flat dark value='score')
                 span 成績
                 v-icon mdi-chart-line
-        v-footer.hidden-sm-and-down(absolute)
+        v-footer#footer.hidden-sm-and-down(absolute)
             v-spacer
             span © 2018 Developed by Pionxzh
             v-spacer
@@ -118,7 +130,7 @@
                 v-btn(slot='activator' aria-label='close' color='red' dark fab)
                     v-icon mdi-rocket
                 v-tooltip(left)
-                    v-btn(fab dark aria-label='setting' color='green' slot='activator' @click='this.flag.setting = true')
+                    v-btn(fab dark aria-label='setting' color='green' slot='activator' @click='flag.setting = true')
                         v-icon mdi-settings
                     span 設定
                 v-tooltip(left)
@@ -130,7 +142,7 @@
                 v-icon mdi-wrench
                 v-toolbar-title 設定
                 v-spacer
-                v-btn.mr-3(icon @click='this.flag.setting = false'): v-icon mdi-close
+                v-btn.mr-3(icon @click='flag.setting = false'): v-icon mdi-close
             v-list.tile-hover(two-line subheader :class='{"mt-5": isMobile}')
                 template(v-for='(item, key) in settingData')
                     v-subheader.no-select(:key='key') {{ key }}
@@ -204,6 +216,7 @@ export default {
             isDownloadQuestion: false,
             isDownloadTextbook: true,
             showIntro: true,
+            weatherTheme: false,
             showTeacherInfo: true,
             scoreStyle2: false,
             rankColorBlock: true,
@@ -214,6 +227,10 @@ export default {
                 field: 'showDivider',
                 title: '顯示格線',
                 description: '在每個項目之間添加分隔線'
+            }, {
+                field: 'weatherTheme',
+                title: '畫風一變',
+                description: '天色半透明主題'
             }],
             '通知': [{
                 field: 'enableNotify',

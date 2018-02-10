@@ -1,6 +1,5 @@
 <template lang='pug'>
     v-layout(row wrap :key='$route.params.id')
-        v-snackbar.short(:timeout='1500' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show') {{toast.message}}
         transition(name='slide-x-transition')
             v-flex.pl-2(xs12 md4 v-if='(isMobile && tag === "announce") || (!isMobile && tag !== "score")')
                 v-card.main-card.elevation-1(color='grey lighten-5' flat)
@@ -68,15 +67,15 @@
                         v-toolbar-side-icon: v-icon mdi-menu
                         v-toolbar-title.no-select 教材
                         v-spacer
-                        v-btn.mr-2(aria-label='search' icon): v-icon mdi-magnify
+                        v-btn.mr-2(aria-label='search' icon @click='kikiLogin'): v-icon mdi-magnify
                     v-list.pa-0(two-line subheader)
-                        v-list-tile(v-if='Setting.showIntro' @click='downloadIntro')
+                        v-list-tile(v-if='Setting.showIntro' @click='getIntro')
                             v-list-tile-avatar
                                 v-icon(large) mdi-file-account
                             v-list-tile-content 
                                 v-list-tile-title 授課大綱
                         v-divider(v-if='Setting.showDivider')
-                        v-list-tile(v-if='Setting.showTeacherInfo' @click='downloadTeaIndo')
+                        v-list-tile(v-if='Setting.showTeacherInfo' @click='getTeacherInfo')
                             v-list-tile-avatar
                                 v-icon(large) mdi-file-account
                             v-list-tile-content 
@@ -117,7 +116,7 @@
                                     v-list-tile-action
                                         v-btn.score-block(flat aria-label='rank' outline) {{ slime.rank }}
                                     v-list-tile-action
-                                        v-btn(flat aria-label='score' outline) {{ slime.score }}
+                                        v-btn.score-block(flat aria-label='score' outline) {{ slime.score }}
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
             v-flex.pl-2(xs12 md4 v-if='tag === "score"')
                 v-card#roll.main-card.score-card.elevation-1(color='grey lighten-5' flat :class='{"mt-5": isMobile}')
@@ -221,6 +220,7 @@ import Util from '../Util'
 import Score from '../Score'
 import Course from './../Course'
 import Homework from '../Homework'
+import CourseTable from '../CourseTable'
 import { mapGetters, mapActions } from 'vuex'
 
 const config = require('../../config.json')
@@ -261,15 +261,6 @@ export default {
             message: ''
         },
         homeworkAns: {},
-        toast: {
-            show: false,
-            top: true,
-            right: false,
-            bottom: false,
-            left: false,
-            color: 'success',
-            message: ''
-        },
         fileType: {
             pdf: 'mdi-file-pdf-box',
             ppt: 'mdi-file-powerpoint-box',
@@ -293,8 +284,7 @@ export default {
             js: 'mdi-language-javascript',
             php: 'mdi-language-php',
             py: 'mdi-language-python-text'
-        },
-        loading: false
+        }
     }),
     created () {},
     computed: {
@@ -329,7 +319,7 @@ export default {
             return this.Roll[this.$route.params.id] || []
         },
         HwFile () {
-            return this.HomeworkFile[this.$route.params.id] || localStorage.homeworkFile ? JSON.parse(localStorage.homeworkFile)[this.$route.params.id] : {}
+            return this.HomeworkFile[this.$route.params.id] || {}
         },
         HwAns () {
             return this.homeworkAns[this.$route.params.id] || {}
@@ -341,25 +331,15 @@ export default {
     watch: {
         async tab (newValue) {
             this.tag = 'middle'
-            setTimeout(() => { this.tag = newValue }, 350)
+            setTimeout(() => { this.tag = newValue }, 300)
             if (newValue === 'score') await this.showScore()
         },
         async courseID (target) {
-            if (this.tag === 'score') this.showScore()
+            if (this.tag === 'score') await this.showScore()
         }
     },
     /* temp fix for mobile device pressing back navigation */
     beforeRouteLeave: function (to, from, next) {
-        if (this.announce.flag | this.homework.flag | this.uploadHW.flag) {
-            this.announce.flag = false
-            this.homework.flag = false
-            this.uploadHW.flag = false
-            return next(false)
-        }
-        next()
-    },
-    beforeRouteUpdate: function (to, from, next) {
-        /* 可..可惡 沒辦法寫更短嗎.. */
         if (this.announce.flag) {
             this.announce.flag = false
             return next(false)
@@ -368,8 +348,15 @@ export default {
             this.homework.flag = false
             return next(false)
         }
-        if (this.uploadHW.flag) {
-            this.uploadHW.flag = false
+        next()
+    },
+    beforeRouteUpdate: function (to, from, next) {
+        if (this.announce.flag) {
+            this.announce.flag = false
+            return next(false)
+        }
+        if (this.homework.flag) {
+            this.homework.flag = false
             return next(false)
         }
         next()
@@ -393,14 +380,6 @@ export default {
                     this.$refs.search.focus()
                 }, 300)
             }
-        },
-        showToast ({message = '', top = true, right = false, bottom = false, color = 'success'} = {}) {
-            this.toast.show = true
-            this.toast.top = top
-            this.toast.right = right
-            this.toast.bottom = bottom
-            this.toast.color = color
-            this.toast.message = message
         },
         showUploadToast (message, color) {
             this.uploadHW.toastShow = true
@@ -444,11 +423,11 @@ export default {
             let link = `${config.ecourse.HOST}${url.slice(8)}`
             Util.openLink(link, this.Setting.isDownloadTextbook)
         },
-        async downloadIntro () {
+        async getIntro () {
             await Course.changeCourse(this.courseID)
             Util.openLink(config.ecourse.INTRO, false)
         },
-        async downloadTeaIndo () {
+        async getTeacherInfo () {
             await Course.changeCourse(this.courseID)
             Util.openLink(config.ecourse.TEACHER_INFO, false)
         },
@@ -520,6 +499,10 @@ export default {
             this.uploadHW.list[index] = null
             this.showUploadToast('刪除成功', 'success')
             await Homework.removeAnswer(this.courseID, this.uploadHW.workID, fileName)
+        },
+        async kikiLogin () {
+            await CourseTable.login()
+            await CourseTable.getData()
         }
     }
 }

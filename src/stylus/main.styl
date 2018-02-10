@@ -22,7 +22,7 @@ html, body, .mdl-layout-title, .application
 
 @media screen and (max-width: 599px)
     .main-card
-        margin-top: 8px
+        margin-top: 0
 
     .container
         padding: 20px 14px 24px 6px
@@ -135,10 +135,13 @@ input[type=file]
 
 @media screen and (max-width:600px)
     #color-nav > .toolbar__content
-        height 64px!important
+        height 56px!important
 
     #setting-btn
         margin-right: 24px
+
+    #ecourse-logo
+        font-size: 45px
 
 @media screen and (max-width:370px)
     #ecourse-logo
@@ -194,6 +197,113 @@ ul.striped li:nth-child(odd)
     }
 }
 
+/* Bottom Nav */
+.bottom-nav--shift .btn--active 
+    min-width: inherit
+    max-width: inherit
+
+
+/* Weather theme */
+.weather-theme {
+    #color-nav {
+        box-shadow: none
+        background-color: transparent!important
+    }
+    #color-nav > .toolbar__content {
+        background-image: none
+    }
+    #footer {
+        display: none
+    }
+    .jumbotron__background {
+        background: none!important
+    }
+}
+
+/* Colorful background */
+.theme-wrapper
+    height: 100%
+    width: 100%
+    position: absolute
+    overflow: hidden
+
+svg.bg-mask
+    height: calc(100% + 40px)
+    width: calc(100% + 40px)
+    position: absolute
+    top: -20px
+    right: -20px
+    bottom: -20px
+    left: -20px
+    filter: blur(10px)
+
+#real-horizon
+    top: 34vh
+    height: 100vh
+    width: 100vw
+    right: 0
+    left: 0
+    position: fixed
+    background: rgba(0,0,0,.4)
+    transition: transform .75s ease-in-out
+    pointer-events: none
+
+@media screen and (max-width:600px)
+    #real-horizon
+        top: 29vh
+
+.gradient__bg,.gradient__fg
+    transition: fill .2s linear
+    will-change: fill
+
+.gradient__fg
+    fill: #56c9fe
+
+.gradient__bg
+    fill: #2d57d7
+
+.is-dawn .gradient__fg
+    fill: #d3a296
+
+.is-dawn .gradient__bg
+    fill: #737ba9
+
+.is-sunrise .gradient__fg
+    fill: #f4b18a
+
+.is-sunrise .gradient__bg
+    fill: #eb899c
+
+.is-golden-hour-end .gradient__fg
+    fill: #5ed0ed
+
+.is-golden-hour-end .gradient__bg
+    fill: #5982b4
+
+.is-golden-hour .gradient__bg
+    fill: #833960
+
+.is-golden-hour .gradient__fg
+    fill: #5dc2e3
+
+.is-sunset .gradient__fg
+    fill: #e9aa58
+
+.is-sunset .gradient__bg
+    fill: #b04491
+
+.is-dusk .gradient__fg
+    fill: #f4b18a
+
+.is-dusk .gradient__bg
+    fill: #2286d2
+
+.is-night .gradient__fg
+    fill: #2d70bc
+
+.is-night .gradient__bg
+    fill: #061527
+
 
 /* Main page */
 .jumbotron__wrapper
@@ -222,17 +332,15 @@ ul.striped li:nth-child(odd)
 .date-padding
     padding: 0 3px
 
-.exp-search {
+.exp-search
     transition: .3s
     visibility: hidden
     min-width: calc(100%/1.5)
     margin-right: calc(-100%/1.45)!important
-}
 
-.exp-search.open {
+.exp-search.open
     visibility: visible
 	margin-right: 16px!important
-}
 
 .notify.badge--overlap .badge__badge
     width: 10px
