@@ -67,7 +67,7 @@
                         v-toolbar-side-icon: v-icon mdi-menu
                         v-toolbar-title.no-select 教材
                         v-spacer
-                        v-btn.mr-2(aria-label='search' icon @click='kikiLogin'): v-icon mdi-magnify
+                        v-btn.mr-2(aria-label='search' icon): v-icon mdi-magnify
                     v-list.pa-0(two-line subheader)
                         v-list-tile(v-if='Setting.showIntro' @click='getIntro')
                             v-list-tile-avatar
@@ -97,10 +97,10 @@
                             v-divider(v-if='Setting.showDivider')
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
             v-flex.pl-2(xs12 md6 offset-md1 v-if='tag === "score"')
-                v-card#score.main-card.score-card(color='grey lighten-5' flat :class='{"elevation-1": !Setting.scoreStyle2}')
+                v-card#score-card.main-card(color='grey lighten-5' flat :class='{"elevation-1": !Setting.scoreStyle2}')
                         v-toolbar(color='red' flat dark)
                             v-toolbar-side-icon.ml-2: v-icon mdi-menu
-                            v-toolbar-title 成績
+                            v-toolbar-title.no-select 成績
                             v-spacer
                             v-tooltip.mr-0.hidden-sm-and-down(left)
                                 v-btn(icon aria-label='score' slot='activator' @click='tag="yo~~"')
@@ -119,10 +119,10 @@
                                         v-btn.score-block(flat aria-label='score' outline) {{ slime.score }}
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
             v-flex.pl-2(xs12 md4 v-if='tag === "score"')
-                v-card#roll.main-card.score-card.elevation-1(color='grey lighten-5' flat :class='{"mt-5": isMobile}')
+                v-card#roll-card.main-card.elevation-1(color='grey lighten-5' flat)
                     v-toolbar(color='purple' flat dark)
                         v-toolbar-side-icon.ml-2: v-icon mdi-menu
-                        v-toolbar-title 點名
+                        v-toolbar-title.no-select 點名
                     v-layout.fix-flex(row wrap)
                         template(v-for='item in RollData')
                             v-flex.fix-flex-item.roll-wrapper(xs3 sm3 md2)
@@ -191,10 +191,10 @@
                         v-flex(xs12)
                             v-layout(row wrap)
                                 v-flex(xs8 sm9 md10)
-                                    v-text-field.white-text-field(v-model='uploadHW.content' label='直接上傳答案文字' textarea auto-grow style='margin-top: -18px;')
+                                    v-text-field#send-text-input.white-text-field(v-model='uploadHW.content' label='直接上傳答案文字' textarea auto-grow style='margin-top: -18px;')
                                 v-flex.pl-2(xs4 sm3 md2)
                                     v-tooltip(left)
-                                        v-btn.mt-0.send-text-btn(aria-label='send' color='red darken-1' @click='uploadText($event)' slot='activator' block dark)
+                                        v-btn#send-text-btn.mt-0(aria-label='send' color='red darken-1' @click='uploadText($event)' slot='activator' block dark)
                                             v-icon mdi-send
                                         span 送出
                         v-flex(xs12)
@@ -220,7 +220,6 @@ import Util from '../Util'
 import Score from '../Score'
 import Course from './../Course'
 import Homework from '../Homework'
-import CourseTable from '../CourseTable'
 import { mapGetters, mapActions } from 'vuex'
 
 const config = require('../../config.json')
@@ -499,10 +498,6 @@ export default {
             this.uploadHW.list[index] = null
             this.showUploadToast('刪除成功', 'success')
             await Homework.removeAnswer(this.courseID, this.uploadHW.workID, fileName)
-        },
-        async kikiLogin () {
-            await CourseTable.login()
-            await CourseTable.getData()
         }
     }
 }

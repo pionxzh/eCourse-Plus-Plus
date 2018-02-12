@@ -17,7 +17,7 @@
                             v-list-tile-title {{User.name}}
                             v-list-tile-sub-title.blue-grey--text.lighten-1--text
                                 v-icon.blue-grey--text.lighten-1--text.body-1 mdi-map-marker
-                                span {{User.department}}, {{User.classes}}
+                                span {{User.department}} | {{User.classes}}
                     
             v-list.pt-0.striped.course-list(dense :two-line='isMobile' :three-line='!isMobile')
                 v-list-tile
@@ -32,7 +32,7 @@
                             span {{item.name}}
                         v-list-tile-sub-title
                             span {{item.professor}}
-        v-toolbar#color-nav(dark color='primary' fixed app)
+        v-toolbar#color-nav(dark color='primary' fixed app :class='{"is-scroll": isScroll}')
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
             router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title.white--text#ecourse-logo.no-select eCourse+
             v-spacer
@@ -59,26 +59,26 @@
                             | &nbsp;登出
         v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show' :multi-line='toast.multi') {{toast.message}}
         div.theme-wrapper
-            svg.bg-mask.is-sunset(v-if='setting.weatherTheme' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid slice')
+            svg.bg-mask.sunset(v-if='setting.weatherTheme' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid slice')
                 defs
                     mask#mask(fill='url(#gradient)')
                         rect(x='0' y='0' width='1' height='1')
                     linearGradient#gradient(x1='0' y1='0' x2='100%' y2='0' spreadMethod='pad' gradientTransform='rotate(45)')
                         stop(offset='0%' stop-color='#fff' stop-opacity='1')
                         stop(offset='100%' stop-color='#fff' stop-opacity='0')
-                rect.gradient__bg(x='0' y='0' width='100' height='100')
-                rect.gradient__fg(x='0' y='0' width='100' height='100' mask='url(#mask)')
+                rect.gradient-bg(x='0' y='0' width='100' height='100')
+                rect.gradient-fg(x='0' y='0' width='100' height='100' mask='url(#mask)')
             div#real-horizon(v-if='setting.weatherTheme')
         v-content(:class='{"mb-5": $route.params.id, "mb-0": !$route.params.id}')
             transition(name='slide' mode='out-in')
-                v-jumbotron.main-card(v-if='!$route.params.id' gradient='to right top, #1867c0, #19e5f4' height='auto' dark)
+                v-jumbotron.main-card(v-if='!$route.params.id && !flag.courseTable' gradient='to right top, #1867c0, #19e5f4' height='auto' dark)
                     v-container(fill-height align-center :class='{"py-5": !isMobile}')
                         v-layout.text-xs-center(align-center wrap)
-                            v-flex(xs12)
+                            v-flex.no-select(xs12)
                                 v-avatar.grey.lighten-4(:size='isMobile ? 174 : 194' :class='{"mt-4": isMobile, "mt-5": !isMobile}')
                                     img(src='../../../static/icon.png' alt='Logo')
                                     div(:class="{mobile: isMobile}").img-circle
-                                h1.display-3.head-name.no-select eCourse+
+                                h1.display-3.head-name eCourse+
                                 div.headline.mb-3.mx-3 輕鬆瀏覽公告、作業、教材與成績
                                 div.mb-5
                                     v-tooltip(top)
@@ -95,11 +95,15 @@
                                         span GitHub
                                 v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='loading' :disabled='loading' @click='flag.login = true' large)
                                     strong 開始使用
-                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn' @click='showpPrompt' large)
+                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && isMobile' @click='showpPrompt' large)
                                     v-icon mdi-apps
                                     strong &nbsp;添加到桌面
+                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && !isMobile' @click='flag.courseTable = true' large)
+                                    v-icon mdi-apps
+                                    strong &nbsp;查看課表
                                 div Version 1.0.3
                                 div - 新增天色主題
+                course-table.mt-5(v-if='!$route.params.id && flag.courseTable')
                 v-container(fluid v-if='$route.params.id')
                     transition(name='slide' mode='out-in')
                         keep-alive
@@ -130,7 +134,7 @@
                 v-btn(slot='activator' aria-label='close' color='red' dark fab)
                     v-icon mdi-rocket
                 v-tooltip(left)
-                    v-btn(fab dark aria-label='setting' color='green' slot='activator' @click='flag.setting = true')
+                    v-btn(fab dark aria-label='setting' color='blue darken-2' slot='activator' @click='flag.setting = true')
                         v-icon mdi-settings
                     span 設定
                 v-tooltip(left)
@@ -138,7 +142,7 @@
                         v-icon mdi-chart-line
                     span 成績
         v-dialog(v-model='flag.setting' max-width=450 :fullscreen='isMobile' scroll)
-            v-toolbar.blue(dark :fixed='isMobile')
+            v-toolbar.blue.no-select(dark :fixed='isMobile')
                 v-icon mdi-wrench
                 v-toolbar-title 設定
                 v-spacer
@@ -185,6 +189,7 @@ import Announce from './../Announce'
 import Homework from './../Homework'
 import Textbook from './../Textbook'
 import debounce from 'lodash/debounce'
+// import CourseTable from './CourseTable'
 // import NotifyManager from './../NotifyManager'
 import { mapGetters, mapActions } from 'vuex'
 
@@ -203,6 +208,7 @@ export default {
         // authcodeImg: config.sso.authcode,
         flag: {
             drawer: true,
+            courseTable: false,
             setting: false,
             login: false,
             about: false
@@ -348,7 +354,7 @@ export default {
             'clearData'
         ]),
         onScroll: debounce(function () {
-            this.isScroll = window.scrollY > 200
+            this.isScroll = window.scrollY > 100
         }, 100),
         toTop () {
             window.scroll({ top: 0, behavior: 'smooth' })
@@ -363,6 +369,20 @@ export default {
             this.toast.multi = multi
             this.toast.timeout = timeout
             this.toast.message = message
+        },
+        showpPrompt () {
+            if (this.deferredPrompt) this.deferredPrompt.prompt()
+            else this.showToast({message: '呼叫失敗，可在瀏覽器設定中找到"添加至桌面"選項', color: 'error', multi: true})
+        },
+        uploadAvatar (e) {
+            let file = e.target.files[0]
+            if (!file) return
+            let reader = new FileReader()
+            reader.onloadend = () => {
+                this.avatar = reader.result
+                localStorage[`avatar${this.User.studentId}`] = reader.result
+            }
+            reader.readAsDataURL(file)
         },
         keepAlive () {
             /* Ping server every 5min to avoid session expired (expired time = 6min ?) */
@@ -433,20 +453,6 @@ export default {
             if (this.$route.params.id) await Course.changeCourse(this.$route.params.id)
 
             this.keepAlive()
-        },
-        showpPrompt () {
-            if (this.deferredPrompt) this.deferredPrompt.prompt()
-            else this.showToast({message: '呼叫失敗，可在瀏覽器設定中找到"添加至桌面"選項', color: 'error', multi: true})
-        },
-        uploadAvatar (e) {
-            let file = e.target.files[0]
-            if (!file) return
-            let reader = new FileReader()
-            reader.onloadend = () => {
-                this.avatar = reader.result
-                localStorage[`avatar${this.User.studentId}`] = reader.result
-            }
-            reader.readAsDataURL(file)
         }
     }
 }

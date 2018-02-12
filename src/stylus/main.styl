@@ -52,10 +52,8 @@ input[type=file]
     cursor: pointer
 
 .no-select
-    -webkit-user-select: none
-    -moz-user-select: none
-    -ms-user-select: none
     user-select: none
+    user-drag: none
 
 .dialog-box
     padding 20px 15px
@@ -69,6 +67,9 @@ input[type=file]
     white-space: nowrap
 
 /* Adjust list */
+.tooltip__content
+    font-size: 14px
+
 .list__group__items li
     padding-left: 36px    
 
@@ -104,6 +105,7 @@ input[type=file]
 
 .hot-fix-for-list .list__tile
     max-width: 400px
+
 @media screen and (max-width:600px)
     .hot-fix-for-list .list__tile
         max-width: 57.5vw
@@ -112,14 +114,14 @@ input[type=file]
 .card--flex-toolbar
     margin-top -64px
 
+#color-nav
+    transition: .3s
+
 #color-nav > .toolbar__content
     height 128px!important
     background-image url('./assets/nav.png')
     background-position bottom
     background-size cover
-
-#color-nav.scroll > .toolbar__content
-    height: 56px!important
 
 #ecourse-logo
     font-family "Poiret One", Helvetica, 'Helvetica Neue', Tahoma,Arial,sans-serif
@@ -132,6 +134,10 @@ input[type=file]
 
 #setting-btn
     margin-right: 48px
+
+@media screen and (min-width:600px)
+    #color-nav.is-scroll
+        margin-top: -108px!important
 
 @media screen and (max-width:600px)
     #color-nav > .toolbar__content
@@ -218,7 +224,28 @@ ul.striped li:nth-child(odd)
     .jumbotron__background {
         background: none!important
     }
+    #score-card {
+        background-color: rgba(0,0,0,0.4)!important
+    }
+    .block-score .subheader {
+        color: white
+    }
 }
+
+@media screen and (max-width:600px)
+    .weather-theme {
+        #score-card {
+            background-color: rgba(0,0,0,0.2)!important
+        }
+        .weather-theme #roll-card {
+            background-color: rgba(0,0,0,0.2)!important
+        }
+        .weather-theme .roll-item {
+            border: none
+            background-color: rgba(255,255,255,0.5) !important
+        }
+    }
+    
 
 /* Colorful background */
 .theme-wrapper
@@ -244,64 +271,64 @@ svg.bg-mask
     right: 0
     left: 0
     position: fixed
-    background: rgba(0,0,0,.4)
-    transition: transform .75s ease-in-out
+    background: rgba(0, 0, 0, .4)
+    transition: .3s
     pointer-events: none
 
 @media screen and (max-width:600px)
     #real-horizon
         top: 29vh
 
-.gradient__bg,.gradient__fg
+.gradient-bg, .gradient-fg
     transition: fill .2s linear
     will-change: fill
 
-.gradient__fg
+.gradient-fg
     fill: #56c9fe
 
-.gradient__bg
+.gradient-bg
     fill: #2d57d7
 
-.is-dawn .gradient__fg
+.dawn .gradient-fg
     fill: #d3a296
 
-.is-dawn .gradient__bg
+.dawn .gradient-bg
     fill: #737ba9
 
-.is-sunrise .gradient__fg
+.sunrise .gradient-fg
     fill: #f4b18a
 
-.is-sunrise .gradient__bg
+.sunrise .gradient-bg
     fill: #eb899c
 
-.is-golden-hour-end .gradient__fg
+.golden-hour-end .gradient-fg
     fill: #5ed0ed
 
-.is-golden-hour-end .gradient__bg
+.golden-hour-end .gradient-bg
     fill: #5982b4
 
-.is-golden-hour .gradient__bg
+.golden-hour .gradient-bg
     fill: #833960
 
-.is-golden-hour .gradient__fg
+.golden-hour .gradient-fg
     fill: #5dc2e3
 
-.is-sunset .gradient__fg
+.sunset .gradient-fg
     fill: #e9aa58
 
-.is-sunset .gradient__bg
+.sunset .gradient-bg
     fill: #b04491
 
-.is-dusk .gradient__fg
+.dusk .gradient-fg
     fill: #f4b18a
 
-.is-dusk .gradient__bg
+.dusk .gradient-bg
     fill: #2286d2
 
-.is-night .gradient__fg
+.night .gradient-fg
     fill: #2d70bc
 
-.is-night .gradient__bg
+.night .gradient-bg
     fill: #061527
 
 
@@ -327,7 +354,7 @@ svg.bg-mask
 
 /*  Announce  */
 .announce-dialog-box
-    font-size: 18px;
+    font-size: 18px
 
 .date-padding
     padding: 0 3px
@@ -338,9 +365,10 @@ svg.bg-mask
     min-width: calc(100%/1.5)
     margin-right: calc(-100%/1.45)!important
 
-.exp-search.open
+.exp-search.open {
     visibility: visible
 	margin-right: 16px!important
+}
 
 .notify.badge--overlap .badge__badge
     width: 10px
@@ -354,10 +382,10 @@ svg.bg-mask
 ul.stripe li:not(.subheader):nth-child(even)
     background #F9F9F9
 
-.score-card .color-indicator
+#score-card .color-indicator
     border-left: 5px solid transparent
 
-.score-card .color-indicator .list__tile--avatar
+#score-card .color-indicator .list__tile--avatar
     margin-left: -5px
 
 .block-score
@@ -371,14 +399,17 @@ ul.stripe li:not(.subheader):nth-child(even)
     margin-top: 0
 
 @media screen and (max-width:600px)
-    .score-card .list__tile
+    #score-card .list__tile
         font-size: 14px
 
-    .score-card .score-block
+    #score-card .score-block
         min-width: 60px
 
-    .score-card .btn__content
+    #score-card .btn__content
         padding: 0
+    
+    #roll-card
+        margin-top: 48px
 
 .roll-wrapper
     padding: 3px
@@ -461,7 +492,7 @@ ul.stripe li:not(.subheader):nth-child(even)
 .white-text-field .input-group__input
     background-color: #FFF
 
-.send-text-btn
+#send-text-btn
     height: 154px
     font-size: 18px
 
@@ -472,10 +503,10 @@ ul.stripe li:not(.subheader):nth-child(even)
     .upload-type p
         padding-top: 28px
 
-    textarea
+    #send-text-input
         height: 80px!important
 
-    .send-text-btn
+    #send-text-btn
         height: 114px
 
     .upload-wrapper .upload-item

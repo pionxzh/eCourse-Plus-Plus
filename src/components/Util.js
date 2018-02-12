@@ -65,8 +65,7 @@ export default class Util {
         return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
     }
 
-    /* static getCookie (name) {
-        let match = document.cookie.split(';').find(x => x.startsWith(`${name}=`))
-        if (match) return match.split('=')[1]
-    } */
+    static getFormatTime (start, end) {
+        return [start, end, `${Math.floor(start / 60)}:${(100 + start % 60).toString().substring(1)} - ${Math.floor(end / 60)}:${(100 + end % 60).toString().substring(1)}`]
+    }
 }
