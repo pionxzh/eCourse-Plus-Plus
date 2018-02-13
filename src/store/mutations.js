@@ -1,6 +1,5 @@
 // 存放 state 與 mutation 函式
 import Vue from 'vue'
-import orderBy from 'lodash/orderBy'
 import * as types from './mutations_type.js'
 
 // mutations
@@ -18,54 +17,15 @@ export const mutations = {
         state.courseList = courseList
         localStorage.courseList = JSON.stringify(courseList)
     },
-    [types.ANNOUNCE] (state, announce) {
-        let now = new Date()
-        let announceNotify = localStorage.annNotify ? JSON.parse(localStorage.annNotify) : {}
-        state.template = announce.map(item => item[0], [])
-        state.announceData = announce.reduce((result, item) => {
-            let courseID = item[0]
-            if (!announceNotify[courseID]) announceNotify[courseID] = {}
-            item[2] = item[2] || []
-            result[courseID] = {}
-            result[courseID].name = item[1]
-            result[courseID].list = !item[2].length ? [{title: '暫無公告'}] : item[2].reduce((temp, nItem) => {
-                let key = nItem[0]
-                /* Decide isNew by is time's difference less than 7 days */
-                // change to 14 days for testing, remember to change it back
-                if (announceNotify[courseID][key] === undefined) {
-                    announceNotify[courseID][key] = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 14
-                }
-                temp.push({
-                    id: key,
-                    title: nItem[8],
-                    content: nItem[9] || '沒有內容',
-                    timeStamp: nItem[2]
-                })
-                return orderBy(temp, ['timeStamp', 'title'], ['desc', 'asc'])
-            }, [])
-            return result
-        }, {})
+    [types.ANNOUNCE] (state, [template, announceData, announceNotify]) {
+        state.template = template
+        state.announceData = announceData
         state.announceNotify = announceNotify
-        localStorage.announce = JSON.stringify(state.announceData)
+        localStorage.announce = JSON.stringify(announceData)
         localStorage.annNotify = JSON.stringify(announceNotify)
     },
     async [types.HOMEWORK] (state, homework) {
-        state.homeworkData = homework.reduce((result, item) => {
-            let courseID = item[0]
-            result[courseID] = {}
-            result[courseID].name = item[1]
-            result[courseID].list = item[2] === null ? [{title: '暫無作業'}] : item[2].reduce((temp, nItem) => {
-                temp.push({
-                    id: nItem[1],
-                    title: nItem[0],
-                    content: nItem[4] || '沒有內容',
-                    percentage: nItem[2],
-                    timeStamp: nItem[3]
-                })
-                return orderBy(temp, ['timeStamp', 'title'], ['desc', 'asc'])
-            }, [])
-            return result
-        }, {})
+        state.homeworkData = homework
         localStorage.homework = JSON.stringify(state.homeworkData)
     },
     [types.TEXTBOOK] (state, obj) {
@@ -81,7 +41,6 @@ export const mutations = {
         localStorage.textbook = JSON.stringify(state.textbookData)
     },
     [types.SETTING] (state, setting) {
-        // console.log('Setting\n', setting)
         Object.keys(setting).forEach(key => {
             Vue.set(state.settingData, key, setting[key])
         })

@@ -42,9 +42,7 @@ export default class Util {
 
     static hslToRgb (h, s, l) {
         if (isNaN(h)) return 'transparent'
-        let r
-        let g
-        let b
+        let r, g, b
 
         if (s === 0) r = g = b = l
         else {

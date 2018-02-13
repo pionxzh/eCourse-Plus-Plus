@@ -1,6 +1,7 @@
 import Qs from 'qs'
 import axios from 'axios'
 import Util from './Util'
+import orderBy from 'lodash/orderBy'
 
 let Decoder = new TextDecoder('big5')
 const config = require('./../config.json')
@@ -9,15 +10,35 @@ export default class Homework {
     static async getData (data) {
         let homework = await axios.get(config.ecourse.HOMEWORK)
         .catch(e => Util.errHandler(e, 'Get Homework Error!'))
-        let result = /var js\s=\s(.+)/.exec(homework.data)[1]
         try {
+            let result = /var js\s=\s(.+)/.exec(homework.data)[1]
             let homeworkData = JSON.parse(result.slice(0, -1))
             console.log('Homework:\n', homeworkData)
-            return {stat: true, data: homeworkData}
+            return {stat: true, data: this.parseData(homeworkData)}
         } catch (e) {
             Util.errHandler(e, 'Parse Homework Fail!')
             return {stat: false, data: []}
         }
+    }
+
+    static parseData (homework) {
+        let homeworkData = homework.reduce((result, item) => {
+            let courseID = item[0]
+            result[courseID] = {}
+            result[courseID].name = item[1]
+            result[courseID].list = item[2] === null ? [{title: '暫無作業'}] : item[2].reduce((temp, nItem) => {
+                temp.push({
+                    id: nItem[1],
+                    title: nItem[0],
+                    content: nItem[4] || '沒有內容',
+                    percentage: nItem[2],
+                    timeStamp: nItem[3]
+                })
+                return orderBy(temp, ['timeStamp', 'title'], ['desc', 'asc'])
+            }, [])
+            return result
+        }, {})
+        return homeworkData
     }
 
     static async getAllQuestion (homeworkData) {
@@ -93,7 +114,7 @@ export default class Homework {
             action: 'handinwork'
         })
         let result = await axios.post(config.ecourse.SHOW_WORK, data, {responseType: 'arraybuffer'})
-        return Decoder.decode(result.data).indexOf('成功') !== -1
+        return Decoder.decode(result.data).indexOf('成功') > -1
     }
 
     static async uploadFile (files, multiple, courseID, workID) {

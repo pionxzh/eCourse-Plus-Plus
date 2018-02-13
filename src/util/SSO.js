@@ -8,11 +8,11 @@ export default class SSO {
         let result = {}
         await axios.post(config.sso.login, Qs.stringify(data))
         .then(response => {
-            if (response.data.indexOf('LOGIN_001') !== -1) {
+            if (response.data.indexOf('LOGIN_001') > -1) {
                 result.authcode = false
                 result.message = '登入失敗: 帳號密碼錯誤'
             }
-            if (response.data.indexOf('LOGIN_002') !== -1) {
+            if (response.data.indexOf('LOGIN_002') > -1) {
                 result.authcode = true
                 result.message = '登入失敗: 驗證碼錯誤'
             }

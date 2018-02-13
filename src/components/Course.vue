@@ -15,7 +15,7 @@
                     v-list.tile-hover.pa-0(two-line subheader)
                         v-subheader(v-show='search.keyword') 搜尋結果
                         template(v-for='(item, index) in AnnounceList.list')
-                            v-list-tile(avatar :key='item.id' v-show='item.title.indexOf(search.keyword) !== -1'
+                            v-list-tile(avatar :key='item.id' v-show='item.title.indexOf(search.keyword) > -1'
                                 @click.native='showAnnounce(index)')
                                 v-list-tile-avatar
                                     v-badge.notify(overlap color='red' v-if='item.timeStamp' v-model='AnnNotify[item.id]')
@@ -216,13 +216,13 @@
 </template>
 
 <script>
-import Util from '../Util'
-import Score from '../Score'
-import Course from './../Course'
-import Homework from '../Homework'
+import Util from '../util/Util'
+import Score from '../util/Score'
+import Course from '../util/Course'
+import Homework from '../util/Homework'
 import { mapGetters, mapActions } from 'vuex'
 
-const config = require('../../config.json')
+const config = require('../config.json')
 
 export default {
     props: ['tab'],
@@ -476,7 +476,6 @@ export default {
                     loading: true
                 })
             }
-            console.log(fileKeys)
 
             let result = await Homework.uploadFile(files, multiple, this.courseID, this.uploadHW.workID)
             if (result) {
@@ -494,7 +493,6 @@ export default {
         },
         async removeAnswer (index, fileName) {
             if (!confirm('確定要刪除這個檔案?')) return
-            /* 其實用戶不用等完成 */
             this.uploadHW.list[index] = null
             this.showUploadToast('刪除成功', 'success')
             await Homework.removeAnswer(this.courseID, this.uploadHW.workID, fileName)

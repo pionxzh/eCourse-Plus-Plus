@@ -21,7 +21,7 @@ export default class Course {
             return {stat: true, data: courseList}
         } catch (e) {
             Util.errHandler(e, 'Parse Course Fail!')
-            return {stat: false, data: []}
+            return {stat: false, data: localStorage.courseList ? JSON.parse(localStorage.courseList) : []}
         }
     }
 

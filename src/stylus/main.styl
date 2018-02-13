@@ -109,6 +109,8 @@ input[type=file]
 @media screen and (max-width:600px)
     .hot-fix-for-list .list__tile
         max-width: 57.5vw
+    .tooltip__content
+        display: none!important
 
 /*  Nav  */
 .card--flex-toolbar
@@ -230,6 +232,9 @@ ul.striped li:nth-child(odd)
     .block-score .subheader {
         color: white
     }
+    #mountain {
+        display: block
+    }
 }
 
 @media screen and (max-width:600px)
@@ -251,33 +256,12 @@ ul.striped li:nth-child(odd)
 .theme-wrapper
     height: 100%
     width: 100%
-    position: absolute
-    overflow: hidden
+    position: fixed
 
 svg.bg-mask
     height: calc(100% + 40px)
     width: calc(100% + 40px)
     position: absolute
-    top: -20px
-    right: -20px
-    bottom: -20px
-    left: -20px
-    filter: blur(10px)
-
-#real-horizon
-    top: 34vh
-    height: 100vh
-    width: 100vw
-    right: 0
-    left: 0
-    position: fixed
-    background: rgba(0, 0, 0, .4)
-    transition: .3s
-    pointer-events: none
-
-@media screen and (max-width:600px)
-    #real-horizon
-        top: 29vh
 
 .gradient-bg, .gradient-fg
     transition: fill .2s linear
@@ -331,6 +315,28 @@ svg.bg-mask
 .night .gradient-bg
     fill: #061527
 
+#mountain
+    display: none
+    height: 100%
+    width: 100%
+    z-index: 0
+    position: fixed
+    transition: all .3s ease-in
+    background-color: rgba(0, 0, 0, .4)
+    -webkit-clip-path: polygon(54% 41%, 60% 48%, 71% 34%, 100% 63%, 100% 100%, 0 100%, 0 60%, 23% 28%, 44% 54%)
+    clip-path: polygon(54% 41%, 60% 48%, 71% 34%, 100% 63%, 100% 100%, 0 100%, 0 60%, 23% 28%, 44% 54%)
+
+#mountain.horizon
+    -webkit-clip-path: polygon(53% 34%, 70% 34%, 86% 34%, 100% 34%, 100% 100%, 0 100%, 0 34%, 18% 34%, 35% 34%)
+    clip-path: polygon(53% 34%, 70% 34%, 86% 34%, 100% 34%, 100% 100%, 0 100%, 0 34%, 18% 34%, 35% 34%)
+
+@media screen and (max-width:600px)
+    #mountain
+        -webkit-clip-path: polygon(77% 44%, 100% 57%, 100% 57%, 100% 57%, 100% 100%, 0 100%, 0 50%, 26% 33%, 56% 56%)
+        clip-path: polygon(77% 44%, 100% 57%, 100% 57%, 100% 57%, 100% 100%, 0 100%, 0 50%, 26% 33%, 56% 56%)
+    #mountain.horizon
+        -webkit-clip-path: polygon(53% 29%, 70% 29%, 86% 29%, 100% 29%, 100% 100%, 0 100%, 0 29%, 18% 29%, 35% 29%)
+        clip-path: polygon(53% 29%, 70% 29%, 86% 29%, 100% 29%, 100% 100%, 0 100%, 0 29%, 18% 29%, 35% 29%)
 
 /* Main page */
 .jumbotron__wrapper

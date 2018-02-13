@@ -11,7 +11,7 @@
                             div#avatar-overlay(@click='$refs.avatar.click()')
                                 v-icon(dark) mdi-cloud-upload
                                 input(type='file' ref='avatar' multiple=false @change='uploadAvatar')
-                            img.avatar-wrapper.elevation-1(v-if='!avatar.length' src='../../assets/nav.png')
+                            img.avatar-wrapper.elevation-1(v-if='!avatar.length' src='../assets/nav.png')
                             img.avatar-wrapper.elevation-1(v-else style='object-fit: cover;' :src='avatar')
                         v-list-tile-content.ml-3
                             v-list-tile-title {{User.name}}
@@ -25,7 +25,12 @@
                     v-list-tile-content
                         v-list-tile-title#course-head
                             span 課程列表
-                v-list-tile(v-for='(item, index) in CourseList' :key='item.id' :to="{ path: '/course/' + item.id }" :ripple='!isMobile')
+                    v-list-tile-action
+                        v-tooltip(right)
+                            v-btn(icon aria-label='table' slot='activator' :to='{ name: "table"}')
+                                v-icon mdi-table-large
+                            span 課表
+                v-list-tile(v-for='(item, index) in CourseList' :key='item.id' :to="{name: 'Course', params: {id: item.id}}" :ripple='!isMobile')
                     v-list-tile-action
                     v-list-tile-content
                         v-list-tile-title.course-list-name
@@ -34,7 +39,7 @@
                             span {{item.professor}}
         v-toolbar#color-nav(dark color='primary' fixed app :class='{"is-scroll": isScroll}')
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
-            router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title.white--text#ecourse-logo.no-select eCourse+
+            router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title#ecourse-logo.no-select eCourse+
             v-spacer
             v-menu
                 v-btn#setting-btn(icon aria-label='setting' slot='activator')
@@ -68,15 +73,15 @@
                         stop(offset='100%' stop-color='#fff' stop-opacity='0')
                 rect.gradient-bg(x='0' y='0' width='100' height='100')
                 rect.gradient-fg(x='0' y='0' width='100' height='100' mask='url(#mask)')
-            div#real-horizon(v-if='setting.weatherTheme')
+            div#mountain(v-if='setting.weatherTheme' :class='{"horizon": $route.path === "/"}')
         v-content(:class='{"mb-5": $route.params.id, "mb-0": !$route.params.id}')
             transition(name='slide' mode='out-in')
-                v-jumbotron.main-card(v-if='!$route.params.id && !flag.courseTable' gradient='to right top, #1867c0, #19e5f4' height='auto' dark)
+                v-jumbotron.main-card(v-if='$route.path === "/"' gradient='to right top, #1867c0, #19e5f4' height='auto' dark)
                     v-container(fill-height align-center :class='{"py-5": !isMobile}')
                         v-layout.text-xs-center(align-center wrap)
                             v-flex.no-select(xs12)
                                 v-avatar.grey.lighten-4(:size='isMobile ? 174 : 194' :class='{"mt-4": isMobile, "mt-5": !isMobile}')
-                                    img(src='../../../static/icon.png' alt='Logo')
+                                    img(src='../../static/icon.png' alt='Logo')
                                     div(:class="{mobile: isMobile}").img-circle
                                 h1.display-3.head-name eCourse+
                                 div.headline.mb-3.mx-3 輕鬆瀏覽公告、作業、教材與成績
@@ -98,13 +103,12 @@
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && isMobile' @click='showpPrompt' large)
                                     v-icon mdi-apps
                                     strong &nbsp;添加到桌面
-                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && !isMobile' @click='flag.courseTable = true' large)
+                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && !isMobile' :to='{ name: "table"}' large)
                                     v-icon mdi-apps
                                     strong &nbsp;查看課表
                                 div Version 1.0.3
                                 div - 新增天色主題
-                course-table.mt-5(v-if='!$route.params.id && flag.courseTable')
-                v-container(fluid v-if='$route.params.id')
+                v-container(fluid v-else)
                     transition(name='slide' mode='out-in')
                         keep-alive
                             router-view(:tab.sync='tag')
@@ -122,7 +126,7 @@
             v-btn(flat dark value='score')
                 span 成績
                 v-icon mdi-chart-line
-        v-footer#footer.hidden-sm-and-down(absolute)
+        v-footer#footer.hidden-sm-and-down(absolute v-if='$route.path === "/"')
             v-spacer
             span © 2018 Developed by Pionxzh
             v-spacer
@@ -183,13 +187,12 @@
 </template>
 
 <script>
-import User from './../User'
-import Course from './../Course'
-import Announce from './../Announce'
-import Homework from './../Homework'
-import Textbook from './../Textbook'
+import User from '../util/User'
+import Course from '../util/Course'
+import Announce from '../util/Announce'
+import Homework from '../util/Homework'
+import Textbook from '../util/Textbook'
 import debounce from 'lodash/debounce'
-// import CourseTable from './CourseTable'
 // import NotifyManager from './../NotifyManager'
 import { mapGetters, mapActions } from 'vuex'
 
@@ -208,7 +211,6 @@ export default {
         // authcodeImg: config.sso.authcode,
         flag: {
             drawer: true,
-            courseTable: false,
             setting: false,
             login: false,
             about: false
@@ -322,11 +324,13 @@ export default {
         if (this.isMobile) this.flag.drawer = false
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
+
         window.addEventListener('beforeinstallprompt', (event) => {
             event.preventDefault()
             this.deferredPrompt = event
             return false
         })
+
         if (navigator.onLine) await this.autoLogin()
         else {
             this.loadLocalData()
