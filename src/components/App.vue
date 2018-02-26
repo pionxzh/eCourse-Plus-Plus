@@ -148,7 +148,7 @@
                         v-icon mdi-chart-line
                     span 成績
         v-dialog(v-model='flag.theme' max-width=450)
-            v-toolbar.cyan.no-select(dark :fixed='isMobile')
+            v-toolbar.cyan.no-select(dark)
                 v-icon mdi-brightness-6
                 v-toolbar-title 主題
                 v-spacer

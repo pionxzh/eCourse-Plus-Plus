@@ -4,7 +4,7 @@
             v-flex(xs12 style='z-index: 3;')
                 div.term(@click='changeTerm(1)') 上學期
                 v-btn(flat icon :loading='loading' @click='fetch')
-                    v-icon(light) mdi-refresh
+                    v-icon#reload-table(light) mdi-refresh
                 div.term(@click='changeTerm(2)') 下學期
 
             v-flex(xs2 sm2 md1)
@@ -87,103 +87,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-    .container {
-        margin-top: 32px!important;
-    }
-    .term, .time-item, .course-item {
-        padding: 5px;
-        margin: 5px;
-        color: #fafafa;
-        transition: .3s;
-        position: relative;
-        border-radius: 3px;
-        user-select: none;
-        -webkit-user-drag: none;
-    }
-    .term, .course-item {
-        background: #607d8b;
-        font-size: 14px;
-    }
-    .term {
-        display: initial;
-        background: #009688;
-    }
-    .time-item {
-        color: #1c1c1c;
-    }
-    .term:hover,
-    .time-item:hover,
-    .course-item:hover {
-        cursor: pointer;
-        background: #587380;
-    }
-    .course-text-wrapper {
-        display: flex;
-        max-height: 100%;
-        overflow: hidden;
-        flex-direction: column;
-        justify-content: center;
-        min-height: 100%;
-    }
-    .course-title {
-        font-size: 17px;
-    }
-    .course-title.small {
-        font-size: 15px;
-    }
-    .course-location {
-        font-weight: 300;
-    }
-    .course-dialog {
-        background: #fafafa;
-        color: #1c1c1c;
-        font-size: 18px;
-        padding: 20px;
-        border-radius: 3px;
-    }
-
-    .weather-theme .icon {
-        color: white;
-    }
-    .weather-theme .container {
-        margin-top: 0px!important;
-    }
-    .weather-theme .term, .weather-theme .course-item {
-        background: rgba(255, 255, 255, .2);
-        font-size: 14px;
-    }
-    .weather-theme .time-item {
-        color: white;
-    }
-    .weather-theme .time-item:hover,
-    .weather-theme .course-item:hover {
-        background: rgba(255, 255, 255, .3);
-    }
-    .weather-theme .course-item.active {
-        background: rgba(255, 255, 255, .4);
-    }
-
-
-    @media screen and (max-width:600px) {
-        .container {
-            margin-top: -32px!important;
-        }
-        .weather-theme .container {
-            margin-top: -48px!important;
-        }
-        .time-item {
-            padding: 6px 0;
-            font-size: 13px;
-        }       
-        .course-item {
-            padding: 4px 0;
-            margin: 5px 2px;
-            font-size: 14px;
-        }
-        .course-title {
-            font-size: 12px!important;
-        }
-    }
-</style>
