@@ -2,10 +2,10 @@
     v-container(align-center)
         v-layout.text-xs-center(wrap ref='layout')
             v-flex(xs12 style='z-index: 3;')
-                div.term(@click='term=1') 上學期
-                v-btn(flat icon @click='fetch')
+                div.term(@click='changeTerm(1)') 上學期
+                v-btn(flat icon :loading='loading' @click='fetch')
                     v-icon(light) mdi-refresh
-                div.term(@click='term=2') 下學期
+                div.term(@click='changeTerm(2)') 下學期
 
             v-flex(xs2 sm2 md1)
                 div.time-item(v-for='(item, index) in hour' :key='item'
@@ -20,7 +20,7 @@
                         @click.stop='showInfo(course)')
                         div.course-text-wrapper
                             span.course-title(:class='{"small": course.name.length > 10}') {{ isMobile ? course.name.slice(0, 10) : course.name }}
-                            span.course-location(v-if='!isMobile && course.name.length < 10') {{ course.time }}
+                            span(v-if='!isMobile && course.name.length < 10') {{ course.time }}
             v-dialog(width='300px' v-model='dialog.flag')
                 div.text-xs-center.course-dialog
                     p(style='font-size: 24px;padding-bottom: 20px;') {{ dialog.name }}
@@ -41,9 +41,9 @@ export default {
         else this.fetch()
     },
     mounted () {
-        /* (innerHeight - 128(nav) - 60 - 12(reload btn)) - total time */
+        /* ( innerHeight - 128(nav) - 60 ) - total time */
         setTimeout(() => { this.height = (window.innerHeight - 188) / 840 }, 300)
-        /* (innerHeight - 128(nav) - 31*18 - 12(reload btn) ) / 15gap */
+        /* ( innerHeight - 128(nav) - 31*18 ) / 15gap */
         this.timeHeight = (window.innerHeight - 686) / 15
     },
     data: () => ({
@@ -53,6 +53,7 @@ export default {
         isMobile: window.innerWidth < 600,
         term: 1,
         selected: null,
+        loading: false,
         week: ['星期一', '星期二', '星期三', '星期四', '星期五'],
         hour: ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'],
         table: null,
@@ -66,9 +67,14 @@ export default {
     }),
     methods: {
         async fetch () {
-            console.log()
+            this.loading = true
             await CourseTable.login()
             this.table = await CourseTable.getData(this.term)
+            this.loading = false
+        },
+        async changeTerm (term) {
+            this.term = term
+            await this.fetch()
         },
         showInfo (course) {
             this.selected = course.id

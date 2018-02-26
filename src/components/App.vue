@@ -64,7 +64,7 @@
                             | &nbsp;登出
         v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show' :multi-line='toast.multi') {{toast.message}}
         div.theme-wrapper
-            svg.bg-mask.sunset(v-if='setting.weatherTheme' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid slice')
+            svg.bg-mask(v-if='setting.weatherTheme' :class='currWeather' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid slice')
                 defs
                     mask#mask(fill='url(#gradient)')
                         rect(x='0' y='0' width='1' height='1')
@@ -134,7 +134,7 @@
             v-btn.hidden-sm-and-down(fixed aria-label='fab' bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
                 v-icon mdi-chevron-up
         v-fab-transition.hidden-sm-and-down
-            v-speed-dial.hidden-sm-and-down(fixed bottom right :open-on-hover='!isMobile' transition='slide-x-transition' v-show='!isScroll' style='z-index: 10;')
+            v-speed-dial.hidden-sm-and-down(fixed bottom right :open-on-hover='!isMobile' transition='slide-x-transition' v-show='$route.params.id && !isScroll' style='z-index: 10;')
                 v-btn(slot='activator' aria-label='close' color='red' dark fab)
                     v-icon mdi-rocket
                 v-tooltip(left)
@@ -142,7 +142,7 @@
                         v-icon mdi-settings
                     span 設定
                 v-tooltip(left)
-                    v-btn(fab dark aria-label='score' color='pink' slot='activator' v-if='$route.params.id' @click='tag = "score"')
+                    v-btn(fab dark aria-label='score' color='pink' slot='activator' @click='tag = "score"')
                         v-icon mdi-chart-line
                     span 成績
         v-dialog(v-model='flag.setting' max-width=450 :fullscreen='isMobile' scroll)
@@ -209,6 +209,8 @@ export default {
         avatar: '',
         // authcode: '',
         // authcodeImg: config.sso.authcode,
+        weather: ['dawn', 'sunrise', 'golden-hour', 'golden-hour-end', 'sunset', 'dusk', 'night'],
+        currWeather: null,
         flag: {
             drawer: true,
             setting: false,
@@ -217,18 +219,18 @@ export default {
             // authcode: false
         },
         setting: {
-            detectUrl: true,
-            detectDate: true,
             showDivider: false,
-            expandFirstFolder: false,
-            isDownloadQuestion: false,
-            isDownloadTextbook: true,
-            showIntro: true,
             weatherTheme: false,
+            enableNotify: false,
+            detectDate: true,
+            detectUrl: true,
+            isDownloadQuestion: false,
+            showIntro: true,
             showTeacherInfo: true,
+            expandFirstFolder: false,
+            isDownloadTextbook: true,
             scoreStyle2: false,
-            rankColorBlock: true,
-            enableNotify: false
+            rankColorBlock: true
         },
         settingData: {
             '外觀': [{
@@ -322,6 +324,7 @@ export default {
     },
     async created () {
         if (this.isMobile) this.flag.drawer = false
+        this.currWeather = this.weather[Math.floor(Math.random() * 100 % 8)]
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
 

@@ -15,10 +15,10 @@ export default new Router({
         name: 'Ecourse',
         component: Ecourse,
         children: [{
-            name: 'Course',
             path: '/course',
             component: CourseMain
         }, {
+            name: 'Course',
             path: '/course/:id',
             component: Course
         }, {
