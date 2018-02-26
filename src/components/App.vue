@@ -46,6 +46,8 @@
                     v-icon mdi-settings
                 v-list
                     v-list-tile.list__tile--link
+                        v-list-tile-title(@click='flag.theme = true') &nbsp;&nbsp;主題
+                    v-list-tile.list__tile--link
                         v-list-tile-title(@click='flag.setting = true') &nbsp;&nbsp;設定
                     v-list-tile.list__tile--link
                         v-list-tile-title(@click='flag.about = true') &nbsp;&nbsp;關於本站
@@ -87,7 +89,7 @@
                                 div.headline.mb-3.mx-3 輕鬆瀏覽公告、作業、教材與成績
                                 div.mb-5
                                     v-tooltip(top)
-                                        v-btn.mx-3(icon large color='white' href='https://google.com' target='_blank' rel='noopener' slot='activator')
+                                        v-btn.mx-3(icon large color='white' href='https://fb.me/EcourseP' target='_blank' rel='noopener' slot='activator')
                                             v-icon(color='primary') mdi-facebook
                                         span Facebook
                                     v-tooltip(top)
@@ -100,10 +102,10 @@
                                         span GitHub
                                 v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='loading' :disabled='loading' @click='flag.login = true' large)
                                     strong 開始使用
-                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && isMobile' @click='showpPrompt' large)
+                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && isMobile && !isApp' @click='showpPrompt' large)
                                     v-icon mdi-apps
-                                    strong &nbsp;添加到桌面
-                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && !isMobile' :to='{ name: "table"}' large)
+                                    strong &nbsp;添加為App
+                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && (!isMobile | isApp)' :to='{ name: "table"}' large)
                                     v-icon mdi-apps
                                     strong &nbsp;查看課表
                                 div Version 1.0.3
@@ -145,6 +147,24 @@
                     v-btn(fab dark aria-label='score' color='pink' slot='activator' @click='tag = "score"')
                         v-icon mdi-chart-line
                     span 成績
+        v-dialog(v-model='flag.theme' max-width=450)
+            v-toolbar.cyan.no-select(dark :fixed='isMobile')
+                v-icon mdi-brightness-6
+                v-toolbar-title 主題
+                v-spacer
+                v-btn.mr-3(icon @click='flag.theme = false'): v-icon mdi-close
+            v-card.dialog-box
+                v-container(fluid grid-list-md)
+                    v-layout(row wrap)
+                        v-flex(xs6)
+                            v-card.theme-card(@click.native='setting.weatherTheme=false')
+                                v-card-media(:src="require('../assets/nav.png')" height='200px')
+                                v-card-text 預設主題
+                        v-flex(xs6)
+                            v-card.theme-card(@click.native='setting.weatherTheme=true')
+                                v-card-media(:src="require('../assets/weather.png')" height='200px')
+                                v-card-text 天色主題
+                
         v-dialog(v-model='flag.setting' max-width=450 :fullscreen='isMobile' scroll)
             v-toolbar.blue.no-select(dark :fixed='isMobile')
                 v-icon mdi-wrench
@@ -161,7 +181,42 @@
                             v-list-tile-title {{ subItem.title }}
                             v-list-tile-sub-title {{ subItem.description }}
                     v-divider
-
+        v-dialog(v-model='flag.about' max-width=450)
+            v-toolbar.red.no-select(dark)
+                v-icon mdi-flash-circle
+                v-toolbar-title 關於
+                v-spacer
+                v-btn.mr-3(icon @click='flag.about = false'): v-icon mdi-close
+            v-list.tile-hover(two-line subheader :class='{"mt-5": isMobile}')
+                v-subheader.no-select 關於
+                v-list-tile(ripple avatar @click='')
+                    v-list-tile-action
+                        v-icon mdi-code-array
+                    v-list-tile-content
+                        v-list-tile-title eCourse+ 
+                        v-list-tile-sub-title v1.0.3
+                v-list-tile(ripple avatar @click='')
+                    v-list-tile-action
+                        v-icon mdi-account-circle
+                    v-list-tile-content
+                        v-list-tile-title 作者
+                        v-list-tile-sub-title @Pionxzh  ← 歡迎找我吃雞 ID一樣
+                v-divider
+                v-subheader.no-select GitHub
+                v-list-tile(ripple avatar href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener')
+                    v-list-tile-action
+                        v-icon mdi-github-circle
+                    v-list-tile-content
+                        v-list-tile-title eCourse-Plus-Plus
+                        v-list-tile-sub-title 歡迎Star, 發PR
+                v-divider
+                v-subheader.no-select 斗內
+                v-list-tile(ripple avatar href='https://paypal.me/pionxzh' target='_blank' rel='noopener')
+                    v-list-tile-action
+                        v-icon mdi-credit-card
+                    v-list-tile-content
+                        v-list-tile-title Paypal
+                        v-list-tile-sub-title 如果你覺得我的作品不錯，歡迎贊助我一杯咖啡:D
         v-dialog(width='300px' v-model='flag.login')
             v-card.dialog-box
                 v-card-title.headline: div.text-xs-center 登入帳號
@@ -173,10 +228,6 @@
                                 v-text-field(label='帳號' required v-model='username')
                             v-flex(xs12)
                                 v-text-field(label='密碼' required type='password' v-model='password' @keyup.enter='login(false)')
-                            //v-flex(xs4 v-if='flag.authcode')
-                                img(:src='authcodeImg' ref='authcode' @click.stop="$refs.authcode.src = authcodeImg + '?rnd=' + Math.random()" style='margin-top: 19px;')
-                            //v-flex(xs8 v-if='flag.authcode')
-                                v-text-field(label='驗證碼' v-model='authcode' required)
                 v-card-actions
                     v-spacer
                     v-btn(color='blue darken-1' aria-label='login' :loading='loading' @click='login(false)' large dark)
@@ -201,22 +252,21 @@ export default {
     data: () => ({
         loading: false,
         isScroll: false,
+        isApp: false,
         isMobile: window.innerWidth < 800,
         deferredPrompt: null,
         tag: 'announce',
         username: '',
         password: '',
         avatar: '',
-        // authcode: '',
-        // authcodeImg: config.sso.authcode,
         weather: ['dawn', 'sunrise', 'golden-hour', 'golden-hour-end', 'sunset', 'dusk', 'night'],
         currWeather: null,
         flag: {
             drawer: true,
+            theme: false,
             setting: false,
             login: false,
             about: false
-            // authcode: false
         },
         setting: {
             showDivider: false,
@@ -237,10 +287,6 @@ export default {
                 field: 'showDivider',
                 title: '顯示格線',
                 description: '在每個項目之間添加分隔線'
-            }, {
-                field: 'weatherTheme',
-                title: '畫風一變',
-                description: '天色半透明主題'
             }],
             '通知': [{
                 field: 'enableNotify',
@@ -324,6 +370,7 @@ export default {
     },
     async created () {
         if (this.isMobile) this.flag.drawer = false
+        this.isApp = this.isWebApp()
         this.currWeather = this.weather[Math.floor(Math.random() * 100 % 8)]
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
@@ -365,6 +412,9 @@ export default {
         }, 100),
         toTop () {
             window.scroll({ top: 0, behavior: 'smooth' })
+        },
+        isWebApp () {
+            return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches
         },
         showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', multi = false, timeout = 1500} = {}) {
             this.toast.show = true
