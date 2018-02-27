@@ -100,7 +100,9 @@ export const mutations = {
         /* prevent autoLogin active */
         localStorage.removeItem('user')
         /* prevent new user use the same data */
+        localStorage.removeItem('notify')
         localStorage.removeItem('annNotify')
+        localStorage.removeItem('hwNotify')
         /* other localStorage item will automatically be overwrite */
     }
 }

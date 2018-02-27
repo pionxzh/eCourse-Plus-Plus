@@ -16,7 +16,7 @@
                         v-subheader(v-show='search.keyword') 搜尋結果
                         template(v-for='(item, index) in AnnounceList.list')
                             v-list-tile(avatar :key='item.id' v-show='item.title.indexOf(search.keyword) > -1'
-                                @click.native='showAnnounce(index)')
+                                @click.native='showAnnounce(index)' :class='{"yellow": focusItem === `1${item.id}`}')
                                 v-list-tile-avatar
                                     v-badge.notify(overlap color='red' v-if='item.timeStamp' v-model='AnnNotify[item.id]')
                                         span(slot='badge')
@@ -39,7 +39,7 @@
                             span 成績
                     v-list.tile-hover.pa-0(two-line subheader)
                         template(v-for='(item, index) in HomeworkList.list')
-                            v-list-tile(ripple avatar :key='index' @click.native='showHomework(index)')
+                            v-list-tile(ripple avatar :key='index' :class='{"yellow": focusItem === `2${item.id}`}' @click.native='showHomework(index)')
                                 template(v-if='item.id')
                                     v-list-tile-avatar
                                         v-badge.notify(overlap color='red' v-if='item.timeStamp' v-model='HwNotify[item.id]')
@@ -227,7 +227,7 @@ import { mapGetters, mapActions } from 'vuex'
 const config = require('../config.json')
 
 export default {
-    props: ['tab'],
+    props: ['tab', 'focusItem'],
     data: () => ({
         tag: 'announce',
         isScroll: false,

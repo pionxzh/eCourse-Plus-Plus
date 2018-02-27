@@ -54,7 +54,7 @@
                             v-divider
                             v-list-tile(ripple avatar :key='index' @click.native='toNotify(index)')
                                 v-list-tile-avatar
-                                    v-avatar.notify-avatar(:class='notifyColor[Math.floor(Math.random()*6)]')
+                                    v-avatar.notify-avatar(:class='notifyColor[index%6]')
                                         span.white--text {{item.course[0].charCodeAt(0) > 122 ? item.course.substring(0, 2) : item.course.substring(0, 4)}}
                                 v-list-tile-content
                                     v-list-tile-title
@@ -133,7 +133,7 @@
                 v-container(fluid v-else)
                     transition(name='slide' mode='out-in')
                         keep-alive
-                            router-view(:tab.sync='tag')
+                            router-view(:tab.sync='tag' :focusItem.sync='focusItem')
 
         v-bottom-nav.hidden-md-and-up(app fixed shift :active.sync='tag' :color='bottomNavColor' v-if='$route.params.id')
             v-btn(flat dark value='announce')
@@ -276,6 +276,7 @@ export default {
         isMobile: window.innerWidth < 800,
         deferredPrompt: null,
         tag: 'announce',
+        focusItem: null,
         username: '',
         password: '',
         avatar: '',
@@ -465,8 +466,11 @@ export default {
             reader.readAsDataURL(file)
         },
         toNotify (index) {
-            this.$router.push({name: 'Course', params: {id: this.Notify[index].id}})
+            this.$router.push({name: 'Course', params: {id: this.Notify[index].courseID}})
+            let fid = `${this.Notify[index].type}${this.Notify[index].id}`
             this.updateNotify(index)
+            this.focusItem = fid
+            setTimeout(() => { this.focusItem = null }, 2000)
         },
         keepAlive () {
             /* Ping server every 5min to avoid session expired (expired time = 6min ?) */

@@ -39,9 +39,10 @@ export default class Announce {
                         notice.push({
                             // 1: 公告
                             type: 1,
-                            id: courseID,
+                            id: key,
                             title: nItem[8],
                             course: item[1],
+                            courseID: courseID,
                             timeStamp: nItem[2]
                         })
                     }
