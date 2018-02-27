@@ -1,5 +1,5 @@
 <template lang="pug">
-    v-container(align-center)
+    v-container#course-table(align-center)
         v-layout.text-xs-center(wrap ref='layout')
             v-flex(xs12 style='z-index: 3;')
                 div.term(@click='changeTerm(1)') 上學期

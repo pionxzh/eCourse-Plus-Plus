@@ -108,8 +108,9 @@
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && (!isMobile | isApp)' :to='{ name: "table"}' large)
                                     v-icon mdi-apps
                                     strong &nbsp;查看課表
-                                div Version 1.0.3
+                                div Version 1.0.4
                                 div - 新增天色主題
+                                div - 修復若干介面錯誤
                 v-container(fluid v-else)
                     transition(name='slide' mode='out-in')
                         keep-alive
@@ -187,7 +188,7 @@
                 v-toolbar-title 關於
                 v-spacer
                 v-btn.mr-3(icon @click='flag.about = false'): v-icon mdi-close
-            v-list.tile-hover(two-line subheader :class='{"mt-5": isMobile}')
+            v-list.tile-hover(two-line subheader)
                 v-subheader.no-select 關於
                 v-list-tile(ripple avatar @click='')
                     v-list-tile-action
