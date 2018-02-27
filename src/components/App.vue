@@ -41,6 +41,28 @@
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
             router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title#ecourse-logo.no-select eCourse+
             v-spacer
+            v-menu(left bottom :max-height='isMobile ? 500:700' offset-y)
+                v-btn#notification-btn(icon aria-label='notify' slot='activator')
+                    v-badge(overlap v-show='Notify.length' :color='setting.weatherTheme ? "red darken-1" : "blue"')
+                        span(slot='badge') {{Notify.length}}
+                        v-icon mdi-bell
+                    v-icon(v-show='!Notify.length') mdi-bell
+                v-card
+                    v-card-title 通知
+                    v-list.tile-hover.pa-0(two-line subheader)
+                        template(v-for='(item, index) in Notify')
+                            v-divider
+                            v-list-tile(ripple avatar :key='index' @click.native='toNotify(index)')
+                                v-list-tile-avatar
+                                    v-avatar.notify-avatar(:class='notifyColor[Math.floor(Math.random()*6)]')
+                                        span.white--text {{item.course[0].charCodeAt(0) > 122 ? item.course.substring(0, 2) : item.course.substring(0, 4)}}
+                                v-list-tile-content
+                                    v-list-tile-title
+                                        b {{ item.course }}
+                                        | 發布了{{ item.type === 1 ? '新公告' : '新作業' }}&nbsp;
+                                        b {{ item.title }}
+                                    v-list-tile-sub-title {{ item.timeStamp }}
+
             v-menu
                 v-btn#setting-btn(icon aria-label='setting' slot='activator')
                     v-icon mdi-settings
@@ -51,8 +73,6 @@
                         v-list-tile-title(@click='flag.setting = true') &nbsp;&nbsp;設定
                     v-list-tile.list__tile--link
                         v-list-tile-title(@click='flag.about = true') &nbsp;&nbsp;關於本站
-                    //v-list-tile.list__tile--link
-                        v-list-tile-title(@click='fetchData') &nbsp;&nbsp;強制刷新&nbsp;&nbsp;
                     v-divider
                     v-list-tile.list__tile--link(v-if='!User.loggedIn')
                         v-list-tile-title(@click='flag.login = true')
@@ -108,9 +128,8 @@
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && (!isMobile | isApp)' :to='{ name: "table"}' large)
                                     v-icon mdi-apps
                                     strong &nbsp;查看課表
-                                div Version 1.0.4
-                                div - 新增天色主題
-                                div - 修復若干介面錯誤
+                                div Version 1.0.5
+                                div - 新增新公告、作業通知系統
                 v-container(fluid v-else)
                     transition(name='slide' mode='out-in')
                         keep-alive
@@ -260,6 +279,7 @@ export default {
         username: '',
         password: '',
         avatar: '',
+        notifyColor: ['red darken-1', 'blue', 'orange', 'cyan', 'purple', 'brown'],
         weather: ['dawn', 'sunrise', 'golden-hour', 'golden-hour-end', 'sunset', 'dusk', 'night'],
         currWeather: null,
         flag: {
@@ -350,6 +370,7 @@ export default {
     computed: {
         ...mapGetters({
             User: 'getUser',
+            Notify: 'getNotify',
             HomeworkData: 'getHomework',
             CourseList: 'getCourseList'
         }),
@@ -405,6 +426,7 @@ export default {
             'updateTextbook',
             'updateSetting',
             'updateHwFile',
+            'updateNotify',
             'loadLocalData',
             'clearData'
         ]),
@@ -441,6 +463,10 @@ export default {
                 localStorage[`avatar${this.User.studentId}`] = reader.result
             }
             reader.readAsDataURL(file)
+        },
+        toNotify (index) {
+            this.$router.push({name: 'Course', params: {id: this.Notify[index].id}})
+            this.updateNotify(index)
         },
         keepAlive () {
             /* Ping server every 5min to avoid session expired (expired time = 6min ?) */

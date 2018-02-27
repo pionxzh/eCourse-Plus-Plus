@@ -40,8 +40,16 @@ export const updateHwFile = ({ commit }, hwFile) => {
     commit(types.HWFILE, hwFile)
 }
 
+export const updateNotify = ({ commit }, index) => {
+    commit(types.NOTIFY, index)
+}
+
 export const updateAnnNotify = ({ commit }, [courseID, key]) => {
     commit(types.ANNOUNCE_NOTIFY, [courseID, key])
+}
+
+export const updateHwNotify = ({ commit }, [courseID, key]) => {
+    commit(types.HOMEWORK_NOTIFY, [courseID, key])
 }
 
 export const loadLocalData = ({ commit }) => {

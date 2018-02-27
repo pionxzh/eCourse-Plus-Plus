@@ -40,6 +40,10 @@ export const getSetting = state => {
     return state.settingData
 }
 
+export const getNotify = state => {
+    return state.notify
+}
+
 export const getAnnNotify = state => {
     return state.announceNotify
 }

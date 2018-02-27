@@ -1,5 +1,6 @@
 // 存放 state 與 mutation 函式
 import Vue from 'vue'
+import orderBy from 'lodash/orderBy'
 import * as types from './mutations_type.js'
 
 // mutations
@@ -17,16 +18,22 @@ export const mutations = {
         state.courseList = courseList
         localStorage.courseList = JSON.stringify(courseList)
     },
-    [types.ANNOUNCE] (state, [template, announceData, announceNotify]) {
+    [types.ANNOUNCE] (state, [template, announceData, announceNotify, notice]) {
+        state.notify = notice
         state.template = template
         state.announceData = announceData
         state.announceNotify = announceNotify
         localStorage.announce = JSON.stringify(announceData)
         localStorage.annNotify = JSON.stringify(announceNotify)
     },
-    async [types.HOMEWORK] (state, homework) {
-        state.homeworkData = homework
-        localStorage.homework = JSON.stringify(state.homeworkData)
+    [types.HOMEWORK] (state, [homeworkData, hwNotify, notice]) {
+        state.homeworkData = homeworkData
+        state.homeworkNotify = hwNotify
+        state.notify = state.notify.concat(notice)
+        state.notify = orderBy(state.notify, ['timeStamp', 'title'], ['desc', 'asc'])
+        localStorage.homework = JSON.stringify(homeworkData)
+        localStorage.hwNotify = JSON.stringify(hwNotify)
+        localStorage.notify = JSON.stringify(state.notify)
     },
     [types.TEXTBOOK] (state, obj) {
         let textbook = obj.textbook
@@ -57,9 +64,17 @@ export const mutations = {
     [types.HWFILE] (state, hwFile) {
         state.homeworkFile = hwFile
     },
+    [types.NOTIFY] (state, index) {
+        state.notify.splice(index, 1)
+        localStorage.notify = JSON.stringify(state.notify)
+    },
     [types.ANNOUNCE_NOTIFY] (state, [courseID, key]) {
         state.announceNotify[courseID][key] = false
         localStorage.annNotify = JSON.stringify(state.announceNotify)
+    },
+    [types.HOMEWORK_NOTIFY] (state, [courseID, key]) {
+        state.homeworkNotify[courseID][key] = false
+        localStorage.hwNotify = JSON.stringify(state.homeworkNotify)
     },
     [types.LOAD] (state) {
         // 有annNotify表示其他人有被記錄
@@ -75,11 +90,13 @@ export const mutations = {
     },
     [types.CLEAR] (state) {
         state.userData.loggedIn = false
+        state.notify = []
         state.courseList = []
         state.announceData = {}
         state.homeworkData = {}
         state.textbookData = {}
         state.announceNotify = {}
+        state.homeworkNotify = {}
         /* prevent autoLogin active */
         localStorage.removeItem('user')
         /* prevent new user use the same data */

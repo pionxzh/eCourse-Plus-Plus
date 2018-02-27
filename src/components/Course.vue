@@ -42,7 +42,9 @@
                             v-list-tile(ripple avatar :key='index' @click.native='showHomework(index)')
                                 template(v-if='item.id')
                                     v-list-tile-avatar
-                                        v-icon(medium) mdi-clipboard-text
+                                        v-badge.notify(overlap color='red' v-if='item.timeStamp' v-model='HwNotify[item.id]')
+                                            span(slot='badge')
+                                            v-icon(medium) mdi-clipboard-text
                                     v-list-tile-content
                                         v-list-tile-title {{ item.title }}
                                         v-list-tile-sub-title {{ item.timeStamp }} / {{ item.percentage }}%
@@ -297,7 +299,8 @@ export default {
             Roll: 'getRoll',
             Setting: 'getSetting',
             HomeworkFile: 'getHomeworkFile',
-            AnnouceNotify: 'getAnnNotify'
+            AnnouceNotify: 'getAnnNotify',
+            HomeworkNotify: 'getHwNotify'
         }),
         courseID () {
             return this.$route.params.id
@@ -325,6 +328,9 @@ export default {
         },
         AnnNotify () {
             return this.AnnouceNotify[this.$route.params.id] || {}
+        },
+        HwNotify () {
+            return this.HomeworkNotify[this.$route.params.id] || {}
         }
     },
     watch: {
@@ -364,7 +370,8 @@ export default {
         ...mapActions([
             'updateScore',
             'updateRoll',
-            'updateAnnNotify'
+            'updateAnnNotify',
+            'updateHwNotify'
         ]),
         toggleSearch () {
             if (this.search.flag) {
@@ -385,9 +392,10 @@ export default {
             this.uploadHW.toastColor = color
             this.uploadHW.message = message
         },
-        showAnnounce (key) {
-            if (!this.AnnounceList.list[key].content) return
-            let content = this.AnnounceList.list[key].content.replace(/\r\n/g, '<br>')
+        showAnnounce (index) {
+            let key = this.AnnounceList.list[index].id
+            if (!this.AnnounceList.list[index].content) return
+            let content = this.AnnounceList.list[index].content.replace(/\r\n/g, '<br>')
             this.announce.text = content
 
             if (this.Setting.detectUrl) {
@@ -400,18 +408,22 @@ export default {
                 content = content.replace(dateDetect, '<u class="date-padding">$1</u>$3')
             }
 
-            if (this.AnnNotify[this.AnnounceList.list[key].id]) {
-                this.updateAnnNotify([this.courseID, this.AnnounceList.list[key].id])
-            }
-            this.announce.title = this.AnnounceList.list[key].title
+            this.announce.title = this.AnnounceList.list[index].title
             this.announce.content = content
             this.announce.flag = true
+            if (this.AnnNotify[key]) {
+                this.updateAnnNotify([this.courseID, key])
+            }
         },
         showHomework (index) {
-            this.homework.id = this.HomeworkList.list[index].id
+            let key = this.HomeworkList.list[index].id
+            this.homework.id = key
             this.homework.title = this.HomeworkList.list[index].title
             this.homework.content = this.HomeworkList.list[index].content
             this.homework.flag = true
+            if (this.HwNotify[this.HomeworkList.list[index].id]) {
+                this.updateHwNotify([this.courseID, key])
+            }
         },
         copyAnnounce () {
             if (!Util.copyToClipboard(this.announce.text)) return

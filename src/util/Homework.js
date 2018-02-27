@@ -22,11 +22,30 @@ export default class Homework {
     }
 
     static parseData (homework) {
+        let notice = []
+        let now = new Date()
+        let hwNotify = localStorage.hwNotify ? JSON.parse(localStorage.hwNotify) : {}
         let homeworkData = homework.reduce((result, item) => {
             let courseID = item[0]
+            if (!hwNotify[courseID]) hwNotify[courseID] = {}
             result[courseID] = {}
             result[courseID].name = item[1]
             result[courseID].list = item[2] === null ? [{title: '暫無作業'}] : item[2].reduce((temp, nItem) => {
+                let key = nItem[1]
+                if (hwNotify[courseID][key] === undefined) {
+                    let isNew = Math.abs(now - new Date(nItem[3])) < 8.64e7 * 5
+                    hwNotify[courseID][key] = isNew
+                    if (isNew) {
+                        notice.push({
+                            // 2: 作業
+                            type: 2,
+                            id: courseID,
+                            title: nItem[0],
+                            course: item[1],
+                            timeStamp: nItem[3]
+                        })
+                    }
+                }
                 temp.push({
                     id: nItem[1],
                     title: nItem[0],
@@ -38,7 +57,7 @@ export default class Homework {
             }, [])
             return result
         }, {})
-        return homeworkData
+        return [homeworkData, hwNotify, notice]
     }
 
     static async getAllQuestion (homeworkData) {
@@ -90,7 +109,6 @@ export default class Homework {
             answer.data.pop()
             for (let item of answer.data) {
                 result.push({
-                    // id: Math.random() * 1000,
                     name: item[0],
                     size: Util.getSize(item[1]),
                     timeStamp: item[2]

@@ -26,8 +26,9 @@ export default new Vuex.Store({
         rollData: {},
         settingData: {},
         homeworkFile: {},
-
-        announceNotify: {}
+        notify: [],
+        announceNotify: {},
+        homeworkNotify: {}
     },
     mutations,
     getters,

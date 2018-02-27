@@ -20,6 +20,7 @@ export default class Announce {
 
     static parseData (announce) {
         let now = new Date()
+        let notice = localStorage.notify ? JSON.parse(localStorage.notify) : []
         let announceNotify = localStorage.annNotify ? JSON.parse(localStorage.annNotify) : {}
         let template = announce.map(item => item[0], [])
         let announceData = announce.reduce((result, item) => {
@@ -30,10 +31,20 @@ export default class Announce {
             result[courseID].name = item[1]
             result[courseID].list = !item[2].length ? [{title: '暫無公告'}] : item[2].reduce((temp, nItem) => {
                 let key = nItem[0]
-                /* Decide isNew by is time's difference less than 7 days */
-                // change to 14 days for testing, remember to change it back
+                /* time difference less than 5 days => New */
                 if (announceNotify[courseID][key] === undefined) {
-                    announceNotify[courseID][key] = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 14
+                    let isNew = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 5
+                    announceNotify[courseID][key] = isNew
+                    if (isNew) {
+                        notice.push({
+                            // 1: 公告
+                            type: 1,
+                            id: courseID,
+                            title: nItem[8],
+                            course: item[1],
+                            timeStamp: nItem[2]
+                        })
+                    }
                 }
                 temp.push({
                     id: key,
@@ -45,6 +56,6 @@ export default class Announce {
             }, [])
             return result
         }, {})
-        return [template, announceData, announceNotify]
+        return [template, announceData, announceNotify, notice]
     }
 }
