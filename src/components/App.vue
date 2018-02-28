@@ -41,7 +41,7 @@
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
             router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title#ecourse-logo.no-select eCourse+
             v-spacer
-            v-menu(left bottom :max-height='isMobile ? 500:700' offset-y)
+            v-menu(left bottom min-width=200 :max-height='isMobile ? 500:700' offset-y)
                 v-btn#notification-btn(icon aria-label='notify' slot='activator')
                     v-badge(overlap v-show='Notify.length' :color='setting.weatherTheme ? "red darken-1" : "blue"')
                         span(slot='badge') {{Notify.length}}
@@ -49,6 +49,8 @@
                     v-icon(v-show='!Notify.length') mdi-bell
                 v-card
                     v-card-title 通知
+                        v-spacer
+                        a(@click='updateNotify(null)') 清除全部
                     v-list.tile-hover.pa-0(two-line subheader)
                         template(v-for='(item, index) in Notify')
                             v-divider

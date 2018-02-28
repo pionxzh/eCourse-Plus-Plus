@@ -33,7 +33,7 @@ export default class Homework {
             result[courseID].list = item[2] === null ? [{title: '暫無作業'}] : item[2].reduce((temp, nItem) => {
                 let key = nItem[1]
                 if (hwNotify[courseID][key] === undefined) {
-                    let isNew = Math.abs(now - new Date(nItem[3])) < 8.64e7 * 365
+                    let isNew = Math.abs(now - new Date(nItem[3])) < 8.64e7 * 7
                     hwNotify[courseID][key] = isNew
                     if (isNew) {
                         notice.push({

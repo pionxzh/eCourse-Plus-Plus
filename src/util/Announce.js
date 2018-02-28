@@ -33,7 +33,7 @@ export default class Announce {
                 let key = nItem[0]
                 /* time difference less than 5 days => New */
                 if (announceNotify[courseID][key] === undefined) {
-                    let isNew = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 5
+                    let isNew = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 7
                     announceNotify[courseID][key] = isNew
                     if (isNew) {
                         notice.push({

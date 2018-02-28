@@ -65,7 +65,11 @@ export const mutations = {
         state.homeworkFile = hwFile
     },
     [types.NOTIFY] (state, index) {
-        state.notify.splice(index, 1)
+        if (index === null) {
+            state.notify = []
+        } else {
+            state.notify.splice(index, 1)
+        }
         localStorage.notify = JSON.stringify(state.notify)
     },
     [types.ANNOUNCE_NOTIFY] (state, [courseID, key]) {
