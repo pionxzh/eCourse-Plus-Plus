@@ -6,7 +6,7 @@ let Decoder = new TextDecoder('big5')
 
 export default class Score {
     static async getScore () {
-        let score = await axios.get(config.ecourse.COURSE_SCORE, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e))
+        let score = await axios.get(config.ecourse.COURSE_SCORE, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e, 'Get Score Error'))
         let parser = new DOMParser()
         let dom = parser.parseFromString(Decoder.decode(score.data), 'text/html')
         let scoreNode = dom.querySelectorAll('tr[bgcolor="#4d6eb2"], tr[bgcolor="#E6FFFC"], tr[bgcolor="#F0FFEE"], tr[bgcolor="#B0BFC3"]')
@@ -43,7 +43,7 @@ export default class Score {
     }
 
     static async getRoll () {
-        let roll = await axios.get(config.ecourse.ROLL, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e))
+        let roll = await axios.get(config.ecourse.ROLL, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e, 'Get Roll Error'))
         let rollData = Decoder.decode(roll.data)
         let reg = /<TD\scolspan="2">([0-9/出缺席]*?)<\/TD>\s*?<TD\scolspan="2">([0-9/出缺席]*?)<\/TD>/g
         let result = []

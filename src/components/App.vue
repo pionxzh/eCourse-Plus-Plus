@@ -310,6 +310,8 @@ export default {
         deferredPrompt: null,
         isMobile: window.innerWidth < 800,
         tag: 'announce',
+        errTitle: '',
+        errMsg: '',
         username: '',
         password: '',
         avatar: '',
@@ -426,6 +428,7 @@ export default {
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
 
+        window.addEventListener('err', this.onError)
         window.addEventListener('beforeinstallprompt', (event) => {
             event.preventDefault()
             this.deferredPrompt = event
@@ -503,6 +506,12 @@ export default {
             if (!confirm('確定清除所有資料?')) return
             localStorage.clear()
             location.reload()
+        },
+        onError (e) {
+            console.log(e)
+            this.errTitle = e.detail.title
+            this.errMsg = e.detail.message
+            this.flag.error = true
         },
         keepAlive () {
             /* Ping server every 5min to avoid session expired (expired time = 6min ?) */

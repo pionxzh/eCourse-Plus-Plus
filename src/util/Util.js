@@ -1,6 +1,8 @@
 export default class Util {
     static errHandler (e, msg = '') {
         console.error(`${msg || ''}\n${e}`)
+        let event = new CustomEvent('err', {detail: {title: msg, message: e.message}})
+        window.dispatchEvent(event)
     }
 
     static getSize (bytes, decimals = 2) {
