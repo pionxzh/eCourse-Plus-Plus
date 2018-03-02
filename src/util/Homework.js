@@ -62,6 +62,7 @@ export default class Homework {
     }
 
     static async getAllQuestion (homeworkData) {
+        let now = Date.now()
         let today = Util.getToday()
         this.homeworkFile = {}
         let queuePromise = []
@@ -73,9 +74,9 @@ export default class Homework {
                 if (!item.id) continue
                 let cid = item.id
                 /* 24小時檢查一次 過期的作業不予理會 減少request */
-                let isSkip = !!oldHwFile[key] && !!oldHwFile[key][cid] && today > item.timeStamp && Date.now() < oldHwFile[key][cid].timeStamp + 36e5 * 24
+                let isSkip = !!oldHwFile[key] && !!oldHwFile[key][cid] && (today > item.timeStamp || now < oldHwFile[key][cid].timeStamp + 8.64e7)
                 if (isSkip) this.homeworkFile[key][cid] = oldHwFile[key][cid]
-                else queuePromise.push(this.getQuestion(key, cid))
+                else queuePromise.push(this.getQuestion(key, cid, now))
             }
         }
         /* using Promise.all for parallel request */
@@ -86,13 +87,13 @@ export default class Homework {
         return {stat: true, data: this.homeworkFile}
     }
 
-    static async getQuestion (courseID, workID) {
+    static async getQuestion (courseID, workID, now) {
         let question = await axios.get(config.ecourse.UNDER_DIR_FILE, {params: {
             action: 'Question',
             courseid: courseID,
             workid: workID
         }}).catch(e => Util.errHandler(e, 'Get Question Error!'))
-        let result = { type: null, timeStamp: Date.now() }
+        let result = { type: null, timeStamp: now }
         if (question.data.size) {
             result.type = question.data.type.slice(1)
         }
@@ -117,9 +118,11 @@ export default class Homework {
             }
             return result
         } else {
+            if (!answer.data.work) return []
             return [{
                 id: Math.random() * 1000,
                 name: 'homework.html',
+                fName: '文字答案',
                 size: '',
                 timeStamp: answer.data.mtime
             }]

@@ -55,7 +55,3 @@ export const updateHwNotify = ({ commit }, [courseID, key]) => {
 export const loadLocalData = ({ commit }) => {
     commit(types.LOAD)
 }
-
-export const clearData = ({ commit }) => {
-    commit(types.CLEAR)
-}

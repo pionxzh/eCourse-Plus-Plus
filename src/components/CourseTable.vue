@@ -51,7 +51,7 @@ export default {
         height: 0.5,
         timeHeight: 10,
         isMobile: window.innerWidth < 600,
-        term: 1,
+        term: 2,
         selected: null,
         loading: false,
         week: ['星期一', '星期二', '星期三', '星期四', '星期五'],
@@ -69,7 +69,9 @@ export default {
         async fetch () {
             this.loading = true
             await CourseTable.login()
-            this.table = await CourseTable.getData(this.term)
+            let result = await CourseTable.getData(this.term)
+            if (result) this.table = result
+            else alert('更新失敗!選課系統維護中')
             this.loading = false
         },
         async changeTerm (term) {

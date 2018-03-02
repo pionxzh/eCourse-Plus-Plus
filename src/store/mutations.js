@@ -91,22 +91,7 @@ export const mutations = {
         if (localStorage.score) state.scoreData = JSON.parse(localStorage.score)
         if (localStorage.roll) state.rollData = JSON.parse(localStorage.roll)
         state.announceNotify = JSON.parse(localStorage.annNotify)
-    },
-    [types.CLEAR] (state) {
-        state.userData.loggedIn = false
-        state.notify = []
-        state.courseList = []
-        state.announceData = {}
-        state.homeworkData = {}
-        state.textbookData = {}
-        state.announceNotify = {}
-        state.homeworkNotify = {}
-        /* prevent autoLogin active */
-        localStorage.removeItem('user')
-        /* prevent new user use the same data */
-        localStorage.removeItem('notify')
-        localStorage.removeItem('annNotify')
-        localStorage.removeItem('hwNotify')
-        /* other localStorage item will automatically be overwrite */
+        if (localStorage.hwNotify) state.homeworkNotify = JSON.parse(localStorage.hwNotify)
+        if (localStorage.notify) state.notify = JSON.parse(localStorage.notify)
     }
 }

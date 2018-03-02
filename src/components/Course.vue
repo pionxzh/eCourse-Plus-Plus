@@ -84,7 +84,7 @@
                                 v-list-tile-title 教師資訊
                         v-divider(v-if='Setting.showDivider')
                         template(v-for='(item, index) in TextbookList.list')
-                            v-list-group.hot-fix-for-list(:key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index][0]')
+                            v-list-group(:key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index][0]')
                                 v-list-tile(slot='activator' ripple)
                                     v-list-tile-content 
                                         v-list-tile-title {{ item[0] }}
@@ -183,7 +183,7 @@
                                         :append-icon-cb='() => removeAnswer(index, file.name)'
                                         :color='file.success ? "green" : "gray"'
                                         :class='{"input-group--focused" : file.success}'
-                                        loading readonly v-model='file.name' :label='file.size'
+                                        loading readonly v-model='file.fName || file.name' :label='file.size'
                                         @click.native='downloadAns(file.name)')
                                         v-progress-linear(v-if='file.loading' slot='progress'
                                         :indeterminate='true'
@@ -393,6 +393,7 @@ export default {
             this.uploadHW.message = message
         },
         showAnnounce (index) {
+            this.$emit('error')
             let key = this.AnnounceList.list[index].id
             if (!this.AnnounceList.list[index].content) return
             let content = this.AnnounceList.list[index].content.replace(/\r\n/g, '<br>')
@@ -471,9 +472,9 @@ export default {
             this.uploadHW.list = await Homework.getAnswer(this.courseID, workID)
         },
         async uploadText () {
-            await Homework.uploadText(this.uploadHW.content, this.uploadHW.workID)
+            let stat = await Homework.uploadText(this.uploadHW.content, this.uploadHW.workID)
             this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
-            this.showUploadToast('上傳成功', 'success')
+            stat ? this.showUploadToast('上傳成功', 'success') : this.showUploadToast('上傳失敗，請注意上傳日期限制', 'error')
         },
         async uploadFile (e, multiple) {
             const files = e.target.files || e.dataTransfer.files
@@ -500,7 +501,7 @@ export default {
                 for (let key of fileKeys) {
                     this.uploadHW.list[key] = null
                 }
-                return this.showUploadToast('上傳失敗! 請檢查網路狀態或避免上傳大檔案', 'error')
+                return this.showUploadToast('上傳失敗! 請檢查網路狀態或注意上傳日期限制', 'error')
             }
         },
         async removeAnswer (index, fileName) {

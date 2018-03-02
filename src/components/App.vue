@@ -41,13 +41,14 @@
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
             router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title#ecourse-logo.no-select eCourse+
             v-spacer
-            v-menu(left bottom min-width=200 :max-height='isMobile ? 500:700' offset-y)
+            v-menu#notify-menu(left allow-overflow nudge-top='-10' min-width=200 :max-height='isMobile ? 500:700' offset-y)
                 v-btn#notification-btn(icon aria-label='notify' slot='activator')
                     v-badge(overlap v-show='Notify.length' :color='setting.weatherTheme ? "red darken-1" : "blue"')
                         span(slot='badge') {{Notify.length}}
                         v-icon mdi-bell
                     v-icon(v-show='!Notify.length') mdi-bell
-                v-card
+                //div(style='width: 0;height: 0;border-style: solid;border-width: 0 10px 10px 10px;border-color: transparent transparent #FFF transparent;margin-left: calc(100% - 20px);')
+                v-card#notify-card.elevation-8
                     v-card-title 通知
                         v-spacer
                         a(@click='updateNotify(null)') 清除全部
@@ -203,6 +204,13 @@
                             v-list-tile-title {{ subItem.title }}
                             v-list-tile-sub-title {{ subItem.description }}
                     v-divider
+                v-subheader.no-select 其他
+                v-list-tile(ripple avatar @click='clearAll')
+                    v-list-tile-action
+                        v-icon mdi-delete
+                    v-list-tile-content
+                        v-list-tile-title 清除資料
+                        v-list-tile-sub-title 如發生異常，通常清除資料可以解決一切
         v-dialog(v-model='flag.about' max-width=450)
             v-toolbar.red.no-select(dark)
                 v-icon mdi-flash-circle
@@ -221,8 +229,14 @@
                     v-list-tile-action
                         v-icon mdi-account-circle
                     v-list-tile-content
-                        v-list-tile-title 作者
-                        v-list-tile-sub-title @Pionxzh  ← 歡迎找我吃雞 ID一樣
+                        v-list-tile-title @Pionxzh
+                        v-list-tile-sub-title 歡迎找我吃雞 ID一樣
+                v-list-tile(ripple avatar @click='')
+                    v-list-tile-action
+                        v-icon mdi-email
+                    v-list-tile-content
+                        v-list-tile-title 聯絡信箱 / 問題回報
+                        v-list-tile-sub-title pionxzh@csie.io
                 v-divider
                 v-subheader.no-select GitHub
                 v-list-tile(ripple avatar href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener')
@@ -256,6 +270,23 @@
                         v-icon mdi-flash
                         | 登入
                     v-spacer
+        v-dialog(width='500px' v-model='flag.error')
+            v-card.dialog-box
+                v-card-title.headline 哎呀! 發生錯誤了 _(´ཀ`」 ∠)_ 
+                v-card-text
+                    p 錯誤類型: 
+                        b {{ errTitle }}
+                    p 錯誤訊息:
+                        b {{ errMsg }}
+                    p.mt-5 1. 若問題重複出現，可嘗試在右上角&nbsp;
+                        b 設定&nbsp;
+                        | 底部選擇&nbsp;
+                        b 清除資料
+                    p 2. 若問題仍無改善，歡迎回報至&nbsp;
+                        b: u pionxzh@csie.io
+                        | ，信件標題請以
+                        b 【問題回報】
+                        | 為開頭，包含螢幕截圖(錯誤訊息)、錯誤所需重作步驟。
 
 </template>
 
@@ -272,13 +303,13 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
     name: 'Ecourse',
     data: () => ({
+        isApp: false,
         loading: false,
         isScroll: false,
-        isApp: false,
-        isMobile: window.innerWidth < 800,
-        deferredPrompt: null,
-        tag: 'announce',
         focusItem: null,
+        deferredPrompt: null,
+        isMobile: window.innerWidth < 800,
+        tag: 'announce',
         username: '',
         password: '',
         avatar: '',
@@ -287,6 +318,7 @@ export default {
         currWeather: null,
         flag: {
             drawer: true,
+            error: false,
             theme: false,
             setting: false,
             login: false,
@@ -295,7 +327,6 @@ export default {
         setting: {
             showDivider: false,
             weatherTheme: false,
-            enableNotify: false,
             detectDate: true,
             detectUrl: true,
             isDownloadQuestion: false,
@@ -311,11 +342,6 @@ export default {
                 field: 'showDivider',
                 title: '顯示格線',
                 description: '在每個項目之間添加分隔線'
-            }],
-            '通知': [{
-                field: 'enableNotify',
-                title: '啟用通知功能',
-                description: '自動檢查新公告、新作業，顯示在右上小鈴鐺'
             }],
             '公告': [{
                 field: 'detectDate',
@@ -350,7 +376,7 @@ export default {
             }],
             '成績': [{
                 field: 'scoreStyle2',
-                title: '切換成績風格',
+                title: '切換成績顯示風格',
                 description: '變一塊一塊，適合手機端'
             }, {
                 field: 'rankColorBlock',
@@ -430,8 +456,7 @@ export default {
             'updateSetting',
             'updateHwFile',
             'updateNotify',
-            'loadLocalData',
-            'clearData'
+            'loadLocalData'
         ]),
         onScroll: debounce(function () {
             this.isScroll = window.scrollY > 100
@@ -474,6 +499,11 @@ export default {
             this.focusItem = fid
             setTimeout(() => { this.focusItem = null }, 2000)
         },
+        clearAll () {
+            if (!confirm('確定清除所有資料?')) return
+            localStorage.clear()
+            location.reload()
+        },
         keepAlive () {
             /* Ping server every 5min to avoid session expired (expired time = 6min ?) */
             setInterval(() => User.ping(), 1000 * 60 * 5)
@@ -509,10 +539,17 @@ export default {
         },
         async logout () {
             await User.logout()
-            this.clearData()
+            /* prevent autoLogin active */
+            localStorage.removeItem('user')
+            /* prevent new user use the same data */
+            localStorage.removeItem('notify')
+            localStorage.removeItem('annNotify')
+            localStorage.removeItem('hwNotify')
+            /* other localStorage item will be automatically overwrite */
             this.flag.drawer = false
             this.$router.push({path: '/'})
             this.showToast({message: '登出成功', color: 'success'})
+            setTimeout(() => { location.href = '/' }, 1000)
         },
         async fetchData () {
             this.loading = true
