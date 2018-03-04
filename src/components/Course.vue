@@ -174,7 +174,7 @@
                         v-icon(medium) mdi-close
                 v-layout(row wrap)
                     v-container(fluid)
-                        v-subheader(style='color: rgba(0,0,0,0.54)') 已交作業
+                        v-subheader(style='color: rgba(0,0,0,0.54)' v-if='uploadHW.list.length') 已交作業
                         v-layout(row wrap)
                             v-flex.upload-wrapper(xs12 sm6 v-for='(file, index) in uploadHW.list' :key='index' v-if='file')
                                 div.white.upload-item.elevation-2
@@ -393,7 +393,6 @@ export default {
             this.uploadHW.message = message
         },
         showAnnounce (index) {
-            this.$emit('error')
             let key = this.AnnounceList.list[index].id
             if (!this.AnnounceList.list[index].content) return
             let content = this.AnnounceList.list[index].content.replace(/\r\n/g, '<br>')
@@ -418,6 +417,7 @@ export default {
         },
         showHomework (index) {
             let key = this.HomeworkList.list[index].id
+            if (!this.HomeworkList.list[index].content) return
             this.homework.id = key
             this.homework.title = this.HomeworkList.list[index].title
             this.homework.content = this.HomeworkList.list[index].content

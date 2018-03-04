@@ -27,7 +27,7 @@
                             span 課程列表
                     v-list-tile-action
                         v-tooltip(right)
-                            v-btn(icon aria-label='table' slot='activator' :to='{ name: "table"}')
+                            v-btn(icon color='green lighten-3' aria-label='table' slot='activator' :to='{ name: "table"}')
                                 v-icon mdi-table-large
                             span 課表
                 v-list-tile(v-for='(item, index) in CourseList' :key='item.id' :to="{name: 'Course', params: {id: item.id}}" :ripple='!isMobile')
@@ -41,52 +41,68 @@
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
             router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title#ecourse-logo.no-select eCourse+
             v-spacer
-            v-menu#notify-menu(left allow-overflow nudge-top='-10' min-width=200 :max-height='isMobile ? 500:700' offset-y)
+            v-menu#notify-menu(left offset-y nudge-top='-10' min-width=200 :max-height='isMobile ? 500:700')
                 v-btn#notification-btn(icon aria-label='notify' slot='activator')
                     v-badge(overlap v-show='Notify.length' :color='setting.weatherTheme ? "red darken-1" : "blue"')
                         span(slot='badge') {{Notify.length}}
                         v-icon mdi-bell
                     v-icon(v-show='!Notify.length') mdi-bell
-                //div(style='width: 0;height: 0;border-style: solid;border-width: 0 10px 10px 10px;border-color: transparent transparent #FFF transparent;margin-left: calc(100% - 20px);')
                 v-card#notify-card.elevation-8
                     v-card-title 通知
                         v-spacer
-                        a(@click='updateNotify(null)') 清除全部
+                        a(v-show='Notify.length>0' @click='updateNotify(null)') 清除全部
                     v-list.tile-hover.pa-0(two-line subheader)
-                        template(v-for='(item, index) in Notify')
+                        transition-group(name='slide' tag='div')
+                            template(v-for='(item, index) in Notify')
+                                v-divider(:key='item.course+item.title')
+                                v-list-tile(ripple avatar :key='item.courseID+item.title' @click.native='toNotify(index)')
+                                    v-list-tile-avatar
+                                        v-avatar.notify-avatar(:class='notifyColor[index%6]')
+                                            span.white--text {{item.course[0].charCodeAt(0) > 122 ? item.course.substring(0, 2) : item.course.substring(0, 4)}}
+                                    v-list-tile-content
+                                        v-list-tile-title
+                                            b {{ item.course }}
+                                            | 發布了{{ item.type === 1 ? '新公告' : '新作業' }}&nbsp;
+                                            b {{ item.title }}
+                                        v-list-tile-sub-title
+                                            v-icon {{ item.type === 1 ? 'mdi-bullhorn' : 'mdi-clipboard-text' }}
+                                            | &nbsp;{{ item.timeStamp }}
+                                    v-list-tile-action
+                                        v-btn(small icon @click.stop='updateNotify(index)'): v-icon(small) mdi-close
+                        template(v-if='Notify.length===0')
                             v-divider
-                            v-list-tile(ripple avatar :key='index' @click.native='toNotify(index)')
+                            v-list-tile(ripple avatar)
                                 v-list-tile-avatar
-                                    v-avatar.notify-avatar(:class='notifyColor[index%6]')
-                                        span.white--text {{item.course[0].charCodeAt(0) > 122 ? item.course.substring(0, 2) : item.course.substring(0, 4)}}
+                                    v-avatar.notify-avatar.red
+                                        span.white--text No~
                                 v-list-tile-content
-                                    v-list-tile-title
-                                        b {{ item.course }}
-                                        | 發布了{{ item.type === 1 ? '新公告' : '新作業' }}&nbsp;
-                                        b {{ item.title }}
-                                    v-list-tile-sub-title {{ item.timeStamp }}
+                                    v-list-tile-title 目前沒有通知 ┐( ´ д ` )┌
 
-            v-menu
+            v-menu(left offset-y nudge-top='-10')
                 v-btn#setting-btn(icon aria-label='setting' slot='activator')
                     v-icon mdi-settings
                 v-list
-                    v-list-tile.list__tile--link
-                        v-list-tile-title(@click='flag.theme = true') &nbsp;&nbsp;主題
-                    v-list-tile.list__tile--link
-                        v-list-tile-title(@click='flag.setting = true') &nbsp;&nbsp;設定
-                    v-list-tile.list__tile--link
-                        v-list-tile-title(@click='flag.about = true') &nbsp;&nbsp;關於本站
+                    v-list-tile.list__tile--link(@click='flag.setting = true')
+                        v-list-tile-title
+                            v-icon(style='vertical-align: bottom;') mdi-settings
+                            | &nbsp;&nbsp;設定
+                    v-list-tile.list__tile--link(@click='flag.theme = true')
+                        v-list-tile-title
+                            v-icon(style='vertical-align: bottom;') mdi-brightness-6
+                            | &nbsp;&nbsp;主題
+                    v-list-tile.list__tile--link(@click='flag.about = true')
+                        v-list-tile-title
+                            v-icon(style='vertical-align: bottom;') mdi-flash-circle
+                            | &nbsp;&nbsp;關於本站
                     v-divider
-                    v-list-tile.list__tile--link(v-if='!User.loggedIn')
-                        v-list-tile-title(@click='flag.login = true')
-                            | &nbsp;
-                            v-icon mdi-logout-variant
-                            | &nbsp;登入
-                    v-list-tile.list__tile--link(v-if='User.loggedIn')
-                        v-list-tile-title(@click='logout')
-                            | &nbsp;
-                            v-icon mdi-logout-variant
-                            | &nbsp;登出
+                    v-list-tile.list__tile--link(v-if='!User.loggedIn' @click='flag.login = true')
+                        v-list-tile-title
+                            v-icon(style='vertical-align: bottom;') mdi-logout-variant
+                            | &nbsp;&nbsp;登入
+                    v-list-tile.list__tile--link(v-if='User.loggedIn' @click='logout')
+                        v-list-tile-title
+                            v-icon(style='vertical-align: bottom;') mdi-logout-variant
+                            | &nbsp;&nbsp;登出
         v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show' :multi-line='toast.multi') {{toast.message}}
         div.theme-wrapper
             svg.bg-mask(v-if='setting.weatherTheme' :class='currWeather' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid slice')
@@ -96,8 +112,8 @@
                     linearGradient#gradient(x1='0' y1='0' x2='100%' y2='0' spreadMethod='pad' gradientTransform='rotate(45)')
                         stop(offset='0%' stop-color='#fff' stop-opacity='1')
                         stop(offset='100%' stop-color='#fff' stop-opacity='0')
-                rect.gradient-bg(x='0' y='0' width='100' height='100')
-                rect.gradient-fg(x='0' y='0' width='100' height='100' mask='url(#mask)')
+                rect.gradient-bg(x='0' y='0' width='50' height='50')
+                rect.gradient-fg(x='0' y='0' width='50' height='50' mask='url(#mask)')
             div#mountain(v-if='setting.weatherTheme' :class='{"horizon": $route.path === "/"}')
         v-content(:class='{"mb-5": $route.params.id, "mb-0": !$route.params.id}')
             transition(name='slide' mode='out-in')
@@ -131,45 +147,30 @@
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && (!isMobile | isApp)' :to='{ name: "table"}' large)
                                     v-icon mdi-apps
                                     strong &nbsp;查看課表
-                                div Version 1.0.5
-                                div - 新增新公告、作業通知系統
+                                div Version 1.0.6
+                                div - 完善通知系統
+                                div - 修復多個BUG
                 v-container(fluid v-else)
                     transition(name='slide' mode='out-in')
                         keep-alive
                             router-view(:tab.sync='tag' :focusItem.sync='focusItem')
 
         v-bottom-nav.hidden-md-and-up(app fixed shift :active.sync='tag' :color='bottomNavColor' v-if='$route.params.id')
-            v-btn(flat dark value='announce')
+            v-btn(dark value='announce')
                 span 公告
                 v-icon mdi-calendar-text
-            v-btn(flat dark value='homework')
+            v-btn(dark value='homework')
                 span 作業
                 v-icon mdi-clipboard-text
-            v-btn(flat dark value='textbook')
+            v-btn(dark value='textbook')
                 span 教材
                 v-icon mdi-book-open-variant
-            v-btn(flat dark value='score')
+            v-btn(dark value='score')
                 span 成績
                 v-icon mdi-chart-line
-        v-footer#footer.hidden-sm-and-down(absolute v-if='$route.path === "/"')
-            v-spacer
-            span © 2018 Developed by Pionxzh
-            v-spacer
         v-fab-transition
             v-btn.hidden-sm-and-down(fixed aria-label='fab' bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
                 v-icon mdi-chevron-up
-        v-fab-transition.hidden-sm-and-down
-            v-speed-dial.hidden-sm-and-down(fixed bottom right :open-on-hover='!isMobile' transition='slide-x-transition' v-show='$route.params.id && !isScroll' style='z-index: 10;')
-                v-btn(slot='activator' aria-label='close' color='red' dark fab)
-                    v-icon mdi-rocket
-                v-tooltip(left)
-                    v-btn(fab dark aria-label='setting' color='blue darken-2' slot='activator' @click='flag.setting = true')
-                        v-icon mdi-settings
-                    span 設定
-                v-tooltip(left)
-                    v-btn(fab dark aria-label='score' color='pink' slot='activator' @click='tag = "score"')
-                        v-icon mdi-chart-line
-                    span 成績
         v-dialog(v-model='flag.theme' max-width=450)
             v-toolbar.cyan.no-select(dark)
                 v-icon mdi-brightness-6
@@ -183,10 +184,14 @@
                             v-card.theme-card(@click.native='setting.weatherTheme=false')
                                 v-card-media(:src="require('../assets/nav.png')" height='200px')
                                 v-card-text 預設主題
+                                    b(v-show='setting.weatherTheme===false') &nbsp;( • ̀ω•́ )
+                                    b(v-show='setting.weatherTheme===true') &nbsp;(,,ﾟДﾟ)
                         v-flex(xs6)
                             v-card.theme-card(@click.native='setting.weatherTheme=true')
                                 v-card-media(:src="require('../assets/weather.png')" height='200px')
                                 v-card-text 天色主題
+                                    b(v-show='setting.weatherTheme===false') &nbsp;( ﾟ∀ﾟ)o彡ﾟ
+                                    b(v-show='setting.weatherTheme===true') &nbsp;ε≡ﾍ( ´∀`)ﾉ
                 
         v-dialog(v-model='flag.setting' max-width=450 :fullscreen='isMobile' scroll)
             v-toolbar.blue.no-select(dark :fixed='isMobile')
@@ -207,7 +212,7 @@
                 v-subheader.no-select 其他
                 v-list-tile(ripple avatar @click='clearAll')
                     v-list-tile-action
-                        v-icon mdi-delete
+                        v-icon(large) mdi-delete-forever
                     v-list-tile-content
                         v-list-tile-title 清除資料
                         v-list-tile-sub-title 如發生異常，通常清除資料可以解決一切
@@ -297,7 +302,6 @@ import Announce from '../util/Announce'
 import Homework from '../util/Homework'
 import Textbook from '../util/Textbook'
 import debounce from 'lodash/debounce'
-// import NotifyManager from './../NotifyManager'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
@@ -316,7 +320,7 @@ export default {
         password: '',
         avatar: '',
         notifyColor: ['red darken-1', 'blue', 'orange', 'cyan', 'purple', 'brown'],
-        weather: ['dawn', 'sunrise', 'golden-hour', 'golden-hour-end', 'sunset', 'dusk', 'night'],
+        weather: ['dawn', 'golden-hour', 'golden-hour-end', 'sunset', 'dusk', 'night'],
         currWeather: null,
         flag: {
             drawer: true,
@@ -328,7 +332,7 @@ export default {
         },
         setting: {
             showDivider: false,
-            weatherTheme: false,
+            weatherTheme: true,
             detectDate: true,
             detectUrl: true,
             isDownloadQuestion: false,
@@ -424,7 +428,7 @@ export default {
     async created () {
         if (this.isMobile) this.flag.drawer = false
         this.isApp = this.isWebApp()
-        this.currWeather = this.weather[Math.floor(Math.random() * 100 % 8)]
+        this.currWeather = this.weather[Math.floor(Math.random() * 100 % 7)]
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
 
@@ -500,7 +504,7 @@ export default {
             let fid = `${this.Notify[index].type}${this.Notify[index].id}`
             this.updateNotify(index)
             this.focusItem = fid
-            setTimeout(() => { this.focusItem = null }, 2000)
+            setTimeout(() => { this.focusItem = null }, 1600)
         },
         clearAll () {
             if (!confirm('確定清除所有資料?')) return

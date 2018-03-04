@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 import store from './store'
 import router from './router'
 import Vuetify from 'vuetify'
-import TopProgress from './components/TopProgress'
 
 import App from './Layout'
 
@@ -13,7 +12,6 @@ Vue.config.productionTip = false
 
 Vue.use(Vuex)
 Vue.use(Vuetify)
-Vue.component(TopProgress.name, TopProgress)
 
 new Vue({
     el: '#app',

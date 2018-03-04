@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Ecourse from '@/components/App'
 import Course from '@/components/Course'
-import CourseMain from '@/components/CourseMain'
 import CourseTable from '@/components/CourseTable'
 
 Vue.use(Router)
@@ -15,9 +14,6 @@ export default new Router({
         name: 'Ecourse',
         component: Ecourse,
         children: [{
-            path: '/course',
-            component: CourseMain
-        }, {
             name: 'Course',
             path: '/course/:id',
             component: Course

@@ -82,7 +82,7 @@ export default class Homework {
         /* using Promise.all for parallel request */
         await Promise.all(queuePromise)
 
-        console.log('HwFile:\n', this.homeworkFile)
+        // console.log('HwFile:\n', this.homeworkFile)
         localStorage.homeworkFile = JSON.stringify(this.homeworkFile)
         return {stat: true, data: this.homeworkFile}
     }
