@@ -58,7 +58,7 @@
                                 v-list-tile(ripple avatar :key='item.courseID+item.title' @click.native='toNotify(index)')
                                     v-list-tile-avatar
                                         v-avatar.notify-avatar(:class='notifyColor[index%6]')
-                                            span.white--text {{item.course[0].charCodeAt(0) > 122 ? item.course.substring(0, 2) : item.course.substring(0, 4)}}
+                                            span.white--text {{item.course[3].charCodeAt(0) > 122 ? item.course.substring(0, 2) : item.course.substring(0, 4)}}
                                     v-list-tile-content
                                         v-list-tile-title
                                             b {{ item.course }}
@@ -112,8 +112,8 @@
                     linearGradient#gradient(x1='0' y1='0' x2='100%' y2='0' spreadMethod='pad' gradientTransform='rotate(45)')
                         stop(offset='0%' stop-color='#fff' stop-opacity='1')
                         stop(offset='100%' stop-color='#fff' stop-opacity='0')
-                rect.gradient-bg(x='0' y='0' width='50' height='50')
-                rect.gradient-fg(x='0' y='0' width='50' height='50' mask='url(#mask)')
+                rect.gradient-bg(x='0' y='0' width='1' height='1')
+                rect.gradient-fg(x='0' y='0' width='1' height='1' mask='url(#mask)')
             div#mountain(v-if='setting.weatherTheme' :class='{"horizon": $route.path === "/"}')
         v-content(:class='{"mb-5": $route.params.id, "mb-0": !$route.params.id}')
             transition(name='slide' mode='out-in')
