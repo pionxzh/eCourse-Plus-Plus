@@ -147,7 +147,7 @@
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && (!isMobile | isApp)' :to='{ name: "table"}' large)
                                     v-icon mdi-apps
                                     strong &nbsp;查看課表
-                                div Version 1.0.6
+                                div Version 1.0.7
                                 div - 完善通知系統
                                 div - 修復多個BUG
                 v-container(fluid v-else)
