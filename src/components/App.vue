@@ -41,7 +41,7 @@
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
             router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title#ecourse-logo.no-select eCourse+
             v-spacer
-            v-menu#notify-menu(left offset-y nudge-top='-10' min-width=200 :max-height='isMobile ? 500:700')
+            v-menu#notify-menu(left offset-y nudge-top='-10' min-width=200 :max-width='isMobile ? 340:700' :max-height='isMobile ? 500:500')
                 v-btn#notification-btn(icon aria-label='notify' slot='activator')
                     v-badge(overlap v-show='Notify.length' :color='setting.weatherTheme ? "red darken-1" : "blue"')
                         span(slot='badge') {{Notify.length}}
@@ -144,11 +144,11 @@
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && isMobile && !isApp' @click='showpPrompt' large)
                                     v-icon mdi-apps
                                     strong &nbsp;添加為App
-                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && (!isMobile | isApp)' :to='{ name: "table"}' large)
+                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && (!isMobile | isApp)' :to='{ name: "table"}' @click='' large)
                                     v-icon mdi-apps
                                     strong &nbsp;查看課表
-                                div Version 1.0.8
-                                div - 修復課表抓取
+                                div Version 1.0.9
+                                div - 修復多個錯誤
                 v-container(fluid v-else)
                     transition(name='slide' mode='out-in')
                         keep-alive
@@ -228,7 +228,7 @@
                         v-icon mdi-code-array
                     v-list-tile-content
                         v-list-tile-title eCourse+ 
-                        v-list-tile-sub-title v1.0.3
+                        v-list-tile-sub-title v1.0.9
                 v-list-tile(ripple avatar @click='')
                     v-list-tile-action
                         v-icon mdi-account-circle

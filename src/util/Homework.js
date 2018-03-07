@@ -11,13 +11,14 @@ export default class Homework {
         let homework = await axios.get(config.ecourse.HOMEWORK)
         .catch(e => Util.errHandler(e, 'Get Homework Error!'))
         try {
+            if (homework.data.indexOf('沒有修課') > -1) return {stat: true, data: [[], [], []]}
             let result = /var js\s=\s(.+)/.exec(homework.data)[1]
             let homeworkData = JSON.parse(result.slice(0, -1))
             console.log('Homework:\n', homeworkData)
             return {stat: true, data: this.parseData(homeworkData)}
         } catch (e) {
             Util.errHandler(e, 'Parse Homework Fail!')
-            return {stat: false, data: []}
+            return {stat: false, data: [[], [], []]}
         }
     }
 
@@ -33,7 +34,7 @@ export default class Homework {
             result[courseID].list = item[2] === null ? [{title: '暫無作業'}] : item[2].reduce((temp, nItem) => {
                 let key = nItem[1]
                 if (hwNotify[courseID][key] === undefined) {
-                    let isNew = Math.abs(now - new Date(nItem[3])) < 8.64e7 * 7
+                    let isNew = Math.abs(now - new Date(nItem[3])) < 8.64e7 * 5
                     hwNotify[courseID][key] = isNew
                     if (isNew) {
                         notice.push({
@@ -136,7 +137,7 @@ export default class Homework {
             action: 'handinwork'
         })
         let result = await axios.post(config.ecourse.SHOW_WORK, data, {responseType: 'arraybuffer'})
-        return Decoder.decode(result.data).indexOf('成功') > -1
+        return Decoder.decode(result.data).indexOf('完成繳交作業') > -1
     }
 
     static async uploadFile (files, multiple, courseID, workID) {

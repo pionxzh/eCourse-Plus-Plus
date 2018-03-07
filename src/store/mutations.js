@@ -83,14 +83,15 @@ export const mutations = {
     [types.LOAD] (state) {
         // 有annNotify表示其他人有被記錄
         if (!localStorage.annNotify) return
-        state.courseList = JSON.parse(localStorage.courseList)
-        state.announceData = JSON.parse(localStorage.announce)
-        state.homeworkData = JSON.parse(localStorage.homework)
-        state.textbookData = JSON.parse(localStorage.textbook)
-        state.homeworkData = JSON.parse(localStorage.homework)
+        if (localStorage.announce === 'undefined') return
+        if (localStorage.courseList) state.courseList = JSON.parse(localStorage.courseList)
+        if (localStorage.announce) state.announceData = JSON.parse(localStorage.announce)
+        if (localStorage.homework) state.homeworkData = JSON.parse(localStorage.homework)
+        if (localStorage.textbook) state.textbookData = JSON.parse(localStorage.textbook)
+        if (localStorage.homework) state.homeworkData = JSON.parse(localStorage.homework)
         if (localStorage.score) state.scoreData = JSON.parse(localStorage.score)
         if (localStorage.roll) state.rollData = JSON.parse(localStorage.roll)
-        state.announceNotify = JSON.parse(localStorage.annNotify)
+        if (localStorage.annNotify) state.announceNotify = JSON.parse(localStorage.annNotify)
         if (localStorage.hwNotify) state.homeworkNotify = JSON.parse(localStorage.hwNotify)
         if (localStorage.notify) state.notify = JSON.parse(localStorage.notify)
     }

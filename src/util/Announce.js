@@ -7,6 +7,7 @@ export default class Announce {
     static async getData (data) {
         let announce = await axios.get(config.ecourse.ANNOUNCE).catch(e => Util.errHandler(e, 'Get Announce Error!'))
         try {
+            if (announce.data.indexOf('沒有修課') > -1) return {stat: true, data: [[], [], [], []]}
             let result = /var js\s=\s(.+)/.exec(announce.data)[1]
             let announceData = JSON.parse(result.slice(0, -1))
             console.log('Announce:\n', announceData)
@@ -14,7 +15,7 @@ export default class Announce {
         } catch (e) {
             Util.errHandler(e, 'Parse Announce Fail!')
             /* Prevent 'Parse Fail' clear the content */
-            return {stat: false, data: []}
+            return {stat: false, data: [[], [], [], []]}
         }
     }
 
@@ -33,7 +34,7 @@ export default class Announce {
                 let key = nItem[0]
                 /* time difference less than 5 days => New */
                 if (announceNotify[courseID][key] === undefined) {
-                    let isNew = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 7
+                    let isNew = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 5
                     announceNotify[courseID][key] = isNew
                     if (isNew) {
                         notice.push({

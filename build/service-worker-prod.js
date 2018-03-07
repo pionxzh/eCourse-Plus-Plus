@@ -22,6 +22,7 @@
                                             // At this point, the old content will have been purged and the fresh content will
                                             // have been added to the cache.
                                             console.log('New or updated content is available.');
+                                            if(confirm('有新版本更新! 現在重新整理?')) location.reload()
                                         } else {
                                             // At this point, everything has been precached.
                                             console.log('Content is now available offline!');

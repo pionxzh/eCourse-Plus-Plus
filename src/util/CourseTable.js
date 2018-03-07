@@ -7,7 +7,6 @@ const config = require('./../config.json')
 
 export default class CourseTable {
     static async login () {
-        if (!localStorage.user) return
         let user = JSON.parse(localStorage.user)
         let data = Qs.stringify({ id: user.id, password: user.pass })
         let result = await axios.post(config.kiki.LOGIN, data).catch(e => { Util.errHandler(e, 'Kiki login Error') })

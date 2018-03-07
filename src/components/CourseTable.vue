@@ -19,7 +19,7 @@
                         :class='{"active": selected === course.id}'
                         @click.stop='showInfo(course)')
                         div.course-text-wrapper
-                            span.course-title(:class='{"small": course.name.length > 10}') {{ isMobile ? course.name.slice(0, 10) : course.name }}
+                            span.course-title(:class='{"small": course.name.length > 7 && (course.end - course.start)<76}') {{ isMobile ? course.name.slice(0, 10) : course.name }}
                             span(v-if='!isMobile && course.name.length < 10') {{ course.time }}
             v-dialog(width='300px' v-model='dialog.flag')
                 div.text-xs-center.course-dialog
@@ -67,6 +67,7 @@ export default {
     }),
     methods: {
         async fetch () {
+            if (!localStorage.user) return alert('請先登入')
             this.loading = true
             await CourseTable.login()
             let result = await CourseTable.getData(this.term)
