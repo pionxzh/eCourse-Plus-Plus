@@ -37,10 +37,12 @@ export default class Announce {
                     let isNew = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 5
                     announceNotify[courseID][key] = isNew
                     if (isNew) {
+                        let abbr = item[1].split(/[^A-Za-z]/)[0].substring(0, 4) || item[1].substring(0, 2)
                         notice.push({
                             // 1: 公告
                             type: 1,
                             id: key,
+                            abbr: abbr,
                             title: nItem[8],
                             course: item[1],
                             courseID: courseID,

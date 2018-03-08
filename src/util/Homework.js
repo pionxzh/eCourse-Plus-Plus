@@ -37,10 +37,12 @@ export default class Homework {
                     let isNew = Math.abs(now - new Date(nItem[3])) < 8.64e7 * 5
                     hwNotify[courseID][key] = isNew
                     if (isNew) {
+                        let abbr = item[1].split(/[^A-Za-z]/)[0].substring(0, 4) || item[1].substring(0, 2)
                         notice.push({
                             // 2: 作業
                             type: 2,
                             id: key,
+                            abbr: abbr,
                             title: nItem[0],
                             course: item[1],
                             courseID: courseID,

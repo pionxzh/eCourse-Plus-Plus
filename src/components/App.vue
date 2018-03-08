@@ -58,7 +58,7 @@
                                 v-list-tile(ripple avatar :key='item.courseID+item.title' @click.native='toNotify(index)')
                                     v-list-tile-avatar
                                         v-avatar.notify-avatar(:class='notifyColor[index%6]')
-                                            span.white--text {{item.course[3].charCodeAt(0) > 122 ? item.course.substring(0, 2) : item.course.substring(0, 4)}}
+                                            span.white--text {{item.abbr || item.course.substring(0, 2) }}
                                     v-list-tile-content
                                         v-list-tile-title
                                             b {{ item.course }}

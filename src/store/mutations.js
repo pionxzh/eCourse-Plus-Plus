@@ -74,10 +74,24 @@ export const mutations = {
     },
     [types.ANNOUNCE_NOTIFY] (state, [courseID, key]) {
         state.announceNotify[courseID][key] = false
+        for (let index in state.notify) {
+            let item = state.notify[index]
+            if (item.courseID === courseID && item.id === key && item.type === 1) {
+                state.notify.splice(index, 1)
+            }
+        }
+        localStorage.notify = JSON.stringify(state.notify)
         localStorage.annNotify = JSON.stringify(state.announceNotify)
     },
     [types.HOMEWORK_NOTIFY] (state, [courseID, key]) {
         state.homeworkNotify[courseID][key] = false
+        for (let index in state.notify) {
+            let item = state.notify[index]
+            if (item.courseID === courseID && item.id === key && item.type === 2) {
+                state.notify.splice(index, 1)
+            }
+        }
+        localStorage.notify = JSON.stringify(state.notify)
         localStorage.hwNotify = JSON.stringify(state.homeworkNotify)
     },
     [types.LOAD] (state) {
