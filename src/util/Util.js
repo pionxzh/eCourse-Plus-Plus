@@ -38,7 +38,8 @@ export default class Util {
         if (download) link.download = download
         link.target = '_blank'
         link.href = url
-        link.click()
+        // link.click()
+        link.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}))
         link.remove()
     }
 

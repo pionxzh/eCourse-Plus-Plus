@@ -28,23 +28,22 @@ export default class Homework {
         let hwNotify = localStorage.hwNotify ? JSON.parse(localStorage.hwNotify) : {}
         let homeworkData = homework.reduce((result, item) => {
             let courseID = item[0]
+            let courseName = item[1]
             if (!hwNotify[courseID]) hwNotify[courseID] = {}
-            result[courseID] = {}
-            result[courseID].name = item[1]
-            result[courseID].list = item[2] === null ? [{title: '暫無作業'}] : item[2].reduce((temp, nItem) => {
+            result[courseID] = item[2] === null ? [{title: '暫無作業'}] : item[2].reduce((temp, nItem) => {
                 let key = nItem[1]
                 if (hwNotify[courseID][key] === undefined) {
-                    let isNew = Math.abs(now - new Date(nItem[3])) < 8.64e7 * 5
+                    let isNew = Math.abs(now - new Date(nItem[3])) < 8.64e7 * 4
                     hwNotify[courseID][key] = isNew
                     if (isNew) {
-                        let abbr = item[1].split(/[^A-Za-z]/)[0].substring(0, 4) || item[1].substring(0, 2)
+                        let abbr = courseName.split(/[^A-Za-z]/)[0].substring(0, 4) || courseName.substring(0, 2)
                         notice.push({
                             // 2: 作業
                             type: 2,
                             id: key,
                             abbr: abbr,
                             title: nItem[0],
-                            course: item[1],
+                            course: courseName,
                             courseID: courseID,
                             timeStamp: nItem[3]
                         })
@@ -71,9 +70,8 @@ export default class Homework {
         let queuePromise = []
         let oldHwFile = localStorage.homeworkFile ? JSON.parse(localStorage.homeworkFile) : {}
         for (let key in homeworkData) {
-            let list = homeworkData[key].list
             this.homeworkFile[key] = {}
-            for (let item of list) {
+            for (let item of homeworkData[key]) {
                 if (!item.id) continue
                 let cid = item.id
                 /* 24小時檢查一次 過期的作業不予理會 減少request */

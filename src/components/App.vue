@@ -41,7 +41,7 @@
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
             router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title#ecourse-logo.no-select eCourse+
             v-spacer
-            v-menu#notify-menu(left offset-y nudge-top='-10' min-width=200 :max-width='isMobile ? 340:700' :max-height='isMobile ? 500:500')
+            v-menu#notify-menu(left offset-y nudge-top='-10' min-width=200 :max-width='isMobile ? 340:600' :max-height='isMobile ? 500:500')
                 v-btn#notification-btn(icon aria-label='notify' slot='activator')
                     v-badge(overlap v-show='Notify.length' :color='setting.weatherTheme ? "red darken-1" : "blue"')
                         span(slot='badge') {{Notify.length}}
@@ -53,6 +53,18 @@
                         a(v-show='Notify.length>0' @click='updateNotify(null)') 清除全部
                     v-list.tile-hover.pa-0(two-line subheader)
                         transition-group(name='slide' tag='div')
+                            template(v-for='(hw, cid) in HomeworkData')
+                                template(v-for='(item,index) in hw' v-if='item.timeStamp&&item.timeStamp===today')
+                                    v-divider(:key='cid+index')
+                                    v-list-tile(ripple avatar :key='cid+index+1')
+                                        v-list-tile-avatar
+                                            v-avatar.notify-avatar(:class='notifyColor[index%6]')
+                                                v-icon(dark) mdi-alarm
+                                        v-list-tile-content
+                                            v-list-tile-title 作業
+                                                b 《{{ item.title }}》
+                                                | 今天到期，去看看吧
+                                            v-list-tile-sub-title {{ item.timeStamp }}
                             template(v-for='(item, index) in Notify')
                                 v-divider(:key='item.course+item.title')
                                 v-list-tile(ripple avatar :key='item.courseID+item.title' @click.native='toNotify(index)')
@@ -62,8 +74,8 @@
                                     v-list-tile-content
                                         v-list-tile-title
                                             b {{ item.course }}
-                                            | 發布了{{ item.type === 1 ? '新公告' : '新作業' }}&nbsp;
-                                            b {{ item.title }}
+                                            | {{ item.type === 1 ? '發布了新公告' : '發布了新作業' }}&nbsp;
+                                            b 《{{ item.title }}》
                                         v-list-tile-sub-title
                                             v-icon {{ item.type === 1 ? 'mdi-bullhorn' : 'mdi-clipboard-text' }}
                                             | &nbsp;{{ item.timeStamp }}
@@ -147,8 +159,10 @@
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && (!isMobile | isApp)' :to='{ name: "table"}' @click='' large)
                                     v-icon mdi-apps
                                     strong &nbsp;查看課表
-                                div Version 1.0.9
-                                div - 修復多個錯誤
+                                div v1.0.10
+                                div - 新增當日作業提醒
+                                div - 修復Firefox相容性問題
+                                div - 修正多個錯誤
                 v-container(fluid v-else)
                     transition(name='slide' mode='out-in')
                         keep-alive
@@ -183,14 +197,14 @@
                             v-card.theme-card(@click.native='setting.weatherTheme=false')
                                 v-card-media(:src="require('../assets/nav.png')" height='200px')
                                 v-card-text 預設主題
-                                    b(v-show='setting.weatherTheme===false') &nbsp;( • ̀ω•́ )
-                                    b(v-show='setting.weatherTheme===true') &nbsp;(,,ﾟДﾟ)
+                                    b(v-show='!isMobile && setting.weatherTheme===false') &nbsp;( • ̀ω•́ )
+                                    b(v-show='!isMobile && setting.weatherTheme===true') &nbsp;(,,ﾟДﾟ)
                         v-flex(xs6)
                             v-card.theme-card(@click.native='setting.weatherTheme=true')
                                 v-card-media(:src="require('../assets/weather.png')" height='200px')
                                 v-card-text 天色主題
-                                    b(v-show='setting.weatherTheme===false') &nbsp;( ﾟ∀ﾟ)o彡ﾟ
-                                    b(v-show='setting.weatherTheme===true') &nbsp;ε≡ﾍ( ´∀`)ﾉ
+                                    b(v-show='!isMobile && setting.weatherTheme===false') &nbsp;( ﾟ∀ﾟ)o彡ﾟ
+                                    b(v-show='!isMobile && setting.weatherTheme===true') &nbsp;ε≡ﾍ( ´∀`)ﾉ
                 
         v-dialog(v-model='flag.setting' max-width=450 :fullscreen='isMobile' scroll)
             v-toolbar.blue.no-select(dark :fixed='isMobile')
@@ -214,7 +228,7 @@
                         v-icon(large) mdi-delete-forever
                     v-list-tile-content
                         v-list-tile-title 清除資料
-                        v-list-tile-sub-title 如發生異常，通常清除資料可以解決一切
+                        v-list-tile-sub-title 如發生異常，通常清除資料可以解決大部分問題
         v-dialog(v-model='flag.about' max-width=450)
             v-toolbar.red.no-select(dark)
                 v-icon mdi-flash-circle
@@ -228,13 +242,13 @@
                         v-icon mdi-code-array
                     v-list-tile-content
                         v-list-tile-title eCourse+ 
-                        v-list-tile-sub-title v1.0.9
+                        v-list-tile-sub-title v1.0.10
                 v-list-tile(ripple avatar @click='')
                     v-list-tile-action
                         v-icon mdi-account-circle
                     v-list-tile-content
                         v-list-tile-title @Pionxzh
-                        v-list-tile-sub-title 歡迎找我吃雞 ID一樣
+                        v-list-tile-sub-title 歡迎+我Steam ID一樣
                 v-list-tile(ripple avatar @click='')
                     v-list-tile-action
                         v-icon mdi-email
@@ -265,9 +279,9 @@
                     v-container(grid-list-md)
                         v-layout(wrap)
                             v-flex(xs12)
-                                v-text-field(label='帳號' required v-model='username')
+                                v-text-field(label='帳號' required v-model='account.username')
                             v-flex(xs12)
-                                v-text-field(label='密碼' required type='password' v-model='password' @keyup.enter='login(false)')
+                                v-text-field(label='密碼' required type='password' v-model='account.password' @keyup.enter='login(false)')
                 v-card-actions
                     v-spacer
                     v-btn(color='blue darken-1' aria-label='login' :loading='loading' @click='login(false)' large dark)
@@ -279,14 +293,14 @@
                 v-card-title.headline 哎呀! 發生錯誤了 _(´ཀ`」 ∠)_ 
                 v-card-text
                     p 錯誤類型: 
-                        b {{ errTitle }}
+                        b {{ err.title }}
                     p 錯誤訊息:
-                        b {{ errMsg }}
+                        b {{ err.message }}
                     p.mt-5 1. 若問題重複出現，可嘗試在右上角&nbsp;
                         b 設定&nbsp;
                         | 底部選擇&nbsp;
                         b 清除資料
-                    p 2. 若問題仍無改善，歡迎回報至&nbsp;
+                    p 2. 若問題仍無改善，請回報至&nbsp;
                         b: u pionxzh@csie.io
                         | ，信件標題請以
                         b 【問題回報】
@@ -295,6 +309,7 @@
 </template>
 
 <script>
+import Util from '../util/Util'
 import User from '../util/User'
 import Course from '../util/Course'
 import Announce from '../util/Announce'
@@ -311,23 +326,28 @@ export default {
         isScroll: false,
         focusItem: null,
         deferredPrompt: null,
+        today: Util.getToday(),
         isMobile: window.innerWidth < 800,
         tag: 'announce',
-        errTitle: '',
-        errMsg: '',
-        username: '',
-        password: '',
+        account: {
+            username: '',
+            password: ''
+        },
+        err: {
+            title: '',
+            message: ''
+        },
         avatar: '',
         notifyColor: ['red darken-1', 'blue', 'orange', 'cyan', 'purple', 'brown'],
         weather: ['dawn', 'golden-hour', 'golden-hour-end', 'sunset', 'dusk', 'night'],
         currWeather: null,
         flag: {
+            about: false,
             drawer: true,
             error: false,
-            theme: false,
-            setting: false,
             login: false,
-            about: false
+            setting: false,
+            theme: false
         },
         setting: {
             showDivider: false,
@@ -410,8 +430,8 @@ export default {
         }),
         loginData () {
             return {
-                id: this.username,
-                pass: this.password,
+                id: this.account.username,
+                pass: this.account.password,
                 ver: 'C'
             }
         },
@@ -473,7 +493,7 @@ export default {
         isWebApp () {
             return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches
         },
-        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', multi = false, timeout = 1500} = {}) {
+        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', multi = false, timeout = 1000} = {}) {
             this.toast.show = true
             this.toast.top = top
             this.toast.right = right
@@ -503,7 +523,7 @@ export default {
             let fid = `${this.Notify[index].type}${this.Notify[index].id}`
             this.updateNotify(index)
             this.focusItem = fid
-            setTimeout(() => { this.focusItem = null }, 1600)
+            setTimeout(() => { this.focusItem = null }, 1300)
         },
         clearAll () {
             if (!confirm('確定清除所有資料?')) return
@@ -512,8 +532,8 @@ export default {
         },
         onError (e) {
             console.log(e)
-            this.errTitle = e.detail.title
-            this.errMsg = e.detail.message
+            this.err.title = e.detail.title
+            this.err.message = e.detail.message
             this.flag.error = true
         },
         keepAlive () {

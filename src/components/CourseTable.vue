@@ -16,11 +16,11 @@
                 div.course-item(@click='selected = "none"') {{ day }}
                 template(v-for='course in table[index]')
                     div.course-item(:style='{"top": `${course.distance * height}px`, "height": `${(course.end - course.start) * height}px`}'
-                        :class='{"active": selected === course.id}'
+                        :class='{"active": selected === course.id, "pa-0": course.end-course.start<60}'
                         @click.stop='showInfo(course)')
                         div.course-text-wrapper
                             span.course-title(:class='{"small": course.name.length > 7 && (course.end - course.start)<76}') {{ isMobile ? course.name.slice(0, 10) : course.name }}
-                            span(v-if='!isMobile && course.name.length < 10') {{ course.time }}
+                            span(v-if='!isMobile && (course.name.length < 10 || course.end-course.start > 75)') {{ course.time }}
             v-dialog(width='300px' v-model='dialog.flag')
                 div.text-xs-center.course-dialog
                     p(style='font-size: 24px;padding-bottom: 20px;') {{ dialog.name }}

@@ -14,7 +14,7 @@
                             v-model='search.keyword' :class='{"open": search.flag}')
                     v-list.tile-hover.pa-0(two-line subheader)
                         v-subheader(v-show='search.keyword') 搜尋結果
-                        template(v-for='(item, index) in AnnounceList.list')
+                        template(v-for='(item, index) in AnnounceList')
                             v-list-tile(avatar :key='item.id' v-show='item.title.indexOf(search.keyword) > -1'
                                 @click.native='showAnnounce(index)' :class='{"yellow": focusItem === `1${item.id}`}')
                                 v-list-tile-avatar
@@ -38,7 +38,9 @@
                                 v-icon mdi-chart-line
                             span 成績
                     v-list.tile-hover.pa-0(two-line subheader)
-                        template(v-for='(item, index) in HomeworkList.list')
+                        template(v-for='(item, index) in HomeworkList')
+                            v-alert(type='error' icon='mdi-alert' transition='scale-transition' :value='true' v-if='item.timeStamp === today')
+                                span(style='font-size: 16px;') ▼▼▼ 作業今日到期 😱
                             v-list-tile(ripple avatar :key='index' :class='{"yellow": focusItem === `2${item.id}`}' @click.native='showHomework(index)')
                                 template(v-if='item.id')
                                     v-list-tile-avatar
@@ -231,6 +233,7 @@ export default {
     data: () => ({
         tag: 'announce',
         isScroll: false,
+        today: Util.getToday(),
         isMobile: window.innerWidth < 800,
         search: {
             flag: false,
@@ -306,13 +309,13 @@ export default {
             return this.$route.params.id
         },
         AnnounceList () {
-            return this.Announce[this.$route.params.id] || {name: 'QAO找不到', list: {}}
+            return this.Announce[this.$route.params.id] || []
         },
         HomeworkList () {
-            return this.Homework[this.$route.params.id] || {name: 'QAO找不到', list: {}}
+            return this.Homework[this.$route.params.id] || []
         },
         TextbookList () {
-            return this.Textbook[this.$route.params.id] || {name: 'QAO找不到', list: {}}
+            return this.Textbook[this.$route.params.id] || {list: {}}
         },
         ScoreData () {
             return this.Score[this.$route.params.id] || {'目前沒有成績': null}
@@ -393,9 +396,9 @@ export default {
             this.uploadHW.message = message
         },
         showAnnounce (index) {
-            let key = this.AnnounceList.list[index].id
-            if (!this.AnnounceList.list[index].content) return
-            let content = this.AnnounceList.list[index].content.replace(/\r\n/g, '<br>')
+            let key = this.AnnounceList[index].id
+            if (!this.AnnounceList[index].content) return
+            let content = this.AnnounceList[index].content.replace(/\r\n/g, '<br>')
             this.announce.text = content
 
             if (this.Setting.detectUrl) {
@@ -408,7 +411,7 @@ export default {
                 content = content.replace(dateDetect, '<u class="date-padding">$1</u>$3')
             }
 
-            this.announce.title = this.AnnounceList.list[index].title
+            this.announce.title = this.AnnounceList[index].title
             this.announce.content = content
             this.announce.flag = true
             if (this.AnnNotify[key]) {
@@ -416,13 +419,13 @@ export default {
             }
         },
         showHomework (index) {
-            let key = this.HomeworkList.list[index].id
-            if (!this.HomeworkList.list[index].content) return
+            let key = this.HomeworkList[index].id
+            if (!this.HomeworkList[index].content) return
             this.homework.id = key
-            this.homework.title = this.HomeworkList.list[index].title
-            this.homework.content = this.HomeworkList.list[index].content
+            this.homework.title = this.HomeworkList[index].title
+            this.homework.content = this.HomeworkList[index].content
             this.homework.flag = true
-            if (this.HwNotify[this.HomeworkList.list[index].id]) {
+            if (this.HwNotify[this.HomeworkList[index].id]) {
                 this.updateHwNotify([this.courseID, key])
             }
         },
@@ -472,11 +475,13 @@ export default {
             this.uploadHW.list = await Homework.getAnswer(this.courseID, workID)
         },
         async uploadText () {
+            await Course.changeCourse(this.courseID)
             let stat = await Homework.uploadText(this.uploadHW.content, this.uploadHW.workID)
             this.uploadHW.list = await Homework.getAnswer(this.courseID, this.uploadHW.workID)
             stat ? this.showUploadToast('上傳成功', 'success') : this.showUploadToast('上傳失敗，請注意上傳日期限制', 'error')
         },
         async uploadFile (e, multiple) {
+            await Course.changeCourse(this.courseID)
             const files = e.target.files || e.dataTransfer.files
             if (!files.length) return
 
@@ -505,6 +510,7 @@ export default {
             }
         },
         async removeAnswer (index, fileName) {
+            await Course.changeCourse(this.courseID)
             if (!confirm('確定要刪除這個檔案?')) return
             this.uploadHW.list[index] = null
             this.showUploadToast('刪除成功', 'success')

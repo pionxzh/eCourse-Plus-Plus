@@ -26,25 +26,24 @@ export default class Announce {
         let template = announce.map(item => item[0], [])
         let announceData = announce.reduce((result, item) => {
             let courseID = item[0]
+            let courseName = item[1]
             if (!announceNotify[courseID]) announceNotify[courseID] = {}
             item[2] = item[2] || []
-            result[courseID] = {}
-            result[courseID].name = item[1]
-            result[courseID].list = !item[2].length ? [{title: '暫無公告'}] : item[2].reduce((temp, nItem) => {
+            result[courseID] = !item[2].length ? [{title: '暫無公告'}] : item[2].reduce((temp, nItem) => {
                 let key = nItem[0]
                 /* time difference less than 5 days => New */
                 if (announceNotify[courseID][key] === undefined) {
-                    let isNew = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 5
+                    let isNew = Math.abs(now - new Date(nItem[2])) < 8.64e7 * 4
                     announceNotify[courseID][key] = isNew
                     if (isNew) {
-                        let abbr = item[1].split(/[^A-Za-z]/)[0].substring(0, 4) || item[1].substring(0, 2)
+                        let abbr = courseName.split(/[^A-Za-z]/)[0].substring(0, 4) || courseName.substring(0, 2)
                         notice.push({
                             // 1: 公告
                             type: 1,
                             id: key,
                             abbr: abbr,
                             title: nItem[8],
-                            course: item[1],
+                            course: courseName,
                             courseID: courseID,
                             timeStamp: nItem[2]
                         })
