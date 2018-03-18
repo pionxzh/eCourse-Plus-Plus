@@ -1,6 +1,22 @@
-# eCourse-
+# eCourse-Plus-Plus
 
-Make eCourse great again
+![](demo1.png)
+![](demo2.png)
+![](demo3.png)
+
+## 關於
+
+這是一個純前端的服務，整合**中正大學eCourse**課程網站上的資訊，方便同學使用。
+
+**[[網站連結]](https://ecourse.pionxzh.com/)**
+
+## 功能
+
+* 查看課程公告、作業、教材及成績
+* 一周課表(時間/教室地點)
+* 上傳作業
+* 通知系統(新公告、作業)
+* 作業當日提醒
 
 ## Build Setup
 
@@ -13,16 +29,5 @@ npm run dev
 
 # build for production with minification
 npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
+
