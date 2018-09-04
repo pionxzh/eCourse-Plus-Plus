@@ -14,9 +14,10 @@ export default class CourseTable {
     }
 
     static async getData (term) {
-        let temp = await axios.get(config.kiki.TABLE, {params: {year: '106', term: term, session_id: this.session}})
+        const temp = await axios.get(config.kiki.TABLE, {params: {year: '106', term: term, session_id: this.session}})
         .catch(e => { Util.errHandler(e, 'Kiki getData Error') })
         if (temp.data.indexOf('暫時關閉') > -1) return false
+
         let parser = new DOMParser()
         let dom = parser.parseFromString(temp.data, 'text/html')
         let node = [...dom.querySelectorAll('table:nth-child(6) > tbody > tr:not(:nth-child(1)) > th')]

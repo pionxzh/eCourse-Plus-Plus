@@ -18,7 +18,7 @@
                             v-list-tile-sub-title.blue-grey--text.lighten-1--text
                                 v-icon.blue-grey--text.lighten-1--text.body-1 mdi-map-marker
                                 span {{User.department}} | {{User.classes}}
-                    
+
             v-list.pt-0.striped.course-list(dense :two-line='isMobile' :three-line='!isMobile')
                 v-list-tile
                     v-list-tile-action
@@ -39,7 +39,8 @@
                             span {{item.professor}}
         v-toolbar#color-nav(dark color='primary' fixed app :class='{"is-scroll": isScroll}')
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
-            router-link.cursor-p(tag='div' :to="{ path: '/' }"): v-toolbar-title#ecourse-logo.no-select eCourse+
+            router-link.cursor-p(tag='div' to='/')
+                v-toolbar-title#ecourse-logo.no-select eCourse+
             v-spacer
             v-menu#notify-menu(left offset-y nudge-top='-10' min-width=200 :max-width='isMobile ? 340:600' :max-height='isMobile ? 500:500')
                 v-btn#notification-btn(icon aria-label='notify' slot='activator')
@@ -61,9 +62,7 @@
                                             v-avatar.notify-avatar(:class='notifyColor[index%6]')
                                                 v-icon(dark) mdi-alarm
                                         v-list-tile-content
-                                            v-list-tile-title 作業
-                                                b 《{{ item.title }}》
-                                                | 今天到期，去看看吧
+                                            v-list-tile-title 作業#[b 《{{ item.title }}》] 今天到期，去看看吧
                                             v-list-tile-sub-title {{ item.timeStamp }}
                             template(v-for='(item, index) in Notify')
                                 v-divider(:key='item.course+item.title')
@@ -72,10 +71,7 @@
                                         v-avatar.notify-avatar(:class='notifyColor[index%6]')
                                             span.white--text {{item.abbr || item.course.substring(0, 2) }}
                                     v-list-tile-content
-                                        v-list-tile-title
-                                            b {{ item.course }}
-                                            | {{ item.type === 1 ? '發布了新公告' : '發布了新作業' }}&nbsp;
-                                            b 《{{ item.title }}》
+                                        v-list-tile-title #[b {{ item.course }}]{{ item.type === 1 ? '發布了新公告' : '發布了新作業' }}#[b 《{{ item.title }}》]
                                         v-list-tile-sub-title
                                             v-icon {{ item.type === 1 ? 'mdi-bullhorn' : 'mdi-clipboard-text' }}
                                             | &nbsp;{{ item.timeStamp }}
@@ -95,27 +91,27 @@
                     v-icon mdi-settings
                 v-list
                     v-list-tile.list__tile--link(@click='flag.setting = true')
-                        v-list-tile-title
-                            v-icon(style='vertical-align: bottom;') mdi-settings
+                        v-list-tile-title.fix-icon
+                            v-icon mdi-settings
                             | &nbsp;&nbsp;設定
                     v-list-tile.list__tile--link(@click='flag.theme = true')
                         v-list-tile-title
-                            v-icon(style='vertical-align: bottom;') mdi-brightness-6
+                            v-icon mdi-brightness-6
                             | &nbsp;&nbsp;主題
                     v-list-tile.list__tile--link(@click='flag.about = true')
                         v-list-tile-title
-                            v-icon(style='vertical-align: bottom;') mdi-flash-circle
+                            v-icon mdi-flash-circle
                             | &nbsp;&nbsp;關於本站
                     v-divider
                     v-list-tile.list__tile--link(v-if='!User.loggedIn' @click='flag.login = true')
                         v-list-tile-title
-                            v-icon(style='vertical-align: bottom;') mdi-logout-variant
+                            v-icon mdi-logout-variant
                             | &nbsp;&nbsp;登入
                     v-list-tile.list__tile--link(v-if='User.loggedIn' @click='logout')
                         v-list-tile-title
-                            v-icon(style='vertical-align: bottom;') mdi-logout-variant
+                            v-icon mdi-logout-variant
                             | &nbsp;&nbsp;登出
-        v-snackbar.short(:timeout='toast.timeout' :top='toast.top' :left='toast.left' :right='toast.right' :bottom='toast.bottom' :color='toast.color' v-model='toast.show' :multi-line='toast.multi') {{toast.message}}
+        v-snackbar.short(:timeout='toast.timeout' top :color='toast.color' v-model='toast.show' :multi-line='toast.multi') {{toast.message}}
         div.theme-wrapper
             svg.bg-mask(v-if='setting.weatherTheme' :class='currWeather' viewBox='0 0 1 1' preserveAspectRatio='xMidYMid slice')
                 defs
@@ -146,7 +142,7 @@
                                     v-tooltip(top)
                                         v-btn.mx-3(icon large color='white' slot='activator')
                                             v-icon(color='primary') mdi-twitter
-                                        span 別按了 沒有twitter
+                                        span 其實沒有twitter
                                     v-tooltip(top)
                                         v-btn.mx-3(icon large color='white' href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener' slot='activator')
                                             v-icon(color='primary') mdi-github-circle
@@ -156,10 +152,8 @@
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && isMobile && !isApp' @click='showpPrompt' large)
                                     v-icon mdi-apps
                                     strong &nbsp;添加為App
-                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && (!isMobile | isApp)' :to='{ name: "table"}' @click='' large)
-                                    v-icon mdi-apps
-                                    strong &nbsp;查看課表
-                                div v1.0.10
+                                v-btn.mb-2(color='pink' v-if='User.loggedIn && (!isMobile | isApp)' to='/timeTable' large) #[v-icon mdi-apps] #[strong 查看課表]
+                                div.mt-3 v1.0.10
                                 div - 新增當日作業提醒
                                 div - 修復Firefox相容性問題
                                 div - 修正多個錯誤
@@ -182,7 +176,7 @@
                 span 成績
                 v-icon mdi-chart-line
         v-fab-transition
-            v-btn.hidden-sm-and-down(fixed aria-label='fab' bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;') 
+            v-btn.hidden-sm-and-down(fixed aria-label='fab' bottom right dark fab color='red' v-show='isScroll' v-scroll='onScroll' @click='toTop' style='margin: 6px 8px;')
                 v-icon mdi-chevron-up
         v-dialog(v-model='flag.theme' max-width=450)
             v-toolbar.cyan.no-select(dark)
@@ -196,16 +190,13 @@
                         v-flex(xs6)
                             v-card.theme-card(@click.native='setting.weatherTheme=false')
                                 v-card-media(:src="require('../assets/nav.png')" height='200px')
-                                v-card-text 預設主題
-                                    b(v-show='!isMobile && setting.weatherTheme===false') &nbsp;( • ̀ω•́ )
-                                    b(v-show='!isMobile && setting.weatherTheme===true') &nbsp;(,,ﾟДﾟ)
+                                v-card-text 預設主題<br class='hidden-md-and-up'> ( • ̀ω•́ )
+
                         v-flex(xs6)
                             v-card.theme-card(@click.native='setting.weatherTheme=true')
                                 v-card-media(:src="require('../assets/weather.png')" height='200px')
-                                v-card-text 天色主題
-                                    b(v-show='!isMobile && setting.weatherTheme===false') &nbsp;( ﾟ∀ﾟ)o彡ﾟ
-                                    b(v-show='!isMobile && setting.weatherTheme===true') &nbsp;ε≡ﾍ( ´∀`)ﾉ
-                
+                                v-card-text 天色主題<br class='hidden-md-and-up'> ε≡ﾍ( ´∀`)ﾉ
+
         v-dialog(v-model='flag.setting' max-width=450 :fullscreen='isMobile' scroll)
             v-toolbar.blue.no-select(dark :fixed='isMobile')
                 v-icon mdi-wrench
@@ -241,15 +232,15 @@
                     v-list-tile-action
                         v-icon mdi-code-array
                     v-list-tile-content
-                        v-list-tile-title eCourse+ 
-                        v-list-tile-sub-title v1.0.10
+                        v-list-tile-title eCourse+
+                        v-list-tile-sub-title v1.0.11
                 v-list-tile(ripple avatar @click='')
                     v-list-tile-action
                         v-icon mdi-account-circle
                     v-list-tile-content
                         v-list-tile-title @Pionxzh
-                        v-list-tile-sub-title 歡迎+我Steam ID一樣
-                v-list-tile(ripple avatar @click='')
+                        v-list-tile-sub-title 歡迎+Steam好友 ID一樣
+                v-list-tile(ripple avatar href='mailto:pionxzh@csie.io')
                     v-list-tile-action
                         v-icon mdi-email
                     v-list-tile-content
@@ -270,41 +261,32 @@
                         v-icon mdi-credit-card
                     v-list-tile-content
                         v-list-tile-title Paypal
-                        v-list-tile-sub-title 如果你覺得我的作品不錯，歡迎贊助我一杯咖啡:D
+                        v-list-tile-sub-title 如果你覺得我的作品不錯，歡迎贊助我一杯咖啡☕
         v-dialog(width='300px' v-model='flag.login')
             v-card.dialog-box
                 v-card-title.headline: div.text-xs-center 登入帳號
-                v-card-text(style='font-size: 15px;') ※請輸入
-                    b 單一入口帳號密碼
+                v-card-text(style='font-size: 15px;') ※請輸入#[b 單一入口帳號密碼]
                     v-container(grid-list-md)
                         v-layout(wrap)
                             v-flex(xs12)
-                                v-text-field(label='帳號' required v-model='account.username')
+                                v-text-field(label='帳號' v-model='account.username')
                             v-flex(xs12)
-                                v-text-field(label='密碼' required type='password' v-model='account.password' @keyup.enter='login(false)')
+                                v-text-field(label='密碼' type='password' v-model='account.password' @keyup.enter='login(false)')
                 v-card-actions
                     v-spacer
                     v-btn(color='blue darken-1' aria-label='login' :loading='loading' @click='login(false)' large dark)
-                        v-icon mdi-flash
-                        | 登入
+                        | #[v-icon mdi-flash] 登入
                     v-spacer
         v-dialog(width='500px' v-model='flag.error')
             v-card.dialog-box
-                v-card-title.headline 哎呀! 發生錯誤了 _(´ཀ`」 ∠)_ 
-                v-card-text
-                    p 錯誤類型: 
-                        b {{ err.title }}
-                    p 錯誤訊息:
-                        b {{ err.message }}
-                    p.mt-5 1. 若問題重複出現，可嘗試在右上角&nbsp;
-                        b 設定&nbsp;
-                        | 底部選擇&nbsp;
-                        b 清除資料
-                    p 2. 若問題仍無改善，請回報至&nbsp;
-                        b: u pionxzh@csie.io
-                        | ，信件標題請以
-                        b 【問題回報】
-                        | 為開頭，包含螢幕截圖(錯誤訊息)、錯誤所需重作步驟。
+                v-card-title.headline 哎呀! 發生錯誤了 _(´ཀ`」 ∠)_
+                v-card-text(style='font-size: 16px;')
+                    p 錯誤類型: #[b {{ err.title }}]
+                    p 錯誤訊息: #[b {{ err.message }}]
+                    p.mt-5 1. 若問題重複出現，可嘗試在右上角#[b 設定]底部選擇#[b 清除資料]
+                    p 2. #[b Ping error]就不要理他了 不重要
+                    p 2. 若問題仍無改善，請回報至 #[b #[u pionxzh@csie.io]]<br/>信件標題以#[b 【問題回報】]為開頭，包含螢幕截圖(錯誤訊息)、錯誤所需重作步驟。
+
 
 </template>
 
@@ -333,14 +315,24 @@ export default {
             username: '',
             password: ''
         },
+        User: {
+            loggedIn: false,
+            username: '',
+            name: '',
+            studentId: '',
+            department: '',
+            classes: ''
+        },
         err: {
             title: '',
             message: ''
         },
         avatar: '',
         notifyColor: ['red darken-1', 'blue', 'orange', 'cyan', 'purple', 'brown'],
+
         weather: ['dawn', 'golden-hour', 'golden-hour-end', 'sunset', 'dusk', 'night'],
         currWeather: null,
+
         flag: {
             about: false,
             drawer: true,
@@ -412,10 +404,6 @@ export default {
         toast: {
             show: false,
             timeout: 3000,
-            top: true,
-            right: false,
-            bottom: false,
-            left: false,
             color: 'success',
             message: '',
             multi: false
@@ -423,7 +411,6 @@ export default {
     }),
     computed: {
         ...mapGetters({
-            User: 'getUser',
             Notify: 'getNotify',
             HomeworkData: 'getHomework',
             CourseList: 'getCourseList'
@@ -474,7 +461,6 @@ export default {
     },
     methods: {
         ...mapActions([
-            'updateUser',
             'updateCourse',
             'updateAnnounce',
             'updateHomework',
@@ -493,15 +479,10 @@ export default {
         isWebApp () {
             return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches
         },
-        showToast ({message = '', top = true, right = false, bottom = false, left = false, color = 'success', multi = false, timeout = 1000} = {}) {
+        showToast ({message = '', color = 'success', multi = false} = {}) {
             this.toast.show = true
-            this.toast.top = top
-            this.toast.right = right
-            this.toast.bottom = bottom
-            this.toast.left = left
             this.toast.color = color
             this.toast.multi = multi
-            this.toast.timeout = timeout
             this.toast.message = message
         },
         showpPrompt () {
@@ -515,41 +496,46 @@ export default {
             reader.onloadend = () => {
                 this.avatar = reader.result
                 localStorage[`avatar${this.User.studentId}`] = reader.result
+                this.showToast({message: '設定頭貼成功'})
             }
             reader.readAsDataURL(file)
         },
         toNotify (index) {
             this.$router.push({name: 'Course', params: {id: this.Notify[index].courseID}})
-            let fid = `${this.Notify[index].type}${this.Notify[index].id}`
             this.updateNotify(index)
-            this.focusItem = fid
+            this.focusItem = `${this.Notify[index].type}${this.Notify[index].id}`
             setTimeout(() => { this.focusItem = null }, 1300)
         },
         clearAll () {
             if (!confirm('確定清除所有資料?')) return
+
             localStorage.clear()
             location.reload()
         },
         onError (e) {
             console.log(e)
-            this.err.title = e.detail.title
-            this.err.message = e.detail.message
+            this.err = e.detail
             this.flag.error = true
         },
         keepAlive () {
             /* Ping server every 5min to avoid session expired (expired time = 6min ?) */
             setInterval(() => User.ping(), 1000 * 60 * 5)
         },
+        updateUser (userData) {
+            Object.keys(userData).forEach(key => {
+                this.$set(this.User, key, userData[key])
+            })
+        },
         async autoLogin () {
             if (!localStorage.user) {
                 this.flag.drawer = false
                 return
             }
+
             this.loadLocalData()
             this.loading = true
-            let mainPage = await User.getIndex()
+            const mainPage = await User.getIndex()
             if (mainPage.indexOf('權限錯誤') === -1) {
-                /* 考慮移除updateUser，可以存在這個instance裡頭就好 */
                 this.updateUser({username: JSON.parse(localStorage.user).id, loggedIn: true})
                 await this.fetchData()
                 return
@@ -559,7 +545,7 @@ export default {
         async login (remember) {
             let data = remember ? JSON.parse(localStorage.user) : this.loginData
 
-            let result = await User.login(data)
+            const result = await User.login(data)
             /* 登入失敗 */
             if (!result.stat) return this.showToast({message: result.message, color: 'error'})
 

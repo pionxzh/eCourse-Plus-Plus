@@ -11,8 +11,7 @@ module.exports = {
     }
   },
   env: {
-    browser: true,
-    jquery: true
+    browser: true
   },
   // https://github.com/standard/standard/blob/master/docs/RULES-en.md
   extends: 'standard',

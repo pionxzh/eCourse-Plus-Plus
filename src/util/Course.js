@@ -6,7 +6,7 @@ let Decoder = new TextDecoder('big5')
 export default class Course {
     static getList (data) {
         try {
-            let reg = /login_s\.php\?courseid=[0-9]+_[0-9]+_([0-9]+)" target="_top">(.+?)<\/a>.+?;">([\u4e00-\u9fa5]+)<\/a>/g
+            const reg = /login_s\.php\?courseid=[0-9]+_[0-9]+_([0-9]+)" target="_top">(.+?)<\/a>.+?;">([\u4e00-\u9fa5]+)<\/a>/g
             let matches = reg.exec(data)
             let courseList = []
             while (matches) {
@@ -30,7 +30,7 @@ export default class Course {
         if (courseID === this.previous) return false
         this.previous = courseID
 
-        let temp = await axios.get(config.ecourse.COURSE_SELECT, {responseType: 'arraybuffer', params: {courseid: `106_2_${courseID}`}})
+        let temp = await axios.get(config.ecourse.COURSE_SELECT, {responseType: 'arraybuffer', params: {courseid: `107_1_${courseID}`}})
         .catch(e => Util.errHandler)
         return Decoder.decode(temp.data).indexOf('權限錯誤') === -1
     }

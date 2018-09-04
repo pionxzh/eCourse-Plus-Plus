@@ -25,7 +25,7 @@
                                     v-list-tile-title {{ item.title }}
                                     v-list-tile-sub-title {{ item.timeStamp }}
                             v-divider(v-if='Setting.showDivider')
-        
+
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-transition"')
             v-flex.pl-2(xs12 md4 v-if='(isMobile && tag === "homework") || (!isMobile && tag !== "score")')
                 v-card#homework.main-card.elevation-1(color='grey lighten-5' flat)
@@ -76,25 +76,25 @@
                         v-list-tile(v-if='Setting.showIntro' @click='getIntro')
                             v-list-tile-avatar
                                 v-icon(large) mdi-file-account
-                            v-list-tile-content 
+                            v-list-tile-content
                                 v-list-tile-title 授課大綱
                         v-divider(v-if='Setting.showDivider')
                         v-list-tile(v-if='Setting.showTeacherInfo' @click='getTeacherInfo')
                             v-list-tile-avatar
                                 v-icon(large) mdi-file-account
-                            v-list-tile-content 
+                            v-list-tile-content
                                 v-list-tile-title 教師資訊
                         v-divider(v-if='Setting.showDivider')
                         template(v-for='(item, index) in TextbookList.list')
                             v-list-group(:key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index][0]')
                                 v-list-tile(slot='activator' ripple)
-                                    v-list-tile-content 
+                                    v-list-tile-content
                                         v-list-tile-title {{ item[0] }}
                                 template(v-for='nitem in TextbookList.content[index][0]')
                                     v-list-tile(:key='nitem[0]' :title='nitem[0]' @click.native='downloadTextbook(nitem[1])')
                                         v-list-tile-action
                                             v-icon(large) {{ fileType[nitem[4]] || 'mdi-file' }}
-                                        v-list-tile-content 
+                                        v-list-tile-content
                                             v-list-tile-title {{ nitem[0] }}
                                             v-list-tile-sub-title {{ nitem[3].split(' ')[0] }}
                                     v-divider(v-if='Setting.showDivider')
@@ -136,8 +136,8 @@
                         v-flex(xs12 v-if='!RollData.length')
                             v-card(flat)
                                 v-card-title 沒有點名資料
-                            
-                                
+
+
         v-dialog(v-model='announce.flag' :max-width='isMobile ? 350 : 490')
             v-card#announce.announce-dialog-box
                 v-snackbar(:timeout='1000' top=true bottom=false absolute=true color='success' v-model='announce.toastShow') {{announce.message}}
@@ -172,7 +172,7 @@
                 v-snackbar(:timeout='1000' top=true bottom=false :color='uploadHW.toastColor'
                     v-model='uploadHW.toastShow' absolute=true) {{uploadHW.message}}
                 div.headline.text-xs-center.pa-3 作業上傳
-                    v-btn.right.ma-0(icon ripple aria-label='close' @click='uploadHW.flag = false') 
+                    v-btn.right.ma-0(icon ripple aria-label='close' @click='uploadHW.flag = false')
                         v-icon(medium) mdi-close
                 v-layout(row wrap)
                     v-container(fluid)
@@ -205,7 +205,7 @@
                             v-layout(row wrap)
                                 v-flex(xs6)
                                     v-card.upload-type(color='blue darken-1' style='margin-right: 5px;' @click.native='$refs.uploadInput.click()' dark)
-                                        p.text-xs-center 
+                                        p.text-xs-center
                                             v-icon(dark) mdi-upload
                                             | 上傳檔案
                                         input(type='file' ref='uploadInput' :multiple='false' @change='uploadFile($event, false)')
@@ -290,10 +290,8 @@ export default {
             py: 'mdi-language-python-text'
         }
     }),
-    created () {},
     computed: {
         ...mapGetters({
-            User: 'getUser',
             CourseList: 'getCourseList',
             Announce: 'getAnnounce',
             Homework: 'getHomework',
@@ -447,12 +445,12 @@ export default {
             Util.openLink(config.ecourse.TEACHER_INFO, false)
         },
         downloadQues (id, type) {
-            let link = `${config.ecourse.HOST}/${this.courseID}/homework/${id}/teacher/Question.${type}`
+            const link = `${config.ecourse.HOST}/${this.courseID}/homework/${id}/teacher/Question.${type}`
             Util.openLink(link, this.Setting.isDownloadQuestion)
         },
         async downloadAns (fileName) {
             await Course.changeCourse(this.courseID)
-            let link = `${config.ecourse.SHOW_WORK}?action=downloadFile&work_id=${this.uploadHW.workID}&filename=${fileName}`
+            const link = `${config.ecourse.SHOW_WORK}?action=downloadFile&work_id=${this.uploadHW.workID}&filename=${fileName}`
             Util.openLink(link, false)
         },
         async showScore () {
@@ -510,10 +508,11 @@ export default {
             }
         },
         async removeAnswer (index, fileName) {
-            await Course.changeCourse(this.courseID)
             if (!confirm('確定要刪除這個檔案?')) return
+
             this.uploadHW.list[index] = null
             this.showUploadToast('刪除成功', 'success')
+            await Course.changeCourse(this.courseID)
             await Homework.removeAnswer(this.courseID, this.uploadHW.workID, fileName)
         }
     }
