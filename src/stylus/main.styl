@@ -17,7 +17,7 @@ html, body, .mdl-layout-title, .application
 .main-card
     margin-top: 64px
 
-.bottom-nav
+.v-bottom-nav
     margin-bottom: 60px
 
 @media screen and (max-width: 599px)
@@ -72,43 +72,55 @@ input[type=file]
 .hidden-more-text span
     white-space: nowrap
 
+.headline
+    font-family: inherit!important
+
 .fix-icon i
     vertical-align: bottom
 
 /* Adjust list */
-.tooltip__content
+.v-tooltip__content
     font-size: 14px
 
-.list__group__items li
+.v-list__group__items li
     padding-left: 36px
 
 @media screen and (max-width:600px)
-    .list__group__items li
+    .v-list__group__items li
         padding-left: 0
 
-.list__tile--link
+.v-list__tile--link
     transition .3s!important
 
-.list__tile--active.primary--text
+.v-list__tile--active.primary--text
     border-left 6px solid #dd4b39
     color rgba(0,0,0,0.87)!important
 
-.list__tile--active::before
+.v-list__tile--active::before
     background-color red!important
     width 20px
     height 76px
 
-.list__group__header
+.v-list__group__header
     padding: 0 6px
 
-.list__group__header__prepend-icon i
+.v-list__group__header__prepend-icon i
     font-size: 28px
 
-.list__group__header__prepend-icon.primary--text
+.v-list__group__header__prepend-icon.primary--text
     color: rgba(0, 0, 0, 0.54)!important
 
 // fix for the hover effect on list
-.tile-hover .list__tile:hover, .list__group__items li:hover
+.theme--light.v-list .v-list__tile--link:hover
+    background: rgba(0,0,0,0.12)
+
+.v-list__group__header
+    display: -webkit-box
+
+.v-list__group__items
+    padding-left: 36px
+
+.tile-hover .v-list__tile:hover, .v-list__group__items li:hover
     cursor: pointer
     background: rgba(0, 0, 0, .12)
 
@@ -119,7 +131,7 @@ input[type=file]
 #color-nav
     transition: .3s
 
-#color-nav > .toolbar__content
+#color-nav > .v-toolbar__content
     height 128px!important
     background-image url('./assets/nav.png')
     background-position bottom
@@ -135,18 +147,18 @@ input[type=file]
     user-select: none
 
 #setting-btn
-    margin-right: 48px
+    margin-right: 24px
 
 @media screen and (min-width:600px)
     #color-nav.is-scroll
         margin-top: -108px!important
 
 @media screen and (max-width:600px)
-    #color-nav > .toolbar__content
+    #color-nav > .v-toolbar__content
         height 56px!important
 
     #setting-btn
-        margin-right: 24px
+        margin-right: 0
 
     #ecourse-logo
         font-size: 45px
@@ -159,7 +171,7 @@ input[type=file]
 aside.gray-bg
     background #fafafa!important
 
-ul.striped li:nth-child(odd)
+.v-list.striped >  div:nth-child(odd)
     background #F1F1F1
 
 #course-head
@@ -193,11 +205,11 @@ ul.striped li:nth-child(odd)
         font-size 19px
         margin-left 50px
     }
-    .list__tile__title {
+    .v-list__tile__title {
         color #e0e0e0!important
         font-size 18px
     }
-    .list__tile--avatar {
+    .v-list__tile--avatar {
         font-family "Roboto","Helvetica","Arial",sans-serif
     }
     .icon {
@@ -205,8 +217,11 @@ ul.striped li:nth-child(odd)
     }
 }
 
+.theme--dark.v-navigation-drawer:not(.v-navigation-drawer--floating) .v-navigation-drawer__border
+    background-color: rgba(0,0,0,.12)
+
 /* Bottom Nav */
-.bottom-nav--shift .btn--active
+.v-bottom-nav--shift .btn--active
     min-width: inherit
     max-width: inherit
 
@@ -320,13 +335,10 @@ ul.striped li:nth-child(odd)
         box-shadow: none
         background-color: transparent!important
     }
-    #color-nav > .toolbar__content {
+    #color-nav > .v-toolbar__content {
         background-image: none
     }
-    #footer {
-        display: none
-    }
-    .jumbotron__background {
+    .main-page {
         background: none!important
     }
     #score-card {
@@ -436,12 +448,19 @@ svg.bg-mask
         clip-path: polygon(53% 185px, 70% 185px, 86% 185px, 100% 185px, 100% 100%, 0 100%, 0 185px, 18% 185px, 35% 185px)
 
 /* Main page */
-.jumbotron__wrapper
-    padding-bottom: 150px
+
+.main-page
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background: linear-gradient(to right top, rgb(24, 103, 192), rgb(25, 229, 244))
 
 .head-name
+    font-size: 56px
+    font-weight: 400
+    line-height: 1.35 !important
     font-family "Poiret One", Helvetica, 'Helvetica Neue', Tahoma,Arial,sans-serif
-    font-size: 50px
 
 .img-circle
     height: 204px
@@ -466,7 +485,10 @@ svg.bg-mask
     transition: .3s
     visibility: hidden
     min-width: calc(100%/1.5)
-    margin-right: calc(-100%/1.45)!important
+    margin-right: calc(-100%/0.8)!important
+
+.exp-search .v-input__slot
+    margin-bottom: 0
 
 .exp-search.open {
     visibility: visible
@@ -592,8 +614,11 @@ ul.stripe li:not(.subheader):nth-child(even)
 .upload-item label
     color: rgba(0,0,0,0.54)!important
 
-.white-text-field .input-group__input
-    background-color: #FFF
+.white-text-field.v-text-field--outline .v-input__slot
+    background-color: #FFF!important
+
+.white-text-field .v-text-field__slot
+    padding-bottom: 8px
 
 #send-text-btn
     height: 154px

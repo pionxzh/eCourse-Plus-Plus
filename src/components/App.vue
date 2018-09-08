@@ -1,11 +1,11 @@
 <template lang='pug'>
-    v-app#ccu(:class='{"weather-theme": setting.weatherTheme}')
+    v-app#ccu(:class='{"weather-theme": setting.weatherTheme}' style='background-color: #FFF;' dark)
         v-navigation-drawer.gray-bg(persistent v-model='flag.drawer' enable-resize-watcher app)
             v-toolbar#personal-info.pa-3(flat)
                 v-list.pa-0(two-line)
                     v-list-tile.px-4(v-if='!User.loggedIn')
                         v-list-tile-content
-                            v-btn(color='primary' aria-label='login' @click='flag.login = true' :loading='loading' :disabled='loading' dark) 登入
+                            v-btn(color='primary' aria-label='login' @click='flag.login = true' :loading='loading' :disabled='loading') 登入
                     v-list-tile.px-4(avatar ripple v-else)
                         v-list-tile-avatar(size=58)
                             div#avatar-overlay(@click='$refs.avatar.click()')
@@ -19,19 +19,20 @@
                                 v-icon.blue-grey--text.lighten-1--text.body-1 mdi-map-marker
                                 span {{User.department}} | {{User.classes}}
 
-            v-list.pt-0.striped.course-list(dense :two-line='isMobile' :three-line='!isMobile')
+            v-list.pt-0.striped.course-list(dense :two-line='isMobile' :three-line='!isMobile' light)
                 v-list-tile
-                    v-list-tile-action
+                    v-list-tile-action: div
                     v-list-tile-content
                         v-list-tile-title#course-head
                             span 課程列表
                     v-list-tile-action
                         v-tooltip(right)
-                            v-btn(icon color='green lighten-3' aria-label='table' slot='activator' :to='{ name: "table"}')
+                            v-btn(icon color='green lighten-3' aria-label='table' slot='activator' :to='{ name: "table"}' light)
                                 v-icon mdi-table-large
                             span 課表
                 v-list-tile(v-for='(item, index) in CourseList' :key='item.id' :to="{name: 'Course', params: {id: item.id}}" :ripple='!isMobile')
                     v-list-tile-action
+                        div
                     v-list-tile-content
                         v-list-tile-title.course-list-name
                             span {{item.name}}
@@ -40,15 +41,15 @@
         v-toolbar#color-nav(dark color='primary' fixed app :class='{"is-scroll": isScroll}')
             v-toolbar-side-icon(@click.stop='flag.drawer = !flag.drawer'): v-icon mdi-menu
             router-link.cursor-p(tag='div' to='/')
-                v-toolbar-title#ecourse-logo.no-select eCourse+
+                v-toolbar-title#ecourse-logo.no-select.ml-2 eCourse+
             v-spacer
-            v-menu#notify-menu(left offset-y nudge-top='-10' min-width=200 :max-width='isMobile ? 340:600' :max-height='isMobile ? 500:500')
+            v-menu#notify-menu.mr-1(left offset-y nudge-top='-10' min-width=200 :max-width='isMobile ? 340:600' :max-height='isMobile ? 500:500')
                 v-btn#notification-btn(icon aria-label='notify' slot='activator')
                     v-badge(overlap v-show='Notify.length' :color='setting.weatherTheme ? "red darken-1" : "blue"')
                         span(slot='badge') {{Notify.length}}
                         v-icon mdi-bell
                     v-icon(v-show='!Notify.length') mdi-bell
-                v-card#notify-card.elevation-8
+                v-card#notify-card.elevation-8(light)
                     v-card-title 通知
                         v-spacer
                         a(v-show='Notify.length>0' @click='updateNotify(null)') 清除全部
@@ -89,7 +90,7 @@
             v-menu(left offset-y nudge-top='-10')
                 v-btn#setting-btn(icon aria-label='setting' slot='activator')
                     v-icon mdi-settings
-                v-list
+                v-list(light)
                     v-list-tile.list__tile--link(@click='flag.setting = true')
                         v-list-tile-title.fix-icon
                             v-icon mdi-settings
@@ -125,14 +126,15 @@
             div#mountain(v-if='setting.weatherTheme' :class='{"horizon": $route.path === "/"}')
         v-content(:class='{"mb-5": $route.params.id, "mb-0": !$route.params.id}')
             transition(name='slide' mode='out-in')
-                v-jumbotron.main-card(v-if='$route.path === "/"' gradient='to right top, #1867c0, #19e5f4' height='auto' dark)
+                //div.main-card.main-page(v-if='$route.path === "/"')
+                div.main-card.main-page(v-if='$route.path === "/"')
                     v-container(fill-height align-center :class='{"py-5": !isMobile}')
                         v-layout.text-xs-center(align-center wrap)
                             v-flex.no-select(xs12)
                                 v-avatar.grey.lighten-4(:size='isMobile ? 174 : 194' :class='{"mt-4": isMobile, "mt-5": !isMobile}')
                                     img(src='../../static/icon.png' alt='Logo')
-                                    div(:class="{mobile: isMobile}").img-circle
-                                h1.display-3.head-name eCourse+
+                                    div(:class='{mobile: isMobile}').img-circle
+                                h1.head-name eCourse+
                                 div.headline.mb-3.mx-3 輕鬆瀏覽公告、作業、教材與成績
                                 div.mb-5
                                     v-tooltip(top)
@@ -150,13 +152,12 @@
                                 v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='loading' :disabled='loading' @click='flag.login = true' large)
                                     strong 開始使用
                                 v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && isMobile && !isApp' @click='showpPrompt' large)
-                                    v-icon mdi-apps
-                                    strong &nbsp;添加為App
-                                v-btn.mb-2(color='pink' v-if='User.loggedIn && (!isMobile | isApp)' to='/timeTable' large) #[v-icon mdi-apps] #[strong 查看課表]
-                                div.mt-3 v1.0.10
-                                div - 新增當日作業提醒
-                                div - 修復Firefox相容性問題
+                                    | #[v-icon mdi-apps] #[strong 添加為App]
+                                v-btn.mb-2(color='pink' v-if='User.loggedIn && (!isMobile | isApp)' to='/timeTable' large)
+                                    | #[v-icon mdi-apps] #[strong 查看課表]
+                                div.mt-3 v1.0.11
                                 div - 修正多個錯誤
+                                div - 改進效能
                 v-container(fluid v-else)
                     transition(name='slide' mode='out-in')
                         keep-alive
@@ -183,18 +184,18 @@
                 v-icon mdi-brightness-6
                 v-toolbar-title 主題
                 v-spacer
-                v-btn.mr-3(icon @click='flag.theme = false'): v-icon mdi-close
-            v-card.dialog-box
+                v-btn(icon @click='flag.theme = false'): v-icon mdi-close
+            v-card.dialog-box(light)
                 v-container(fluid grid-list-md)
                     v-layout(row wrap)
                         v-flex(xs6)
                             v-card.theme-card(@click.native='setting.weatherTheme=false')
-                                v-card-media(:src="require('../assets/nav.png')" height='200px')
+                                v-img(:src="require('../assets/nav.png')" height='200px')
                                 v-card-text 預設主題<br class='hidden-md-and-up'> ( • ̀ω•́ )
 
                         v-flex(xs6)
                             v-card.theme-card(@click.native='setting.weatherTheme=true')
-                                v-card-media(:src="require('../assets/weather.png')" height='200px')
+                                v-img(:src="require('../assets/weather.png')" height='200px')
                                 v-card-text 天色主題<br class='hidden-md-and-up'> ε≡ﾍ( ´∀`)ﾉ
 
         v-dialog(v-model='flag.setting' max-width=450 :fullscreen='isMobile' scroll)
@@ -202,8 +203,8 @@
                 v-icon mdi-wrench
                 v-toolbar-title 設定
                 v-spacer
-                v-btn.mr-3(icon @click='flag.setting = false'): v-icon mdi-close
-            v-list.tile-hover(two-line subheader :class='{"mt-5": isMobile}')
+                v-btn(icon @click='flag.setting = false'): v-icon mdi-close
+            v-list.tile-hover(two-line subheader :class='{"mt-5": isMobile}' light)
                 template(v-for='(item, key) in settingData')
                     v-subheader.no-select(:key='key') {{ key }}
                     v-list-tile(v-for='subItem in item' :key='subItem.title' ripple avatar @click='')
@@ -220,13 +221,14 @@
                     v-list-tile-content
                         v-list-tile-title 清除資料
                         v-list-tile-sub-title 如發生異常，通常清除資料可以解決大部分問題
+
         v-dialog(v-model='flag.about' max-width=450)
             v-toolbar.red.no-select(dark)
                 v-icon mdi-flash-circle
                 v-toolbar-title 關於
                 v-spacer
-                v-btn.mr-3(icon @click='flag.about = false'): v-icon mdi-close
-            v-list.tile-hover(two-line subheader)
+                v-btn(icon @click='flag.about = false'): v-icon mdi-close
+            v-list.tile-hover(two-line subheader light)
                 v-subheader.no-select 關於
                 v-list-tile(ripple avatar @click='')
                     v-list-tile-action
@@ -262,8 +264,9 @@
                     v-list-tile-content
                         v-list-tile-title Paypal
                         v-list-tile-sub-title 如果你覺得我的作品不錯，歡迎贊助我一杯咖啡☕
-        v-dialog(width='300px' v-model='flag.login')
-            v-card.dialog-box
+
+        v-dialog(v-model='flag.login' width='300px')
+            v-card.dialog-box(light)
                 v-card-title.headline: div.text-xs-center 登入帳號
                 v-card-text(style='font-size: 15px;') ※請輸入#[b 單一入口帳號密碼]
                     v-container(grid-list-md)
@@ -277,8 +280,9 @@
                     v-btn(color='blue darken-1' aria-label='login' :loading='loading' @click='login(false)' large dark)
                         | #[v-icon mdi-flash] 登入
                     v-spacer
-        v-dialog(width='500px' v-model='flag.error')
-            v-card.dialog-box
+
+        v-dialog(v-model='flag.error' width='500px')
+            v-card.dialog-box(light)
                 v-card-title.headline 哎呀! 發生錯誤了 _(´ཀ`」 ∠)_
                 v-card-text(style='font-size: 16px;')
                     p 錯誤類型: #[b {{ err.title }}]
@@ -286,7 +290,6 @@
                     p.mt-5 1. 若問題重複出現，可嘗試在右上角#[b 設定]底部選擇#[b 清除資料]
                     p 2. #[b Ping error]就不要理他了 不重要
                     p 2. 若問題仍無改善，請回報至 #[b #[u pionxzh@csie.io]]<br/>信件標題以#[b 【問題回報】]為開頭，包含螢幕截圖(錯誤訊息)、錯誤所需重作步驟。
-
 
 </template>
 
@@ -303,7 +306,7 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
     name: 'Ecourse',
     data: () => ({
-        isApp: false,
+        isApp: window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches,
         loading: false,
         isScroll: false,
         focusItem: null,
@@ -432,18 +435,15 @@ export default {
         }
     },
     async created () {
-        if (this.isMobile) this.flag.drawer = false
-        this.isApp = this.isWebApp()
+        if (this.isMobile) {
+            this.flag.drawer = false
+            window.addEventListener('beforeinstallprompt', this.onInstall, false)
+        }
         this.currWeather = this.weather[Math.floor(Math.random() * 100 % 7)]
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
 
         window.addEventListener('err', this.onError)
-        window.addEventListener('beforeinstallprompt', (event) => {
-            event.preventDefault()
-            this.deferredPrompt = event
-            return false
-        })
 
         if (navigator.onLine) await this.autoLogin()
         else {
@@ -455,8 +455,7 @@ export default {
         setting: {
             handler () {
                 this.updateSetting(this.setting)
-            },
-            deep: true
+            }
         }
     },
     methods: {
@@ -473,11 +472,14 @@ export default {
         onScroll: debounce(function () {
             this.isScroll = window.scrollY > 100
         }, 100),
+        onInstall (event) {
+            event.preventDefault()
+            window.removeEventListener('beforeinstallprompt', this.onInstall, false)
+            this.deferredPrompt = event
+            return false
+        },
         toTop () {
             window.scroll({ top: 0, behavior: 'smooth' })
-        },
-        isWebApp () {
-            return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches
         },
         showToast ({message = '', color = 'success', multi = false} = {}) {
             this.toast.show = true

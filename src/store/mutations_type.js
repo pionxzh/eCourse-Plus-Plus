@@ -1,7 +1,6 @@
 // Mutation key
 
 export const LOAD = 'LOAD'
-export const USER = 'USER'
 export const TABLE = 'TABLE'
 export const COURSE = 'COURSE'
 export const ANNOUNCE = 'ANNOUNCE'

@@ -14,6 +14,7 @@ export default class Homework {
             if (homework.data.indexOf('沒有修課') > -1) return {stat: true, data: [[], [], []]}
             let result = /var js\s=\s(.+)/.exec(homework.data)[1]
             let homeworkData = JSON.parse(result.slice(0, -1))
+            // homeworkData = homeworkData
             console.log('Homework:\n', homeworkData)
             return {stat: true, data: this.parseData(homeworkData)}
         } catch (e) {
@@ -53,6 +54,7 @@ export default class Homework {
                     id: nItem[1],
                     title: nItem[0],
                     content: nItem[4] || '沒有內容',
+                    url: `${config.ecourse.HOST}/${courseID}/homework/${nItem[1]}/teacher/Question.`,
                     percentage: nItem[2],
                     timeStamp: nItem[3]
                 })

@@ -1,9 +1,9 @@
-<template lang="pug">
+<template lang='pug'>
     div#app
-        transition(name=page mode="out-in")
+        transition(name=page mode='out-in')
             router-view
 </template>
 
-<style lang="stylus">
+<style lang='stylus'>
     @import './stylus/main'
 </style>

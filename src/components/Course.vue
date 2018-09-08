@@ -7,12 +7,12 @@
                         v-toolbar-side-icon(v-show='search.title'): v-icon mdi-menu
                         v-toolbar-title.no-select(v-show='search.title') 公告
                         v-spacer
-                        v-btn.mr-3(:ripple='false' icon aria-label='search' v-show='!search.flag' @click='toggleSearch')
+                        v-btn(:ripple='false' icon aria-label='search' v-show='!search.flag' @click='toggleSearch')
                             v-icon mdi-magnify
                         v-text-field.exp-search(type='text' label='搜尋標題' ref='search' solo
-                            prepend-icon='mdi-magnify' @blur='toggleSearch' light
+                            prepend-inner-icon='mdi-magnify' @blur='toggleSearch' light
                             v-model='search.keyword' :class='{"open": search.flag}')
-                    v-list.tile-hover.pa-0(two-line subheader)
+                    v-list.tile-hover.pa-0(two-line subheader light)
                         v-subheader(v-show='search.keyword') 搜尋結果
                         template(v-for='(item, index) in AnnounceList')
                             v-list-tile(avatar :key='item.id' v-show='item.title.indexOf(search.keyword) > -1'
@@ -37,7 +37,7 @@
                             v-btn(icon aria-label='score' slot='activator' @click='showScore')
                                 v-icon mdi-chart-line
                             span 成績
-                    v-list.tile-hover.pa-0(two-line subheader)
+                    v-list.tile-hover.pa-0(two-line subheader light)
                         template(v-for='(item, index) in HomeworkList')
                             v-alert(type='error' icon='mdi-alert' transition='scale-transition' :value='true' v-if='item.timeStamp === today')
                                 span(style='font-size: 16px;') ▼▼▼ 作業今日到期 😱
@@ -52,7 +52,7 @@
                                         v-list-tile-sub-title {{ item.timeStamp }} / {{ item.percentage }}%
                                     v-list-tile-action(v-if='HwFile[item.id] && !!HwFile[item.id].type')
                                         v-tooltip(top)
-                                            v-btn(icon aria-label='type' @click.stop='downloadQues(item.id, HwFile[item.id].type)' slot='activator')
+                                            v-btn(icon aria-label='type' :href='item.url+HwFile[item.id].type' target='_blank' slot='activator')
                                                 v-icon(large color='grey lighten-1') {{ fileType[HwFile[item.id].type] || 'mdi-file' }}
                                             span 作業題目
                                     v-list-tile-action(v-if='!isMobile')
@@ -66,12 +66,12 @@
 
         transition(:name='isMobile ? "slide-x-transition" : "slide-x-reverse-transition"')
             v-flex.pl-2(xs12 md4 v-if='(isMobile && tag === "textbook") || (!isMobile && tag !== "score")')
-                v-card#textbook.main-card.elevation-1(color='grey lighten-5' flat)
+                v-card#textbook.main-card.elevation-1(color='grey lighten-5' flat light)
                     v-toolbar(color='orange' flat dark)
                         v-toolbar-side-icon: v-icon mdi-menu
                         v-toolbar-title.no-select 教材
-                        v-spacer
-                        v-btn.mr-2(aria-label='search' icon): v-icon mdi-magnify
+                        //v-spacer
+                        //v-btn(aria-label='search' icon): v-icon mdi-magnify
                     v-list.pa-0(two-line subheader)
                         v-list-tile(v-if='Setting.showIntro' @click='getIntro')
                             v-list-tile-avatar
@@ -86,22 +86,22 @@
                                 v-list-tile-title 教師資訊
                         v-divider(v-if='Setting.showDivider')
                         template(v-for='(item, index) in TextbookList.list')
-                            v-list-group(:key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index][0]')
+                            v-list-group(:key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index]')
                                 v-list-tile(slot='activator' ripple)
                                     v-list-tile-content
                                         v-list-tile-title {{ item[0] }}
-                                template(v-for='nitem in TextbookList.content[index][0]')
-                                    v-list-tile(:key='nitem[0]' :title='nitem[0]' @click.native='downloadTextbook(nitem[1])')
+                                template(v-for='nitem in TextbookList.content[index]')
+                                    v-list-tile(:key='nitem.filename' :title='nitem.filename' :href='nitem.path' target='_blank')
                                         v-list-tile-action
-                                            v-icon(large) {{ fileType[nitem[4]] || 'mdi-file' }}
+                                            v-icon(large) {{ fileType[nitem.ext] || 'mdi-file' }}
                                         v-list-tile-content
-                                            v-list-tile-title {{ nitem[0] }}
-                                            v-list-tile-sub-title {{ nitem[3].split(' ')[0] }}
+                                            v-list-tile-title {{ nitem.filename }}
+                                            v-list-tile-sub-title {{ nitem.time.split(' ')[0] }}
                                     v-divider(v-if='Setting.showDivider')
                             v-divider(v-if='Setting.showDivider')
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
             v-flex.pl-2(xs12 md6 offset-md1 v-if='tag === "score"')
-                v-card#score-card.main-card(color='grey lighten-5' flat :class='{"elevation-1": !Setting.scoreStyle2}')
+                v-card#score-card.main-card(color='grey lighten-5' flat :class='{"elevation-1": !Setting.scoreStyle2}' light)
                         v-toolbar(color='red' flat dark)
                             v-toolbar-side-icon.ml-2: v-icon mdi-menu
                             v-toolbar-title.no-select 成績
@@ -123,7 +123,7 @@
                                         v-btn.score-block(flat aria-label='score' outline) {{ slime.score }}
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
             v-flex.pl-2(xs12 md4 v-if='tag === "score"')
-                v-card#roll-card.main-card.elevation-1(color='grey lighten-5' flat)
+                v-card#roll-card.main-card.elevation-1(color='grey lighten-5' flat light)
                     v-toolbar(color='purple' flat dark)
                         v-toolbar-side-icon.ml-2: v-icon mdi-menu
                         v-toolbar-title.no-select 點名
@@ -139,7 +139,7 @@
 
 
         v-dialog(v-model='announce.flag' :max-width='isMobile ? 350 : 490')
-            v-card#announce.announce-dialog-box
+            v-card#announce.announce-dialog-box(light)
                 v-snackbar(:timeout='1000' top=true bottom=false absolute=true color='success' v-model='announce.toastShow') {{announce.message}}
                 v-card-title.headline
                     div.text-xs-center(:class='{"hidden-more-text": isMobile}')
@@ -155,7 +155,7 @@
                     v-btn(flat aria-label='close' color='green darken-1' @click.native='announce.flag = false') 關閉
                     v-spacer
         v-dialog(v-model='homework.flag' max-width=490)
-            v-card#hw.announce-dialog-box
+            v-card#hw.announce-dialog-box(light)
                 v-card-title.headline
                     div.text-xs-center(:class='{"hidden-more-text": isMobile}')
                         span {{ homework.title }}
@@ -168,7 +168,7 @@
                     v-btn(flat aria-label='close' color='green darken-1' @click.native='homework.flag = false') 關閉
                     v-spacer
         v-dialog(v-model='uploadHW.flag' max-width=600 persistent)
-            v-card#file-upload.announce-dialog-box(style='background-color: #f2f2f2;')
+            v-card#file-upload.announce-dialog-box(light style='background-color: #f2f2f2;')
                 v-snackbar(:timeout='1000' top=true bottom=false :color='uploadHW.toastColor'
                     v-model='uploadHW.toastShow' absolute=true) {{uploadHW.message}}
                 div.headline.text-xs-center.pa-3 作業上傳
@@ -195,7 +195,7 @@
                         v-flex(xs12)
                             v-layout(row wrap)
                                 v-flex(xs8 sm9 md10)
-                                    v-text-field#send-text-input.white-text-field(v-model='uploadHW.content' label='直接上傳答案文字' textarea auto-grow style='margin-top: -18px;')
+                                    v-textarea#send-text-input.white-text-field(outline v-model='uploadHW.content' label='直接上傳答案文字' auto-grow)
                                 v-flex.pl-2(xs4 sm3 md2)
                                     v-tooltip(left)
                                         v-btn#send-text-btn.mt-0(aria-label='send' color='red darken-1' @click='uploadText($event)' slot='activator' block dark)
@@ -244,21 +244,22 @@ export default {
             flag: false,
             text: '',
             title: '',
-            contnet: '',
+            content: '',
             toastShow: false,
             toastColor: 'success',
             message: ''
         },
         homework: {
+            id: null,
             flag: false,
             title: '',
-            contnet: ''
+            content: ''
         },
         scoreUpdate: {},
         uploadHW: {
+            flag: false,
             workID: 0,
             content: '',
-            flag: false,
             list: {},
             toastShow: false,
             toastColor: 'success',
@@ -419,22 +420,22 @@ export default {
         showHomework (index) {
             let key = this.HomeworkList[index].id
             if (!this.HomeworkList[index].content) return
-            this.homework.id = key
-            this.homework.title = this.HomeworkList[index].title
-            this.homework.content = this.HomeworkList[index].content
-            this.homework.flag = true
+
+            this.homework = {
+                id: key,
+                title: this.HomeworkList[index].title,
+                content: this.HomeworkList[index].content,
+                flag: true
+            }
             if (this.HwNotify[this.HomeworkList[index].id]) {
                 this.updateHwNotify([this.courseID, key])
             }
         },
         copyAnnounce () {
             if (!Util.copyToClipboard(this.announce.text)) return
+
             this.announce.message = '已將內容複製到剪貼簿。'
             this.announce.toastShow = true
-        },
-        downloadTextbook (url) {
-            let link = `${config.ecourse.HOST}${url.slice(8)}`
-            Util.openLink(link, this.Setting.isDownloadTextbook)
         },
         async getIntro () {
             await Course.changeCourse(this.courseID)
@@ -443,10 +444,6 @@ export default {
         async getTeacherInfo () {
             await Course.changeCourse(this.courseID)
             Util.openLink(config.ecourse.TEACHER_INFO, false)
-        },
-        downloadQues (id, type) {
-            const link = `${config.ecourse.HOST}/${this.courseID}/homework/${id}/teacher/Question.${type}`
-            Util.openLink(link, this.Setting.isDownloadQuestion)
         },
         async downloadAns (fileName) {
             await Course.changeCourse(this.courseID)

@@ -1,9 +1,5 @@
 import * as types from './mutations_type.js'
 
-export const updateUser = ({ commit }, userData) => {
-    commit(types.USER, userData)
-}
-
 export const updateTimeTable = ({ commit }, timeTable) => {
     commit(types.TABLE, timeTable)
 }

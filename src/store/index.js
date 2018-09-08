@@ -8,14 +8,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        userData: {
-            loggedIn: false,
-            username: '',
-            name: '',
-            studentId: '',
-            department: '',
-            classes: ''
-        },
         template: {},
         timeTable: [],
         courseList: [],

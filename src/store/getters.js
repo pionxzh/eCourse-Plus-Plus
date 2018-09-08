@@ -1,9 +1,5 @@
 // 存放 getter 函式，只負責取 state 供元件使用
 
-export const getUser = state => {
-    return state.userData
-}
-
 export const getTimeTable = state => {
     return state.timeTable
 }

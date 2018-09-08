@@ -10,6 +10,7 @@ export default class Textbook {
             let result1 = /var Textbook\s=\s(.+)/.exec(textbook.data)[1]
             let result2 = /var ChapTitle\s=\s(.+)/.exec(textbook.data)[1]
             let textbookData = JSON.parse(result1.slice(0, -1))
+
             console.log('Textbook:\n', textbookData)
 
             let chapterTitle = JSON.parse(result2.slice(0, -1))

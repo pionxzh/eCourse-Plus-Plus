@@ -3,13 +3,10 @@ import Vue from 'vue'
 import orderBy from 'lodash/orderBy'
 import * as types from './mutations_type.js'
 
+const config = require('../config.json')
+
 // mutations
 export const mutations = {
-    [types.USER] (state, userData) {
-        Object.keys(userData).forEach(key => {
-            Vue.set(state.userData, key, userData[key])
-        })
-    },
     [types.TABLE] (state, timeTable) {
         state.timeTable = timeTable
         localStorage.timeTable = JSON.stringify(timeTable)
@@ -42,7 +39,17 @@ export const mutations = {
         state.template.forEach((element, index) => {
             temp[element] = {}
             temp[element].list = chapter[index] || {0: {0: '所有教材'}}
-            temp[element].content = textbook[index]
+            temp[element].content = textbook[index].map(subject => {
+                return subject[0] === null ? null : subject[0].map(item => {
+                    return {
+                        filename: item[0],
+                        path: `${config.ecourse.HOST}${item[1].slice(8)}`,
+                        date: item[2],
+                        time: item[3],
+                        ext: item[4]
+                    }
+                })
+            })
         })
         state.textbookData = temp
         localStorage.textbook = JSON.stringify(state.textbookData)
