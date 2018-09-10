@@ -220,11 +220,12 @@
 </template>
 
 <script>
+import Bus from '../eventBus.js'
+
 import Util from '../util/Util'
 import Score from '../util/Score'
 import Course from '../util/Course'
 import Homework from '../util/Homework'
-import { mapGetters, mapActions } from 'vuex'
 
 const config = require('../config.json')
 
@@ -292,47 +293,38 @@ export default {
         }
     }),
     computed: {
-        ...mapGetters({
-            CourseList: 'getCourseList',
-            Announce: 'getAnnounce',
-            Homework: 'getHomework',
-            Textbook: 'getTextbook',
-            Score: 'getScore',
-            Roll: 'getRoll',
-            Setting: 'getSetting',
-            HomeworkFile: 'getHomeworkFile',
-            AnnouceNotify: 'getAnnNotify',
-            HomeworkNotify: 'getHwNotify'
-        }),
         courseID () {
             return this.$route.params.id
         },
         AnnounceList () {
-            return this.Announce[this.$route.params.id] || []
+            return Bus.Announce[this.$route.params.id] || []
         },
         HomeworkList () {
-            return this.Homework[this.$route.params.id] || []
+            return Bus.Homework[this.$route.params.id] || []
         },
         TextbookList () {
-            return this.Textbook[this.$route.params.id] || {list: {}}
+            return Bus.Textbook[this.$route.params.id] || {list: {}}
         },
         ScoreData () {
-            return this.Score[this.$route.params.id] || {'目前沒有成績': null}
+            return Bus.Score[this.$route.params.id] || {'目前沒有成績': null}
         },
         RollData () {
-            return this.Roll[this.$route.params.id] || []
+            return Bus.Roll[this.$route.params.id] || []
         },
         HwFile () {
-            return this.HomeworkFile[this.$route.params.id] || {}
+            return Bus.HomeworkFile[this.$route.params.id] || {}
         },
         HwAns () {
-            return this.homeworkAns[this.$route.params.id] || {}
+            return Bus.homeworkAns[this.$route.params.id] || {}
         },
         AnnNotify () {
-            return this.AnnouceNotify[this.$route.params.id] || {}
+            return Bus.AnnouceNotify[this.$route.params.id] || {}
         },
         HwNotify () {
-            return this.HomeworkNotify[this.$route.params.id] || {}
+            return Bus.HomeworkNotify[this.$route.params.id] || {}
+        },
+        Setting () {
+            return Bus.Setting
         }
     },
     watch: {
@@ -369,12 +361,6 @@ export default {
         next()
     },
     methods: {
-        ...mapActions([
-            'updateScore',
-            'updateRoll',
-            'updateAnnNotify',
-            'updateHwNotify'
-        ]),
         toggleSearch () {
             if (this.search.flag) {
                 this.search.flag = false
@@ -414,7 +400,8 @@ export default {
             this.announce.content = content
             this.announce.flag = true
             if (this.AnnNotify[key]) {
-                this.updateAnnNotify([this.courseID, key])
+                // this.updateAnnNotify([this.courseID, key])
+                Bus.$emit('updateAnnNotify', [this.courseID, key])
             }
         },
         showHomework (index) {
@@ -428,7 +415,8 @@ export default {
                 flag: true
             }
             if (this.HwNotify[this.HomeworkList[index].id]) {
-                this.updateHwNotify([this.courseID, key])
+                // this.updateHwNotify([this.courseID, key])
+                Bus.$emit('updateHwNotify', [this.courseID, key])
             }
         },
         copyAnnounce () {
@@ -460,8 +448,10 @@ export default {
             await Course.changeCourse(courseID)
 
             let [score, roll] = await Promise.all([Score.getScore(), Score.getRoll()])
-            this.updateScore([courseID, score])
-            this.updateRoll([this.courseID, roll])
+            // this.updateScore([courseID, score])
+            Bus.$emit('updateScore', [courseID, score])
+            // this.updateRoll([this.courseID, roll])
+            Bus.$emit('updateRoll', [courseID, roll])
         },
         async showUpload (workID) {
             this.uploadHW.workID = workID

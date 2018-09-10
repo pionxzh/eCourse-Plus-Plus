@@ -2,10 +2,10 @@
     v-container#course-table(align-center)
         v-layout.text-xs-center(wrap ref='layout')
             v-flex(xs12 style='z-index: 3;')
-                div.term(@click='changeTerm(1)') 上學期
+                div.term(@click='changeTerm(107, 1)') 上學期
                 v-btn(flat icon :loading='loading' @click='fetch')
                     v-icon#reload-table(light) mdi-refresh
-                div.term(@click='changeTerm(2)') 下學期
+                div.term(@click='changeTerm(106, 2)') 下學期
 
             v-flex(xs2 sm2 md1)
                 div.time-item(v-for='(item, index) in hour' :key='item'
@@ -51,7 +51,8 @@ export default {
         height: 0.5,
         timeHeight: 10,
         isMobile: window.innerWidth < 600,
-        term: 2,
+        year: 107,
+        term: 1,
         selected: null,
         loading: false,
         week: ['星期一', '星期二', '星期三', '星期四', '星期五'],
@@ -70,12 +71,13 @@ export default {
             if (!localStorage.user) return alert('請先登入')
             this.loading = true
             await CourseTable.login()
-            let result = await CourseTable.getData(this.term)
+            let result = await CourseTable.getData(this.year, this.term)
             if (result) this.table = result
             else alert('更新失敗!選課系統維護中')
             this.loading = false
         },
-        async changeTerm (term) {
+        async changeTerm (year, term) {
+            this.year = year
             this.term = term
             await this.fetch()
         },

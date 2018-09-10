@@ -294,14 +294,15 @@
 </template>
 
 <script>
+import Bus from '../eventBus.js'
 import Util from '../util/Util'
 import User from '../util/User'
 import Course from '../util/Course'
 import Announce from '../util/Announce'
 import Homework from '../util/Homework'
 import Textbook from '../util/Textbook'
+
 import debounce from 'lodash/debounce'
-import { mapGetters, mapActions } from 'vuex'
 
 export default {
     name: 'Ecourse',
@@ -413,11 +414,6 @@ export default {
         }
     }),
     computed: {
-        ...mapGetters({
-            Notify: 'getNotify',
-            HomeworkData: 'getHomework',
-            CourseList: 'getCourseList'
-        }),
         loginData () {
             return {
                 id: this.account.username,
@@ -432,6 +428,15 @@ export default {
                 case 'textbook': return 'orange'
                 case 'score': return 'red'
             }
+        },
+        Notify () {
+            return Bus.Notify
+        },
+        HomeworkData () {
+            return Bus.Homework
+        },
+        CourseList () {
+            return Bus.CourseList
         }
     },
     async created () {
@@ -455,20 +460,11 @@ export default {
         setting: {
             handler () {
                 this.updateSetting(this.setting)
-            }
+            },
+            deep: true
         }
     },
     methods: {
-        ...mapActions([
-            'updateCourse',
-            'updateAnnounce',
-            'updateHomework',
-            'updateTextbook',
-            'updateSetting',
-            'updateHwFile',
-            'updateNotify',
-            'loadLocalData'
-        ]),
         onScroll: debounce(function () {
             this.isScroll = window.scrollY > 100
         }, 100),
@@ -528,13 +524,20 @@ export default {
                 this.$set(this.User, key, userData[key])
             })
         },
+        updateSetting (setting) {
+            Object.keys(setting).forEach(key => {
+                this.$set(this.settingData, key, setting[key])
+            })
+            Bus.$emit('updateSetting', this.settingData)
+        },
         async autoLogin () {
             if (!localStorage.user) {
                 this.flag.drawer = false
                 return
             }
 
-            this.loadLocalData()
+            // this.loadLocalData()
+            Bus.$emit('loadLocalData')
             this.loading = true
             const mainPage = await User.getIndex()
             if (mainPage.indexOf('權限錯誤') === -1) {
@@ -579,18 +582,25 @@ export default {
             let user = User.getData(mainPage)
             let courrseList = Course.getList(mainPage)
             this.updateUser(user)
-            this.updateCourse(courrseList.data)
+
+            // this.updateCourse(courrseList.data)
+            Bus.$emit('updateCourse', courrseList.data)
+
             if (localStorage[`avatar${this.User.studentId}`]) {
                 this.avatar = localStorage[`avatar${this.User.studentId}`]
             }
 
             let [announce, homework, textbook] = await Promise.all([Announce.getData(), Homework.getData(), Textbook.getData()])
-            this.updateAnnounce(announce.data)
-            this.updateHomework(homework.data)
-            this.updateTextbook(textbook.data)
+            // this.updateAnnounce(announce.data)
+            Bus.$emit('updateAnnounce', announce.data)
+            // this.updateHomework(homework.data)
+            Bus.$emit('updateHomework', homework.data)
+            // this.updateTextbook(textbook.data)
+            Bus.$emit('updateTextbook', textbook.data)
 
             let homeworkFile = await Homework.getAllQuestion(this.HomeworkData)
-            this.updateHwFile(homeworkFile.data)
+            // this.updateHwFile(homeworkFile.data)
+            Bus.$emit('updateHwFile', homeworkFile.data)
 
             let isError = !announce.stat || !homework.stat || !homeworkFile.stat || !textbook.stat
             if (isError) this.showToast({message: '取得資料錯誤', color: 'error'})

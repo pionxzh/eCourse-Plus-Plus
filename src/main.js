@@ -1,8 +1,8 @@
 import Vue from 'vue'
-import Vuex from 'vuex'
+// import Vuex from 'vuex'
 
 import App from './Layout'
-import store from './store'
+// import store from './store'
 import router from './router'
 // import Vuetify from 'vuetify'
 import {
@@ -37,7 +37,7 @@ import { Scroll, Ripple } from 'vuetify/es5/directives'
 // Vue.config.performance = true
 Vue.config.productionTip = false
 
-Vue.use(Vuex)
+// Vue.use(Vuex)
 // Vue.use(Vuetify)
 Vue.use(Vuetify, {
     components: {
@@ -74,6 +74,6 @@ Vue.use(Vuetify, {
 new Vue({
     el: '#app',
     router,
-    store,
+    // store,
     render: create => create(App)
 })

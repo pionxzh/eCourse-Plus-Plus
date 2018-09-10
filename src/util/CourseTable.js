@@ -13,19 +13,23 @@ export default class CourseTable {
         this.session = /session_id=([\w\d]+)/.exec(result.request.responseURL)[1]
     }
 
-    static async getData (term) {
-        const temp = await axios.get(config.kiki.TABLE, {params: {year: '106', term: term, session_id: this.session}})
+    static async getData (year, term) {
+        const temp = await axios.get(config.kiki.TABLE, {params: {year: year, term: term, session_id: this.session}})
         .catch(e => { Util.errHandler(e, 'Kiki getData Error') })
         if (temp.data.indexOf('暫時關閉') > -1) return false
 
-        let parser = new DOMParser()
-        let dom = parser.parseFromString(temp.data, 'text/html')
+        const parser = new DOMParser()
+        const dom = parser.parseFromString(temp.data, 'text/html')
+
+        const firstCol = dom.querySelector('table:nth-child(6) > tbody > tr:nth-child(1) > th:nth-child(1) > font').textContent
+        const offset = firstCol === '篩選狀態' ? 1 : 0
+
         let node = [...dom.querySelectorAll('table:nth-child(6) > tbody > tr:not(:nth-child(1)) > th')]
         node = node.map(item => item.textContent)
         let table = [[], [], [], [], []]
-        for (let i = 0; i < node.length; i += 9) {
+        for (let i = 0; i < node.length; i += (9 + offset)) {
             /* 一8,9 、二C 四C、三E,F => replace all white space and comma */
-            let arr = node[i + 6].replace(/\s/g, '').match(/[^\w^,]+|[\w,]+/ig)
+            let arr = node[i + 6 + offset].replace(/\s/g, '').match(/[^\w^,]+|[\w,]+/ig)
             let date = arr.filter((val, index) => !(index % 2))
             let time = arr.filter((val, index) => index % 2)
             time = time.map(item => {
@@ -46,15 +50,14 @@ export default class CourseTable {
                 let day = '一二三四五'.indexOf(item)
                 if (index < 0) return
                 table[day].push({
-                    id: node[i + 0],
-                    name: node[i + 2],
-                    professor: node[i + 3],
-                    required: node[i + 5],
-                    date: item,
+                    id: node[i + offset + 0],
+                    name: node[i + offset + 2],
+                    professor: node[i + offset + 3],
+                    required: node[i + offset + 5],
                     start: time[index][0],
                     end: time[index][1],
                     time: time[index][2],
-                    location: node[i + 7]
+                    location: node[i + offset + 7]
                 })
             })
         }
