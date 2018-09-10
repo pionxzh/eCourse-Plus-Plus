@@ -6,6 +6,14 @@ const config = require('./config.json')
 const Bus = new Vue({
     data: () => ({
         template: [],
+        User: {
+            loggedIn: false,
+            username: '',
+            name: '',
+            studentId: '',
+            department: '',
+            classes: ''
+        },
         CourseList: [],
         Announce: {},
         Homework: {},
@@ -17,16 +25,17 @@ const Bus = new Vue({
         AnnounceNotify: {},
         HomeworkNotify: {},
         Notify: []
-        /*
-        ,
-        *HomeworkData: {},
-        *CourseList: []
-        */
     }),
     created () {
         this.$on('updateCourse', (courseList) => {
             this.CourseList = courseList
             localStorage.courseList = JSON.stringify(courseList)
+        })
+
+        this.$on('updateUser', (userData) => {
+            Object.keys(userData).forEach(key => {
+                this.$set(this.User, key, userData[key])
+            })
         })
 
         this.$on('updateAnnounce', ([template, announceData, announceNotify, notice]) => {

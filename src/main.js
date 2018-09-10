@@ -1,9 +1,7 @@
 import Vue from 'vue'
-// import Vuex from 'vuex'
-
 import App from './Layout'
-// import store from './store'
 import router from './router'
+
 // import Vuetify from 'vuetify'
 import {
     Vuetify,
@@ -21,9 +19,9 @@ import {
     VJumbotron,
     VList,
     VMenu,
-    VSubheader,
-    VSnackbar,
     VSwitch,
+    VSnackbar,
+    VSubheader,
     VToolbar,
     VTooltip,
     VTextarea,
@@ -74,6 +72,5 @@ Vue.use(Vuetify, {
 new Vue({
     el: '#app',
     router,
-    // store,
     render: create => create(App)
 })

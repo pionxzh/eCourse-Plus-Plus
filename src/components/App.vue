@@ -5,7 +5,7 @@
                 v-list.pa-0(two-line)
                     v-list-tile.px-4(v-if='!User.loggedIn')
                         v-list-tile-content
-                            v-btn(color='primary' aria-label='login' @click='flag.login = true' :loading='loading' :disabled='loading') 登入
+                            v-btn(color='primary' aria-label='login' @click='flag.login = true' :loading='User.loading' :disabled='User.loading') 登入
                     v-list-tile.px-4(avatar ripple v-else)
                         v-list-tile-avatar(size=58)
                             div#avatar-overlay(@click='$refs.avatar.click()')
@@ -125,43 +125,10 @@
                 rect.gradient-fg(x='0' y='0' width='1' height='1' mask='url(#mask)')
             div#mountain(v-if='setting.weatherTheme' :class='{"horizon": $route.path === "/"}')
         v-content(:class='{"mb-5": $route.params.id, "mb-0": !$route.params.id}')
-            transition(name='slide' mode='out-in')
-                //div.main-card.main-page(v-if='$route.path === "/"')
-                div.main-card.main-page(v-if='$route.path === "/"')
-                    v-container(fill-height align-center :class='{"py-5": !isMobile}')
-                        v-layout.text-xs-center(align-center wrap)
-                            v-flex.no-select(xs12)
-                                v-avatar.grey.lighten-4(:size='isMobile ? 174 : 194' :class='{"mt-4": isMobile, "mt-5": !isMobile}')
-                                    img(src='../../static/icon.png' alt='Logo')
-                                    div(:class='{mobile: isMobile}').img-circle
-                                h1.head-name eCourse+
-                                div.headline.mb-3.mx-3 輕鬆瀏覽公告、作業、教材與成績
-                                div.mb-5
-                                    v-tooltip(top)
-                                        v-btn.mx-3(icon large color='white' href='https://fb.me/EcourseP' target='_blank' rel='noopener' slot='activator')
-                                            v-icon(color='primary') mdi-facebook
-                                        span Facebook
-                                    v-tooltip(top)
-                                        v-btn.mx-3(icon large color='white' slot='activator')
-                                            v-icon(color='primary') mdi-twitter
-                                        span 其實沒有twitter
-                                    v-tooltip(top)
-                                        v-btn.mx-3(icon large color='white' href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener' slot='activator')
-                                            v-icon(color='primary') mdi-github-circle
-                                        span GitHub
-                                v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='loading' :disabled='loading' @click='flag.login = true' large)
-                                    strong 開始使用
-                                v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && isMobile && !isApp' @click='showpPrompt' large)
-                                    | #[v-icon mdi-apps] #[strong 添加為App]
-                                v-btn.mb-2(color='pink' v-if='User.loggedIn && (!isMobile | isApp)' to='/timeTable' large)
-                                    | #[v-icon mdi-apps] #[strong 查看課表]
-                                div.mt-3 v1.0.11
-                                div - 修正多個錯誤
-                                div - 改進效能
-                v-container(fluid v-else)
-                    transition(name='slide' mode='out-in')
-                        keep-alive
-                            router-view(:tab.sync='tag' :focusItem.sync='focusItem')
+            v-container(fluid fill-height align-center :class='{"py-5": !isMobile, "main-page": $route.path === "/"}')
+                transition(name='slide' mode='out-in')
+                    keep-alive
+                        router-view(:tab.sync='tag' :focusItem.sync='focusItem')
 
         v-bottom-nav.hidden-md-and-up(app fixed shift :active.sync='tag' :color='bottomNavColor' v-if='$route.params.id')
             v-btn(dark value='announce')
@@ -277,7 +244,7 @@
                                 v-text-field(label='密碼' type='password' v-model='account.password' @keyup.enter='login(false)')
                 v-card-actions
                     v-spacer
-                    v-btn(color='blue darken-1' aria-label='login' :loading='loading' @click='login(false)' large dark)
+                    v-btn(color='blue darken-1' aria-label='login' :loading='User.loading' @click='login(false)' large dark)
                         | #[v-icon mdi-flash] 登入
                     v-spacer
 
@@ -307,11 +274,8 @@ import debounce from 'lodash/debounce'
 export default {
     name: 'Ecourse',
     data: () => ({
-        isApp: window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches,
-        loading: false,
         isScroll: false,
         focusItem: null,
-        deferredPrompt: null,
         today: Util.getToday(),
         isMobile: window.innerWidth < 800,
         tag: 'announce',
@@ -319,23 +283,14 @@ export default {
             username: '',
             password: ''
         },
-        User: {
-            loggedIn: false,
-            username: '',
-            name: '',
-            studentId: '',
-            department: '',
-            classes: ''
-        },
         err: {
             title: '',
             message: ''
         },
         avatar: '',
-        notifyColor: ['red darken-1', 'blue', 'orange', 'cyan', 'purple', 'brown'],
-
-        weather: ['dawn', 'golden-hour', 'golden-hour-end', 'sunset', 'dusk', 'night'],
         currWeather: null,
+        notifyColor: ['red darken-1', 'blue', 'orange', 'cyan', 'purple', 'brown'],
+        weather: ['dawn', 'golden-hour', 'golden-hour-end', 'sunset', 'dusk', 'night'],
 
         flag: {
             about: false,
@@ -429,6 +384,9 @@ export default {
                 case 'score': return 'red'
             }
         },
+        User () {
+            return Bus.User
+        },
         Notify () {
             return Bus.Notify
         },
@@ -440,15 +398,12 @@ export default {
         }
     },
     async created () {
-        if (this.isMobile) {
-            this.flag.drawer = false
-            window.addEventListener('beforeinstallprompt', this.onInstall, false)
-        }
+        this.flag.drawer = !this.isMobile
         this.currWeather = this.weather[Math.floor(Math.random() * 100 % 7)]
+        window.addEventListener('err', this.onError)
+
         if (localStorage.setting) this.setting = JSON.parse(localStorage.setting)
         this.updateSetting(this.setting)
-
-        window.addEventListener('err', this.onError)
 
         if (navigator.onLine) await this.autoLogin()
         else {
@@ -468,12 +423,6 @@ export default {
         onScroll: debounce(function () {
             this.isScroll = window.scrollY > 100
         }, 100),
-        onInstall (event) {
-            event.preventDefault()
-            window.removeEventListener('beforeinstallprompt', this.onInstall, false)
-            this.deferredPrompt = event
-            return false
-        },
         toTop () {
             window.scroll({ top: 0, behavior: 'smooth' })
         },
@@ -482,10 +431,6 @@ export default {
             this.toast.color = color
             this.toast.multi = multi
             this.toast.message = message
-        },
-        showpPrompt () {
-            if (this.deferredPrompt) this.deferredPrompt.prompt()
-            else this.showToast({message: '呼叫失敗，可在瀏覽器設定中找到"添加至桌面"選項', color: 'error', multi: true})
         },
         uploadAvatar (e) {
             let file = e.target.files[0]
@@ -519,11 +464,6 @@ export default {
             /* Ping server every 5min to avoid session expired (expired time = 6min ?) */
             setInterval(() => User.ping(), 1000 * 60 * 5)
         },
-        updateUser (userData) {
-            Object.keys(userData).forEach(key => {
-                this.$set(this.User, key, userData[key])
-            })
-        },
         updateSetting (setting) {
             Object.keys(setting).forEach(key => {
                 this.$set(this.settingData, key, setting[key])
@@ -536,12 +476,11 @@ export default {
                 return
             }
 
-            // this.loadLocalData()
             Bus.$emit('loadLocalData')
-            this.loading = true
+            Bus.User.loading = true
             const mainPage = await User.getIndex()
             if (mainPage.indexOf('權限錯誤') === -1) {
-                this.updateUser({username: JSON.parse(localStorage.user).id, loggedIn: true})
+                Bus.$emit('updateUser', {username: JSON.parse(localStorage.user).id, loggedIn: true})
                 await this.fetchData()
                 return
             }
@@ -557,7 +496,7 @@ export default {
             if (!remember) localStorage.user = JSON.stringify(this.loginData)
             this.flag.login = false
             this.showToast({message: '登入成功', color: 'success'})
-            this.updateUser({username: data.username, loggedIn: true})
+            Bus.$emit('updateUser', {username: data.username, loggedIn: true})
             await this.fetchData()
         },
         async logout () {
@@ -575,15 +514,14 @@ export default {
             setTimeout(() => { location.href = '/' }, 1000)
         },
         async fetchData () {
-            this.loading = true
+            Bus.User.loading = true
             this.flag.drawer = true
 
             let mainPage = await User.getIndex()
             let user = User.getData(mainPage)
             let courrseList = Course.getList(mainPage)
-            this.updateUser(user)
+            Bus.$emit('updateUser', user)
 
-            // this.updateCourse(courrseList.data)
             Bus.$emit('updateCourse', courrseList.data)
 
             if (localStorage[`avatar${this.User.studentId}`]) {
@@ -591,22 +529,18 @@ export default {
             }
 
             let [announce, homework, textbook] = await Promise.all([Announce.getData(), Homework.getData(), Textbook.getData()])
-            // this.updateAnnounce(announce.data)
             Bus.$emit('updateAnnounce', announce.data)
-            // this.updateHomework(homework.data)
             Bus.$emit('updateHomework', homework.data)
-            // this.updateTextbook(textbook.data)
             Bus.$emit('updateTextbook', textbook.data)
 
             let homeworkFile = await Homework.getAllQuestion(this.HomeworkData)
-            // this.updateHwFile(homeworkFile.data)
             Bus.$emit('updateHwFile', homeworkFile.data)
 
             let isError = !announce.stat || !homework.stat || !homeworkFile.stat || !textbook.stat
             if (isError) this.showToast({message: '取得資料錯誤', color: 'error'})
             else this.showToast({message: '資料更新成功', color: 'info'})
 
-            this.loading = false
+            Bus.User.loading = false
             if (this.$route.params.id) await Course.changeCourse(this.$route.params.id)
 
             this.keepAlive()

@@ -103,7 +103,7 @@
             v-flex.pl-2(xs12 md6 offset-md1 v-if='tag === "score"')
                 v-card#score-card.main-card(color='grey lighten-5' flat :class='{"elevation-1": !Setting.scoreStyle2}' light)
                         v-toolbar(color='red' flat dark)
-                            v-toolbar-side-icon.ml-2: v-icon mdi-menu
+                            v-toolbar-side-icon: v-icon mdi-menu
                             v-toolbar-title.no-select 成績
                             v-spacer
                             v-tooltip.mr-0.hidden-sm-and-down(left)
@@ -125,7 +125,7 @@
             v-flex.pl-2(xs12 md4 v-if='tag === "score"')
                 v-card#roll-card.main-card.elevation-1(color='grey lighten-5' flat light)
                     v-toolbar(color='purple' flat dark)
-                        v-toolbar-side-icon.ml-2: v-icon mdi-menu
+                        v-toolbar-side-icon: v-icon mdi-menu
                         v-toolbar-title.no-select 點名
                     v-layout.fix-flex(row wrap)
                         template(v-for='item in RollData')
@@ -400,7 +400,6 @@ export default {
             this.announce.content = content
             this.announce.flag = true
             if (this.AnnNotify[key]) {
-                // this.updateAnnNotify([this.courseID, key])
                 Bus.$emit('updateAnnNotify', [this.courseID, key])
             }
         },
@@ -415,7 +414,6 @@ export default {
                 flag: true
             }
             if (this.HwNotify[this.HomeworkList[index].id]) {
-                // this.updateHwNotify([this.courseID, key])
                 Bus.$emit('updateHwNotify', [this.courseID, key])
             }
         },
@@ -448,9 +446,7 @@ export default {
             await Course.changeCourse(courseID)
 
             let [score, roll] = await Promise.all([Score.getScore(), Score.getRoll()])
-            // this.updateScore([courseID, score])
             Bus.$emit('updateScore', [courseID, score])
-            // this.updateRoll([this.courseID, roll])
             Bus.$emit('updateRoll', [courseID, roll])
         },
         async showUpload (workID) {
