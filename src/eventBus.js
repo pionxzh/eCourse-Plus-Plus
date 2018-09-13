@@ -7,6 +7,7 @@ const Bus = new Vue({
     data: () => ({
         template: [],
         User: {
+            modal: false,
             loggedIn: false,
             username: '',
             name: '',
@@ -49,7 +50,7 @@ const Bus = new Vue({
 
         this.$on('updateHomework', ([homeworkData, hwNotify, notice]) => {
             this.Homework = homeworkData
-            this.homeworkNotify = hwNotify
+            this.HomeworkNotify = hwNotify
             this.Notify = this.Notify.concat(notice)
             this.Notify = orderBy(this.Notify, ['timeStamp', 'title'], ['desc', 'asc'])
             localStorage.homework = JSON.stringify(homeworkData)
@@ -125,11 +126,14 @@ const Bus = new Vue({
             localStorage.hwNotify = JSON.stringify(this.HomeworkNotify)
         })
 
-        this.$on('updateNotify', (index) => {
-            if (index === null) {
+        this.$on('updateNotify', (item) => {
+            if (item === null) {
                 this.Notify = []
             } else {
-                this.Notify.splice(index, 1)
+                this.Notify = this.Notify.filter(obj => {
+                    console.log(obj, item)
+                    return obj !== item
+                })
             }
             localStorage.notify = JSON.stringify(this.Notify)
         })

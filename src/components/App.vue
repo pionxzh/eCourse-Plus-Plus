@@ -5,7 +5,7 @@
                 v-list.pa-0(two-line)
                     v-list-tile.px-4(v-if='!User.loggedIn')
                         v-list-tile-content
-                            v-btn(color='primary' aria-label='login' @click='flag.login = true' :loading='User.loading' :disabled='User.loading') 登入
+                            v-btn(color='primary' aria-label='login' @click='showLogin' :loading='User.loading' :disabled='User.loading') 登入
                     v-list-tile.px-4(avatar ripple v-else)
                         v-list-tile-avatar(size=58)
                             div#avatar-overlay(@click='$refs.avatar.click()')
@@ -67,7 +67,7 @@
                                             v-list-tile-sub-title {{ item.timeStamp }}
                             template(v-for='(item, index) in Notify')
                                 v-divider(:key='item.course+item.title')
-                                v-list-tile(ripple avatar :key='item.courseID+item.title' @click.native='toNotify(index)')
+                                v-list-tile(ripple avatar :key='item.courseID+item.title' @click.native='toNotify(item)')
                                     v-list-tile-avatar
                                         v-avatar.notify-avatar(:class='notifyColor[index%6]')
                                             span.white--text {{item.abbr || item.course.substring(0, 2) }}
@@ -104,7 +104,7 @@
                             v-icon mdi-flash-circle
                             | &nbsp;&nbsp;關於本站
                     v-divider
-                    v-list-tile.list__tile--link(v-if='!User.loggedIn' @click='flag.login = true')
+                    v-list-tile.list__tile--link(v-if='!User.loggedIn' @click='User.modal = true')
                         v-list-tile-title
                             v-icon mdi-logout-variant
                             | &nbsp;&nbsp;登入
@@ -232,7 +232,7 @@
                         v-list-tile-title Paypal
                         v-list-tile-sub-title 如果你覺得我的作品不錯，歡迎贊助我一杯咖啡☕
 
-        v-dialog(v-model='flag.login' width='300px')
+        v-dialog(v-model='User.modal' width='300px')
             v-card.dialog-box(light)
                 v-card-title.headline: div.text-xs-center 登入帳號
                 v-card-text(style='font-size: 15px;') ※請輸入#[b 單一入口帳號密碼]
@@ -443,10 +443,13 @@ export default {
             }
             reader.readAsDataURL(file)
         },
-        toNotify (index) {
-            this.$router.push({name: 'Course', params: {id: this.Notify[index].courseID}})
-            this.updateNotify(index)
-            this.focusItem = `${this.Notify[index].type}${this.Notify[index].id}`
+        updateNotify (item) {
+            Bus.$emit('updateNotify', item)
+        },
+        toNotify (item) {
+            this.updateNotify(item)
+            this.$router.push({name: 'Course', params: {id: item.courseID}})
+            this.focusItem = `${item.type}${item.id}`
             setTimeout(() => { this.focusItem = null }, 1300)
         },
         clearAll () {
@@ -466,9 +469,12 @@ export default {
         },
         updateSetting (setting) {
             Object.keys(setting).forEach(key => {
-                this.$set(this.settingData, key, setting[key])
+                this.$set(this.setting, key, setting[key])
             })
-            Bus.$emit('updateSetting', this.settingData)
+            Bus.$emit('updateSetting', this.setting)
+        },
+        showLogin () {
+            Bus.User.modal = true
         },
         async autoLogin () {
             if (!localStorage.user) {
@@ -494,7 +500,7 @@ export default {
             if (!result.stat) return this.showToast({message: result.message, color: 'error'})
 
             if (!remember) localStorage.user = JSON.stringify(this.loginData)
-            this.flag.login = false
+            Bus.User.modal = false
             this.showToast({message: '登入成功', color: 'success'})
             Bus.$emit('updateUser', {username: data.username, loggedIn: true})
             await this.fetchData()

@@ -19,7 +19,7 @@
                     v-btn.mx-3(icon large color='white' href='https://github.com/pionxzh/eCourse-Plus-Plus' target='_blank' rel='noopener' slot='activator')
                         v-icon(color='primary') mdi-github-circle
                     span GitHub
-            v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='User.loading' :disabled='User.loading' @click='flag.login = true' large)
+            v-btn.mb-2.white--text(style='background-color: #e91e63;' v-if='!User.loggedIn' :loading='User.loading' :disabled='User.loading' @click='showLogin' large)
                 strong 開始使用
             v-btn.mb-2.primary--text(color='white' v-if='User.loggedIn && isMobile && !isApp' @click='showpPrompt' large)
                 | #[v-icon mdi-apps] #[strong 添加為App]
@@ -60,6 +60,9 @@ export default {
         showpPrompt () {
             if (this.deferredPrompt) this.deferredPrompt.prompt()
             else alert('呼叫失敗，可在瀏覽器設定中找到"添加至桌面"選項')
+        },
+        showLogin () {
+            Bus.User.modal = true
         }
     }
 }

@@ -314,11 +314,8 @@ export default {
         HwFile () {
             return Bus.HomeworkFile[this.$route.params.id] || {}
         },
-        HwAns () {
-            return Bus.homeworkAns[this.$route.params.id] || {}
-        },
         AnnNotify () {
-            return Bus.AnnouceNotify[this.$route.params.id] || {}
+            return Bus.AnnounceNotify[this.$route.params.id] || {}
         },
         HwNotify () {
             return Bus.HomeworkNotify[this.$route.params.id] || {}
