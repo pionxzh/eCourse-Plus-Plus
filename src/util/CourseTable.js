@@ -22,7 +22,7 @@ export default class CourseTable {
         const dom = parser.parseFromString(temp.data, 'text/html')
 
         const firstCol = dom.querySelector('table:nth-child(6) > tbody > tr:nth-child(1) > th:nth-child(1) > font').textContent
-        const offset = firstCol === '篩選狀態' ? 1 : 0
+        const offset = (firstCol === '篩選狀態' || firstCol === '申請棄選') ? 1 : 0
 
         let node = [...dom.querySelectorAll('table:nth-child(6) > tbody > tr:not(:nth-child(1)) > th')]
         node = node.map(item => item.textContent)

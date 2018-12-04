@@ -6,6 +6,7 @@ import router from './router'
 import {
     Vuetify,
     VApp,
+    VAlert,
     VAvatar,
     VBtn,
     VBadge,
@@ -40,6 +41,7 @@ Vue.config.productionTip = false
 Vue.use(Vuetify, {
     components: {
         VApp,
+        VAlert,
         VAvatar,
         VBtn,
         VBadge,

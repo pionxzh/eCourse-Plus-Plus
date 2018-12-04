@@ -66,8 +66,8 @@
                                             v-list-tile-title 作業#[b 《{{ item.title }}》] 今天到期，去看看吧
                                             v-list-tile-sub-title {{ item.timeStamp }}
                             template(v-for='(item, index) in Notify')
-                                v-divider(:key='item.course+item.title')
-                                v-list-tile(ripple avatar :key='item.courseID+item.title' @click.native='toNotify(item)')
+                                v-divider(:key='item.course+item.title+item.type')
+                                v-list-tile(ripple avatar :key='item.courseID+item.title+item.type' @click.native='toNotify(item)')
                                     v-list-tile-avatar
                                         v-avatar.notify-avatar(:class='notifyColor[index%6]')
                                             span.white--text {{item.abbr || item.course.substring(0, 2) }}
