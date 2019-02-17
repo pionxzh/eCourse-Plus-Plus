@@ -2,10 +2,10 @@
     v-container#course-table(align-center)
         v-layout.text-xs-center(wrap ref='layout')
             v-flex(xs12 style='z-index: 3;')
-                div.term(@click='changeTerm(107, 1)') 上學期
+                div.term(@click='changeTerm(fstTermYear, 1)') 上學期
                 v-btn(flat icon :loading='loading' @click='fetch')
                     v-icon#reload-table(light) mdi-refresh
-                div.term(@click='changeTerm(106, 2)') 下學期
+                div.term(@click='changeTerm(secTermYear, 2)') 下學期
 
             v-flex(xs2 sm2 md1)
                 div.time-item(v-for='(item, index) in hour' :key='item'
@@ -41,6 +41,32 @@ export default {
         else this.fetch()
     },
     mounted () {
+        // automatic calculate the correct year, semester/term things
+        let now = new Date()
+        let [year, month, day] = now.toISOString().split('T')[0].split('-')
+        console.log(year, month, day)
+
+        // 暫定2/1日 7/1為寒暑假分界點
+        // JS月份由0開始 這很工程師
+        const winterVacation = new Date(year, 1, 1)
+        const summerVacation = new Date(year, 6, 1)
+        if (now > winterVacation && now < summerVacation) {
+            this.year = year - 1911 - 1
+            this.term = 2
+            this.fstTermYear = year - 1911 - 1
+            this.secTermYear = year - 1911 - 1
+        } else if (now >= summerVacation) {
+            this.year = year - 1911
+            this.term = 1
+            this.fstTermYear = year - 1911
+            this.secTermYear = year - 1911 - 1
+        } else if (now <= winterVacation) {
+            this.year = year - 1911 - 1
+            this.term = 1
+            this.fstTermYear = year - 1911 - 1
+            this.secTermYear = year - 1911 - 2
+        }
+
         /* ( innerHeight - 128(nav) - 60 ) - total time */
         setTimeout(() => { this.height = (window.innerHeight - 188) / 840 }, 300)
         /* ( innerHeight - 128(nav) - 31*18 ) / 15gap */
@@ -51,6 +77,8 @@ export default {
         height: 0.5,
         timeHeight: 10,
         isMobile: window.innerWidth < 600,
+        fstTermYear: 107,
+        secTermYear: 107,
         year: 107,
         term: 1,
         selected: null,
