@@ -513,7 +513,7 @@ export default {
             localStorage.removeItem('notify')
             localStorage.removeItem('annNotify')
             localStorage.removeItem('hwNotify')
-            /* other localStorage item will be automatically overwrite */
+            /* other localStorage items will be automatically overwrited */
             this.flag.drawer = false
             this.$router.push({path: '/'})
             this.showToast({message: '登出成功', color: 'success'})

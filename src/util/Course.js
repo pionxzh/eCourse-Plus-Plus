@@ -26,11 +26,26 @@ export default class Course {
     }
 
     static async changeCourse (courseID) {
-        /* prevent the repeat of sending request */
-        if (courseID === this.previous) return false
-        this.previous = courseID
+        let now = new Date()
+        let year = now.toISOString().split('T')[0].split('-')[0] - 1911
+        let term = 1
 
-        let temp = await axios.get(config.ecourse.COURSE_SELECT, {responseType: 'arraybuffer', params: {courseid: `107_1_${courseID}`}})
+        // 暫定2/1日 7/1為寒暑假分界點
+        // JS月份由0開始 這很工程師
+        const winterVacation = new Date(year, 1, 1)
+        const summerVacation = new Date(year, 6, 1)
+        if (now > winterVacation && now < summerVacation) {
+            year = year - 1
+            term = 2
+        } else if (now <= winterVacation) {
+            year = year - 1
+        }
+
+        /* prevent the repeat of sending request */
+        if (courseID === this.previousID) return false
+        this.previousID = courseID
+
+        let temp = await axios.get(config.ecourse.COURSE_SELECT, {responseType: 'arraybuffer', params: {courseid: `${year}_${term}_${courseID}`}})
         .catch(e => Util.errHandler)
         return Decoder.decode(temp.data).indexOf('權限錯誤') === -1
     }

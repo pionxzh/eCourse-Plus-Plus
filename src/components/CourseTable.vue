@@ -41,31 +41,7 @@ export default {
         else this.fetch()
     },
     mounted () {
-        // automatic calculate the correct year, semester/term things
-        let now = new Date()
-        let [year, month, day] = now.toISOString().split('T')[0].split('-')
-        console.log(year, month, day)
-
-        // 暫定2/1日 7/1為寒暑假分界點
-        // JS月份由0開始 這很工程師
-        const winterVacation = new Date(year, 1, 1)
-        const summerVacation = new Date(year, 6, 1)
-        if (now > winterVacation && now < summerVacation) {
-            this.year = year - 1911 - 1
-            this.term = 2
-            this.fstTermYear = year - 1911 - 1
-            this.secTermYear = year - 1911 - 1
-        } else if (now >= summerVacation) {
-            this.year = year - 1911
-            this.term = 1
-            this.fstTermYear = year - 1911
-            this.secTermYear = year - 1911 - 1
-        } else if (now <= winterVacation) {
-            this.year = year - 1911 - 1
-            this.term = 1
-            this.fstTermYear = year - 1911 - 1
-            this.secTermYear = year - 1911 - 2
-        }
+        this.getSemester()
 
         /* ( innerHeight - 128(nav) - 60 ) - total time */
         setTimeout(() => { this.height = (window.innerHeight - 188) / 840 }, 300)
@@ -108,6 +84,32 @@ export default {
             this.year = year
             this.term = term
             await this.fetch()
+        },
+        getSemester () {
+             // automatic calculate the correct year, semester/term things
+            let now = new Date()
+            let year = now.toISOString().split('T')[0].split('-')[0] - 1911
+
+            // 暫定2/1日 7/1為寒暑假分界點
+            // JS月份由0開始 這很工程師
+            const winterVacation = new Date(year, 1, 1)
+            const summerVacation = new Date(year, 6, 1)
+            if (now > winterVacation && now < summerVacation) {
+                this.year = year - 1
+                this.term = 2
+                this.fstTermYear = year - 1
+                this.secTermYear = year - 1
+            } else if (now >= summerVacation) {
+                this.year = year
+                // this.term = 1
+                this.fstTermYear = year
+                this.secTermYear = year - 1
+            } else if (now <= winterVacation) {
+                this.year = year - 1
+                // this.term = 1
+                this.fstTermYear = year - 1
+                this.secTermYear = year - 2
+            }
         },
         showInfo (course) {
             this.selected = course.id
