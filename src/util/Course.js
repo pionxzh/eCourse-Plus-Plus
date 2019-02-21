@@ -27,13 +27,15 @@ export default class Course {
 
     static async changeCourse (courseID) {
         let now = new Date()
-        let year = now.toISOString().split('T')[0].split('-')[0] - 1911
+        let year = now.toISOString().split('T')[0].split('-')[0]
         let term = 1
 
         // 暫定2/1日 7/1為寒暑假分界點
         // JS月份由0開始 這很工程師
         const winterVacation = new Date(year, 1, 1)
         const summerVacation = new Date(year, 6, 1)
+
+        year = year - 1911
         if (now > winterVacation && now < summerVacation) {
             year = year - 1
             term = 2
