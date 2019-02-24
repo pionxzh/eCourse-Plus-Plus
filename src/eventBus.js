@@ -64,7 +64,7 @@ const Bus = new Vue({
             let temp = {}
             this.template.forEach((element, index) => {
                 temp[element] = {}
-                temp[element].list = chapter[index] || {0: {0: '所有教材'}}
+                temp[element].list = chapter[index] || [ ['所有教材'] ]
                 temp[element].content = textbook[index].map(subject => {
                     return subject[0] === null ? null : subject[0].map(item => {
                         return {

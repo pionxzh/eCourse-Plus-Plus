@@ -158,12 +158,16 @@
                         v-flex(xs6)
                             v-card.theme-card(@click.native='setting.weatherTheme=false')
                                 v-img(:src="require('../assets/nav.png')" height='200px')
-                                v-card-text 預設主題<br class='hidden-md-and-up'> ( • ̀ω•́ )
+                                v-card-text 預設主題
+                                    br.hidden-md-and-up
+                                    | ( • ̀ω•́ )
 
                         v-flex(xs6)
                             v-card.theme-card(@click.native='setting.weatherTheme=true')
                                 v-img(:src="require('../assets/weather.png')" height='200px')
-                                v-card-text 天色主題<br class='hidden-md-and-up'> ε≡ﾍ( ´∀`)ﾉ
+                                v-card-text 天色主題
+                                    br.hidden-md-and-up
+                                    | ε≡ﾍ( ´∀`)ﾉ
 
         v-dialog(v-model='flag.setting' max-width=450 :fullscreen='isMobile' scroll)
             v-toolbar.blue.no-select(dark :fixed='isMobile')
