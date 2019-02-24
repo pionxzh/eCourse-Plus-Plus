@@ -80,6 +80,17 @@
                                 v-icon mdi-account-card-details
                             span 教師資訊
                     v-list.pa-0(two-line subheader)
+                        v-list-tile.hidden-md-and-up(v-if='Setting.showIntro' @click='getIntro')
+                            v-list-tile-avatar
+                                v-icon(large) mdi-file-account
+                            v-list-tile-content
+                                v-list-tile-title 授課大綱
+                        v-divider(v-if='Setting.showDivider')
+                        v-list-tile.hidden-md-and-up(v-if='Setting.showTeacherInfo' @click='getTeacherInfo')
+                            v-list-tile-avatar
+                                v-icon(large) mdi-file-account
+                            v-list-tile-content
+                                v-list-tile-title 教師資訊
                         v-divider(v-if='Setting.showDivider')
                         template(v-for='(item, index) in TextbookList.list')
                             v-list-group(:key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index]')

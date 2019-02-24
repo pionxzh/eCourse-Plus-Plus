@@ -27,7 +27,7 @@
                 | #[v-icon mdi-apps] #[strong 查看課表]
             div.mt-3 v1.0.12
             div - 修正所有教材不會自動展開的問題
-            div -「授課大綱」、「教師資訊」現在移到卡片的右上角囉
+            div -「授課大綱」、「教師資訊」現在移到卡片的右上角囉(PC)
 </template>
 
 <script>
