@@ -66,7 +66,7 @@ const Bus = new Vue({
                 temp[element] = {}
                 temp[element].list = chapter[index] || [ ['所有教材'] ]
                 temp[element].content = textbook[index].map(subject => {
-                    return subject[0] === null ? null : subject[0].map(item => {
+                    return subject[0] === null ? [] : subject[0].map(item => {
                         return {
                             filename: item[0],
                             path: `${config.ecourse.HOST}${item[1].slice(8)}`,

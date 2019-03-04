@@ -82,13 +82,6 @@ input[type=file]
 .v-tooltip__content
     font-size: 14px
 
-.v-list__group__items li
-    padding-left: 36px
-
-@media screen and (max-width:600px)
-    .v-list__group__items li
-        padding-left: 0
-
 .v-list__tile--link
     transition .3s!important
 
@@ -104,6 +97,9 @@ input[type=file]
 .v-list__group__header
     padding: 0 6px
 
+.v-list__group__items
+    padding-left: 36px!important
+
 .v-list__group__header__prepend-icon i
     font-size: 28px
 
@@ -113,12 +109,6 @@ input[type=file]
 // fix for the hover effect on list
 .theme--light.v-list .v-list__tile--link:hover
     background: rgba(0,0,0,0.12)
-
-.v-list__group__header
-    display: -webkit-box
-
-.v-list__group__items
-    padding-left: 36px
 
 .tile-hover .v-list__tile:hover, .v-list__group__items li:hover
     cursor: pointer
@@ -612,6 +602,7 @@ ul.stripe li:not(.subheader):nth-child(even)
 
 .white-text-field.v-text-field--outline .v-input__slot
     background-color: #FFF!important
+    transition: .3s
 
 .white-text-field .v-text-field__slot
     padding-bottom: 8px

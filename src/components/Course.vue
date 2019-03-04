@@ -71,6 +71,10 @@
                         v-toolbar-side-icon: v-icon mdi-menu
                         v-toolbar-title.no-select 教材
                         v-spacer
+                        //v-tooltip.mr-0.hidden-sm-and-down(left)
+                            v-btn(aria-label='outline' slot='activator' @click='getMaterial' icon)
+                                v-icon mdi-check
+                            span 教材頁面
                         v-tooltip.mr-0.hidden-sm-and-down(left)
                             v-btn(aria-label='outline' slot='activator' @click='getIntro' icon)
                                 v-icon mdi-book-open
@@ -79,20 +83,46 @@
                             v-btn(aria-label='info' slot='activator' @click='getTeacherInfo' icon)
                                 v-icon mdi-account-card-details
                             span 教師資訊
+                        v-divider(vertical)
+                        v-btn(aria-label='info' @click='sortTextbookAsce' icon)
+                            v-icon {{ textBookAsce === 1 ? 'mdi-sort-ascending' : 'mdi-sort-descending' }}
+                        v-menu(offset-y)
+                            v-btn(aria-label='info' slot='activator' @click='' icon)
+                                v-icon {{ textbookSortIcon }}
+                            v-list(light)
+                                v-list-tile(@click='sortTextbookBy("filename")')
+                                    v-list-tile-title
+                                        v-icon mdi-sort-alphabetical
+                                        | &nbsp;檔案名稱
+                                v-list-tile(@click='sortTextbookBy("time")')
+                                    v-list-tile-title
+                                        v-icon mdi-restore-clock
+                                        | &nbsp;上傳時間
+                                v-list-tile(@click='sortTextbookBy("ext")')
+                                    v-list-tile-title
+                                        v-icon mdi-puzzle
+                                        | &nbsp;檔案類型
                     v-list.pa-0(two-line subheader)
                         v-list-tile.hidden-md-and-up(v-if='Setting.showIntro' @click='getIntro')
                             v-list-tile-avatar
                                 v-icon(large) mdi-file-account
                             v-list-tile-content
                                 v-list-tile-title 授課大綱
-                        v-divider(v-if='Setting.showDivider')
+                        v-divider.hidden-md-and-up
                         v-list-tile.hidden-md-and-up(v-if='Setting.showTeacherInfo' @click='getTeacherInfo')
                             v-list-tile-avatar
                                 v-icon(large) mdi-file-account
                             v-list-tile-content
                                 v-list-tile-title 教師資訊
-                        v-divider(v-if='Setting.showDivider')
-                        template(v-for='(item, index) in TextbookList.list')
+
+                        template(v-if='!TextbookList.content[0].length')
+                            v-divider.hidden-md-and-up
+                            v-list-tile
+                                v-list-tile-action
+                                    v-icon(large) mdi-code
+                                v-list-tile-content
+                                    v-list-tile-title 暫無教材
+                        template(v-else v-for='(item, index) in TextbookList.list')
                             v-list-group(:key='item[0]' :value='index === 0 && Setting.expandFirstFolder' prepend-icon='mdi-folder' append-icon='mdi-chevron-down' v-if='TextbookList.content[index]')
                                 v-list-tile(slot='activator' ripple)
                                     v-list-tile-content
@@ -106,11 +136,6 @@
                                             v-list-tile-sub-title {{ nitem.time.split(' ')[0] }}
                                     v-divider(v-if='Setting.showDivider')
                             v-divider(v-if='Setting.showDivider')
-                        v-list-tile(v-if='!TextbookList.content[0]')
-                            v-list-tile-action
-                                v-icon(large) mdi-code
-                            v-list-tile-content
-                                v-list-tile-title 暫無教材
         transition(:name='isMobile ? "slide-x-transition" : "slide-y-reverse-transition"')
             v-flex.pl-2(xs12 md6 offset-md1 v-if='tag === "score"')
                 v-card#score-card.main-card(color='grey lighten-5' flat :class='{"elevation-1": !Setting.scoreStyle2}' light)
@@ -248,6 +273,8 @@ export default {
         isScroll: false,
         today: Util.getToday(),
         isMobile: window.innerWidth < 800,
+        textBookParam: null,
+        textBookAsce: 1,
         search: {
             flag: false,
             title: true,
@@ -315,7 +342,30 @@ export default {
             return Bus.Homework[this.$route.params.id] || []
         },
         TextbookList () {
-            return Bus.Textbook[this.$route.params.id] || {list: {}}
+            if (this.textBookParam === null) {
+                return Bus.Textbook[this.$route.params.id]
+            }
+
+            let temp = Bus.Textbook[this.$route.params.id].content.map(item => {
+                return item.sort((a, b) => (a[this.textBookParam] > b[this.textBookParam] ? 1 : -1) * this.textBookAsce)
+            })
+
+            return {
+                list: Bus.Textbook[this.$route.params.id].list,
+                content: temp
+            }
+        },
+        textbookSortIcon () {
+            switch (this.textBookParam) {
+                case 'filename':
+                    return 'mdi-sort-alphabetical'
+                case 'time':
+                    return 'mdi-restore-clock'
+                case 'ext':
+                    return 'mdi-puzzle'
+                default:
+                    return 'mdi-tag-text-outline'
+            }
         },
         ScoreData () {
             return Bus.Score[this.$route.params.id] || {'目前沒有成績': null}
@@ -431,6 +481,16 @@ export default {
 
             this.announce.message = '已將內容複製到剪貼簿。'
             this.announce.toastShow = true
+        },
+        sortTextbookAsce () {
+            this.textBookAsce = this.textBookAsce === 1 ? -1 : 1
+        },
+        sortTextbookBy (method) {
+            this.textBookParam = method
+        },
+        async getMaterial () {
+            await Course.changeCourse(this.courseID)
+            Util.openLink(config.ecourse.TEXTBOOK_PAGE, false)
         },
         async getIntro () {
             await Course.changeCourse(this.courseID)

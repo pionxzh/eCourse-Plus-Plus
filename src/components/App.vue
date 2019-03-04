@@ -453,6 +453,10 @@ export default {
         toNotify (item) {
             this.updateNotify(item)
             this.$router.push({name: 'Course', params: {id: item.courseID}})
+            if (this.isMobile) {
+                if (item.type === 1) this.tag = 'announce'
+                if (item.type === 2) this.tag = 'homework'
+            }
             this.focusItem = `${item.type}${item.id}`
             setTimeout(() => { this.focusItem = null }, 1300)
         },

@@ -16,6 +16,7 @@
         "ANNOUNCE": "/ec/ecourse/php/courses_news/news.php",
         "HOMEWORK": "/ec/ecourse/php/courses_homework/homework.php",
         "TEXTBOOK": "/ec/ecourse/php/courses_textbook/material.php",
+        "TEXTBOOK_PAGE": "/ec/php/textbook/course_menu.php",
         "COURSE_SELECT": "/ec/php/login_s.php",
         "COURSE_SCORE": "/ec/php/Trackin/SGQueryFrame1.php",
         "UNDER_DIR_FILE": "/ec/ecourse/php/courses_homework/UnderDirFile.php",
