@@ -45,7 +45,7 @@ export default class Score {
     static async getRoll () {
         let roll = await axios.get(config.ecourse.ROLL, {responseType: 'arraybuffer'}).catch(e => Util.errHandler(e, 'Get Roll Error'))
         let rollData = Decoder.decode(roll.data)
-        let reg = /<TD\scolspan="2">([0-9/出缺席]*?)<\/TD>\s*?<TD\scolspan="2">([0-9/出缺席]*?)<\/TD>/g
+        let reg = /<TD\scolspan="2">(.*?)<\/TD>\s*?<TD\scolspan="2">([0-9/出缺席]*?)<\/TD>/g
         let result = []
         let temp
         do {

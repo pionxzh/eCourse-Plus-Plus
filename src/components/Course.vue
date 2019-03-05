@@ -166,7 +166,7 @@
                         v-toolbar-title.no-select 點名
                     v-layout.fix-flex(row wrap)
                         template(v-for='item in RollData')
-                            v-flex.fix-flex-item.roll-wrapper(xs3 sm3 md2)
+                            v-flex.fix-flex-item.roll-wrapper(xs3 sm3 md3)
                                 div.roll-item
                                     div.text(style='font-weight: 800') {{ item[0] }}
                                     div.checkmark(v-if='item[1] === "出席"')
